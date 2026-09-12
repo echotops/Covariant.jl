@@ -1,0 +1,89 @@
+--- types.jl ---
+Tensor
+IndexedTensor
+PartialIndexedTensor
+KroneckerDelta
+IndexedKroneckerDelta
+LeviCivita
+IndexedLeviCivita
+PartialDerivative
+IndexedPartialDerivative
+CovariantDerivative
+IndexedCovariantDerivative
+ExteriorDerivative
+IndexedExteriorDerivative
+HodgeStar
+Basis
+IndexedBasis
+
+--- constructors.jl ---
+Tensor
+Basis
+
+--- indexing.jl ---
+Base.getindex (Tensor)
+Base.getindex (PartialIndexedTensor)
+Base.getindex (KroneckerDelta)
+Base.getindex (LeviCivita)
+Base.getindex (PartialDerivative)
+Base.getindex (CovariantDerivative)
+Base.getindex (ExteriorDerivative)
+Base.getindex (Basis)
+
+--- algebra.jl ---
+⊗ (Tensor, Tensor)
+⊗ (Basis, Basis)
+∧ (Tensor, Tensor)
+Base.+ (IndexedTensor, IndexedTensor)
+Base.- (IndexedTensor, IndexedTensor)
+Base.* (IndexedTensor, IndexedTensor)
+Base.* (IndexedTensor, Number)
+Base./ (IndexedTensor, Number)
+Base.* (IndexedTensor, IndexedKroneckerDelta)
+Base.* (IndexedTensor, IndexedLeviCivita)
+LinearAlgebra.⋅ (Tensor, Tensor)
+symmetrize
+antisymmetrize
+dual_basis
+
+--- calculus.jl ---
+Base.* (IndexedPartialDerivative, IndexedTensor)
+Base.* (IndexedCovariantDerivative, IndexedTensor)
+Base.* (IndexedExteriorDerivative, IndexedTensor)
+HodgeStar
+
+--- geometry.jl ---
+inv
+minkowski
+metric
+christoffel
+levicivita
+lie
+riemann
+ricci
+ricci_scalar
+einstein
+
+--- symbolic.jl ---
+Symbolics.simplify (Tensor)
+Symbolics.simplify (IndexedTensor)
+Symbolics.substitute
+evaluate (Tensor)
+evaluate (Num)
+
+--- visualization.jl ---
+surface_2dembed!
+scalar_2d!
+scalar_2dembed!
+path_2dembed!
+vector_2dembed!
+vectors_2d!
+vectors_2dembed!
+
+--- solver.jl ---
+geodesic!
+solve_geodesic!
+parallel_transport!
+solve_parallel_transport!
+parallel_transport_path!
+solve_parallel_transport_path!

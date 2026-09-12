@@ -1,0 +1,51 @@
+.pagenav {
+    height: 60px;
+    margin: 30px 60px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border);
+}
+
+.button {
+    position: relative;
+    float: left;
+    color: var(--pri);
+    height: 60px;
+    min-width: 100px;
+    border-radius: var(--radius-lg);
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    background-color: var(--bg-l);
+    transition: background-color 0.2s ease;
+}
+
+.button:hover {
+    background-color: var(--border);
+}
+
+.button p {
+    position: relative;
+    height: 18px;
+    margin: 0 15px;
+    margin-top: 8px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.right {
+    float: right;
+}
+
+.right p {
+    justify-content: right;
+}
+
+.title {
+    color: var(--pri);
+    font-size: 14px;
+}
+
+.subtitle {
+    color: var(--accent);
+    font-size: 12px;
+}

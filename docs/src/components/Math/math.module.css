@@ -1,0 +1,9 @@
+.mathblock {
+  background: var(--bg-d);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  margin: 20px 60px;
+  overflow-x: auto;
+  color: var(--tn-white);
+}
