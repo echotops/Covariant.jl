@@ -2,6 +2,8 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 import scalarfield from '../../assets/learn/scalarfield.png';
 
 export default function ScalarFields() {
@@ -13,7 +15,7 @@ export default function ScalarFields() {
                 id="scalar"
                 name="scalar_2d!"
                 code={`scalar_2d!(ax, coordinates, xs, ys, f; kwargs...)`}
-                description={<>Plots a symbolic scalar field as a heatmap in <Math>{'\\mathbb{R}^2'}</Math> by evaluating the field at each point on a coordinate grid using <code>evaluate</code>. The field <code>f</code> must be a symbolic <code>Num</code> expression in the given coordinates. Passes the result to GLMakie's <code>heatmap!</code>. Defaults to the <code>:viridis</code> colormap without interpolation.</>}
+                description={<>Plots a symbolic scalar field as a heatmap in <Math>{'\\mathbb{R}^2'}</Math> by evaluating the field at each point on a coordinate grid using <Ref to={refLinks.evaluate}>evaluate</Ref>. The field <code>f</code> must be a symbolic <code>Num</code> expression in the given coordinates. Passes the result to GLMakie's <code>heatmap!</code>. Defaults to the <code>:viridis</code> colormap without interpolation.</>}
                 args={[
                     ['ax', 'Axis', <>The GLMakie <code>Axis</code> to plot into.</>],
                     ['coordinates', 'Tuple{Num}', <>A tuple of the symbolic variables the field is expressed in, matching the order of <code>xs</code> and <code>ys</code>.</>],

@@ -1,10 +1,10 @@
 :root {
-  --bg-d: #171821;
-  --bg: #1b1c27;
-  --bg-l: #1f202e;
-  --border: #3d4166;
-  --pri: #e5e7eb;
-  --sec: #9ca3af;
+  --bg-d: #0a0b0e;
+  --bg: #0e0f13;
+  --bg-l: #17181e;
+  --border: #34363f;
+  --pri: #e6e7ec;
+  --sec: #989aa5;
   --accent: #7c98ff;
   --accent-l: #a5bcff;
   --success: #5ec98a;
@@ -26,19 +26,28 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
   --font-sans: 'Inter', system-ui, sans-serif;
 
+  /* Type scale — every font-size in the app should reference one of these */
+  --text-xs: 12px;    /* meta labels, badges, captions, sidebar group labels */
+  --text-sm: 13px;    /* nav items, buttons, code, secondary UI text */
+  --text-base: 15px;  /* body copy */
+  --text-lg: 18px;    /* card/argument titles, small sub-headings */
+  --text-xl: 22px;    /* in-page section headings */
+  --text-2xl: 28px;   /* page titles */
+  --text-display: 40px; /* hero headline only */
+
   --topbar-h: 70px;
   --sidebar-w: 270px;
   --right-w: 200px;
   --content-max: 680px;
 
-  --radius-sm: 4px;
+  --radius-sm: 6px;
   --radius-md: 6px;
-  --radius-lg: 10px;
+  --radius-lg: 20px;
 }
 
 body {
   background-color: var(--bg);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   margin: 0;
   overflow-x: hidden;
 }
@@ -67,7 +76,7 @@ body {
 .learn-title {
   font-family: var(--font-sans);
   color: var(--pri);
-  font-size: 28px;
+  font-size: var(--text-2xl);
   margin: 30px 60px;
   max-width: 900px;
 }
@@ -75,7 +84,7 @@ body {
 .learn-heading {
   font-family: var(--font-sans);
   color: var(--pri);
-  font-size: 22px;
+  font-size: var(--text-xl);
   margin: 20px 60px;
   max-width: 900px;
   scroll-margin-top: 80px;
@@ -84,7 +93,7 @@ body {
 .learn-body {
   font-family: var(--font-sans);
   color: var(--sec);
-  font-size: 16px;
+  font-size: var(--text-base);
   margin: 10px 60px;
   max-width: 900px;
   line-height: 1.5;
@@ -96,7 +105,7 @@ body {
   background: var(--bg-d);
   padding: 2px 5px;
   margin: 0 2px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
 }
@@ -139,6 +148,21 @@ body {
 
 .prose a { color: var(--accent); border-bottom: 1px solid rgba(124,152,255,0.3); transition: border-color 0.15s; }
 .prose a:hover { border-color: var(--accent); }
+
+a.ref-link {
+  text-decoration: none;
+  border-bottom: none;
+}
+
+a.ref-link code {
+  color: var(--accent) !important;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+a.ref-link:hover code {
+  border-color: var(--accent) !important;
+  background: rgba(124, 152, 255, 0.1) !important;
+}
 
 .step {
   display: flex;

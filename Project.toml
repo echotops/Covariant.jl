@@ -11,14 +11,16 @@ Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 [weakdeps]
 GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 
 [compat]
 julia = "1.12"
 Symbolics = "7"
+ForwardDiff = "1"
 
 [workspace]
 projects = ["test"]
 
 [extensions]
 CovariantMakie = "GLMakie"
-CovariantSolver = "DifferentialEquations"
+CovariantSolver = ["DifferentialEquations", "ForwardDiff"]

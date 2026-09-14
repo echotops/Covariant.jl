@@ -8,7 +8,7 @@
 
 .title {
     margin: 0 60px;
-    font-size: 20px;
+    font-size: var(--text-lg);
     color: var(--pri);
 }
 
@@ -19,7 +19,7 @@
     padding: 4px 5px;
     margin: 0 10px;
     margin-top: -1px;
-    font-size: 13px;
+    font-size: var(--text-sm);
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
 }

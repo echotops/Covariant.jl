@@ -295,11 +295,82 @@ export const referenceNav = [
                 path: '/reference/parallel-transport',
                 items: [
                     { title: 'parallel_transport!', anchor: 'parallel-transport' },
-                    { title: 'solve_parallel_transport!', anchor: 'solve-parallel-transport' },
+                    { title: 'solve_parallel_transport', anchor: 'solve-parallel-transport' },
                     { title: 'parallel_transport_path!', anchor: 'parallel-transport-path' },
-                    { title: 'solve_parallel_transport_path!', anchor: 'solve-parallel-transport-path' },
+                    { title: 'solve_parallel_transport_path', anchor: 'solve-parallel-transport-path' },
                 ],
             },
         ]
     },
 ];
+
+// Canonical reference-page target for a symbol/type name, used by <Ref> to link
+// mentions in prose to the section that defines them.
+export const refLinks = {
+    Tensor: '/reference/geometric-objects#tensor',
+    Basis: '/reference/geometric-objects#basis',
+
+    KroneckerDelta: '/reference/special-objects#kronecker-delta',
+    LeviCivita: '/reference/special-objects#levi-civita-symbol',
+    HodgeStar: '/reference/special-objects#hodge-star',
+
+    PartialDerivative: '/reference/differential-operators#partial-derivative',
+    CovariantDerivative: '/reference/differential-operators#covariant-derivative',
+    ExteriorDerivative: '/reference/differential-operators#exterior-derivative',
+
+    symmetrize: '/reference/symmetry-and-duality#symmetrize',
+    antisymmetrize: '/reference/symmetry-and-duality#antisymmetrize',
+    dual_basis: '/reference/symmetry-and-duality#dual-basis',
+
+    metric: '/reference/metric-and-connections#metric',
+    inv: '/reference/metric-and-connections#inv',
+    minkowski: '/reference/metric-and-connections#minkowski',
+    christoffel: '/reference/metric-and-connections#christoffel',
+    levicivita: '/reference/metric-and-connections#levi-civita',
+    lie: '/reference/metric-and-connections#lie',
+
+    riemann: '/reference/curvature#riemann',
+    ricci: '/reference/curvature#ricci',
+    ricci_scalar: '/reference/curvature#ricci-scalar',
+    einstein: '/reference/curvature#einstein',
+
+    simplify: '/reference/simplify-evaluate#simplify',
+    substitute: '/reference/simplify-evaluate#substitute',
+    evaluate: '/reference/simplify-evaluate#evaluate',
+
+    'surface_2dembed!': '/reference/surfaces-and-paths#surface-embed',
+    'path_2dembed!': '/reference/surfaces-and-paths#path-embed',
+    'scalar_2d!': '/reference/scalar-fields#scalar',
+    'scalar_2dembed!': '/reference/scalar-fields#scalar-embed',
+    'vectors_2d!': '/reference/vector-fields#vectors',
+    'vectors_2dembed!': '/reference/vector-fields#vectors-embed',
+    'vector_2dembed!': '/reference/vector-fields#vector-embed',
+
+    'geodesic!': '/reference/geodesics#geodesic',
+    geodesic: '/reference/geodesics#geodesic',
+    'solve_geodesic!': '/reference/geodesics#solve-geodesic',
+    solve_geodesic: '/reference/geodesics#solve-geodesic',
+
+    'parallel_transport!': '/reference/parallel-transport#parallel-transport',
+    parallel_transport: '/reference/parallel-transport#parallel-transport',
+    'solve_parallel_transport!': '/reference/parallel-transport#solve-parallel-transport',
+    solve_parallel_transport: '/reference/parallel-transport#solve-parallel-transport',
+    'parallel_transport_path!': '/reference/parallel-transport#parallel-transport-path',
+    parallel_transport_path: '/reference/parallel-transport#parallel-transport-path',
+    'solve_parallel_transport_path!': '/reference/parallel-transport#solve-parallel-transport-path',
+    solve_parallel_transport_path: '/reference/parallel-transport#solve-parallel-transport-path',
+};
+
+// Section (path -> heading/group) lookup, used to derive per-page <title> and search entries.
+export function findSection(pathname) {
+    for (const nav of [learnNav, referenceNav]) {
+        for (const group of nav) {
+            for (const section of group.sections) {
+                if (pathname === section.path || pathname.startsWith(section.path + '/')) {
+                    return { ...section, group: group.title };
+                }
+            }
+        }
+    }
+    return null;
+}

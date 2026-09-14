@@ -8,7 +8,10 @@ export default function DifferentialForms() {
             <p className="learn-title">Differential Forms</p>
             <p className="learn-heading" id="wedge-product">Wedge Product</p>
             <p className="learn-body">
-                A differential k-form is an antisymmetric (0, k)-tensor. Both (0, 0)- and
+                You've already seen an antisymmetric tensor in linear algebra without the name:
+                the 2×2 determinant is an antisymmetric bilinear form, computing the signed area
+                spanned by two vectors and flipping sign when they're swapped. A differential
+                k-form generalizes this — it's an antisymmetric (0, k)-tensor. Both (0, 0)- and
                 (0, 1)-tensors are inherently antisymmetric, so all scalars are 0-forms and
                 all covectors are 1-forms, however not all (0, 2)-tensors are 2-forms. Just
                 as the tensor product can take a (0, k)-tensor and a (0, p)-tensor to a
@@ -35,9 +38,11 @@ result={`(0, 2)-Tensor:
             />
             <p className="learn-heading" id="exterior-derivative">Exterior Derivative</p>
             <p className="learn-body">
-                The exterior derivative takes a k-form to a k+1-form by differentiating and
-                antisymmetrizing the components. One notable property of the exterior derivative
-                is that applying it twice returns the <Math>{`0`}</Math> form
+                If you've taken vector calculus, the exterior derivative is the operation that
+                unifies the gradient, curl, and divergence into one: it takes a k-form to a
+                k+1-form by differentiating and antisymmetrizing the components. One notable
+                property of the exterior derivative is that applying it twice returns
+                the <Math>{`0`}</Math> form
             </p>
             <CodeBlock lang="julia"
 code={`@variables u v
@@ -52,7 +57,8 @@ Num[0.0 u^2; -(u^2) 0.0]
             <p className="learn-heading" id="hodge-star">Hodge Star</p>
             <p className="learn-body">
                 The Hodge star is an isomorphism that maps between k-forms and n-k-forms, where
-                n is the dimension of the underlying space, and requires the definition of a metric
+                n is the dimension of the underlying space, and requires the definition of a metric.
+                In 3D, it's the operation quietly underlying the cross product
             </p>
             <CodeBlock lang="julia"
 code={`e = Basis([

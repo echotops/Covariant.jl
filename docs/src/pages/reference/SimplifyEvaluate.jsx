@@ -2,6 +2,8 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function SimplifyEvaluate() {
     return (
@@ -13,7 +15,7 @@ export default function SimplifyEvaluate() {
                 name="simplify"
                 code={`Symbolics.simplify(A::Tensor)
 Symbolics.simplify(A::IndexedTensor)`}
-                description={<>Applies <code>Symbolics.simplify</code> component-wise to a <code>Tensor</code> or <code>IndexedTensor</code>, simplifying symbolic expressions in each component independently. Returns the same type as the input, with variance and index labels preserved. Most geometry functions accept a <code>simple=true</code> keyword argument as a convenient shorthand for calling <code>simplify</code> on their result.</>}
+                description={<>Applies <code>Symbolics.simplify</code> component-wise to a <Ref to={refLinks.Tensor}>Tensor</Ref> or <code>IndexedTensor</code>, simplifying symbolic expressions in each component independently. Returns the same type as the input, with variance and index labels preserved. Most geometry functions accept a <code>simple=true</code> keyword argument as a convenient shorthand for calling <code>simplify</code> on their result.</>}
                 args={[
                     ['A', 'Tensor | IndexedTensor', <>The tensor whose symbolic components are to be simplified.</>],
                 ]}
@@ -53,7 +55,7 @@ ricci_scalar((θ, φ), e, simple=true)`}
                 id="substitute"
                 name="substitute"
                 code={`Symbolics.substitute(A::Tensor, dict)`}
-                description={<>Substitutes symbolic variables in a <code>Tensor</code> component-wise using a dictionary, applying <code>Symbolics.substitute</code> to each component. Returns a <code>Tensor</code> of the same variance, with the substituted expressions in place of the original symbolic components. Unlike <code>evaluate</code>, substitution does not force numerical evaluation — the result may still contain symbolic expressions if the substitution is partial, or if the replacement values are themselves symbolic.</>}
+                description={<>Substitutes symbolic variables in a <Ref to={refLinks.Tensor}>Tensor</Ref> component-wise using a dictionary, applying <code>Symbolics.substitute</code> to each component. Returns a <Ref to={refLinks.Tensor}>Tensor</Ref> of the same variance, with the substituted expressions in place of the original symbolic components. Unlike <Ref to={refLinks.evaluate}>evaluate</Ref>, substitution does not force numerical evaluation — the result may still contain symbolic expressions if the substitution is partial, or if the replacement values are themselves symbolic.</>}
                 args={[
                     ['A', 'Tensor', <>The tensor whose symbolic components are to be substituted.</>],
                     ['dict', 'Dict', <>A dictionary mapping symbolic variables to replacement values or expressions.</>],
@@ -94,7 +96,7 @@ Num[v^6, sin(v^2) + v]
                 name="evaluate"
                 code={`evaluate(A::Tensor, dict)
 evaluate(x::Num, dict)`}
-                description={<>Fully evaluates a symbolic <code>Tensor</code> or scalar <code>Num</code> to floating-point numbers by substituting all symbolic variables from the dictionary and converting the result to <code>Float64</code>. Unlike <code>substitute</code>, all symbolic variables must be accounted for — any remaining free symbols after substitution will cause an error. Useful for computing numerical values of symbolic tensors at a specific point in the coordinate space.</>}
+                description={<>Fully evaluates a symbolic <Ref to={refLinks.Tensor}>Tensor</Ref> or scalar <code>Num</code> to floating-point numbers by substituting all symbolic variables from the dictionary and converting the result to <code>Float64</code>. Unlike <Ref to={refLinks.substitute}>substitute</Ref>, all symbolic variables must be accounted for — any remaining free symbols after substitution will cause an error. Useful for computing numerical values of symbolic tensors at a specific point in the coordinate space.</>}
                 args={[
                     ['A', 'Tensor | Num', <>The symbolic tensor or scalar to evaluate numerically.</>],
                     ['dict', 'Dict', <>A dictionary mapping every symbolic variable to a numeric value. All free symbols in <code>A</code> must be present.</>],

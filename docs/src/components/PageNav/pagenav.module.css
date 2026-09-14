@@ -42,10 +42,10 @@
 
 .title {
     color: var(--pri);
-    font-size: 14px;
+    font-size: var(--text-sm);
 }
 
 .subtitle {
     color: var(--accent);
-    font-size: 12px;
+    font-size: var(--text-xs);
 }

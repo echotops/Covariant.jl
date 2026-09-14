@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import style from './home.module.css';
 import github from '../assets/github.svg';
@@ -42,6 +43,10 @@ const VISUALS = [
 ];
 
 export default function Home() {
+    useEffect(() => {
+        document.title = 'Covariant.jl — Differential Geometry for Julia';
+    }, []);
+
     return (
         <>
             <Topbar />

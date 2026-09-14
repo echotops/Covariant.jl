@@ -1,6 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
+import Search from './components/Search/Search';
 import Home from './pages/Home';
+import Examples from './pages/Examples';
+import ExampleDetail from './pages/examples/ExampleDetail';
+import TorusGeodesics from './pages/examples/TorusGeodesics';
+import EllipsoidCurvature from './pages/examples/EllipsoidCurvature';
+import SphereHolonomy from './pages/examples/SphereHolonomy';
+import Schwarzschild from './pages/examples/Schwarzschild';
+import SpecialRelativity from './pages/examples/SpecialRelativity';
 import Layout from './components/Layout/Layout';
 import {
     GettingStarted,
@@ -37,9 +45,17 @@ export default function App() {
     return (
         <BrowserRouter basename="/Covariant.jl">
             <ScrollToTop />
+            <Search />
             <Routes>
                 <Route path="/" element={<Navigate to="/home" replace />} />
                 <Route path="/home" element={<Home />} />
+                <Route path="/examples" element={<Examples />} />
+                <Route path="/examples/torus-geodesics" element={<TorusGeodesics />} />
+                <Route path="/examples/ellipsoid-curvature" element={<EllipsoidCurvature />} />
+                <Route path="/examples/sphere-holonomy" element={<SphereHolonomy />} />
+                <Route path="/examples/schwarzschild" element={<Schwarzschild />} />
+                <Route path="/examples/special-relativity" element={<SpecialRelativity />} />
+                <Route path="/examples/:slug" element={<ExampleDetail />} />
                 <Route element={<Layout />}>
                     <Route path="/learn/getting-started" element={<GettingStarted />} />
                     <Route path="/learn/tensors" element={<Tensors />} />

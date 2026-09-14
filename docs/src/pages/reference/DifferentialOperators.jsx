@@ -2,6 +2,8 @@ import TypeDocs from '../../components/Docs/TypeDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function DifferentialOperators() {
     return (
@@ -12,7 +14,7 @@ export default function DifferentialOperators() {
                 id="partial-derivative"
                 name="PartialDerivative"
                 code={`struct PartialDerivative{N}`}
-                description={<>The partial derivative operator <Math>{'\\partial'}</Math> with respect to a set of symbolic coordinates. Constructed from a tuple of <code>Symbolics.jl</code> variables and contracted against an <code>IndexedTensor</code> via symbolic indexing, where the index ranges over each coordinate in turn. Produces the correct derivative only when the basis vectors are constant — for non-constant bases, use <code>CovariantDerivative</code> instead.</>}
+                description={<>The partial derivative operator <Math>{'\\partial'}</Math> with respect to a set of symbolic coordinates. Constructed from a tuple of <code>Symbolics.jl</code> variables and contracted against an <code>IndexedTensor</code> via symbolic indexing, where the index ranges over each coordinate in turn. Produces the correct derivative only when the basis vectors are constant — for non-constant bases, use <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref> instead.</>}
                 fields={[
                     ['coordinates', 'NTuple{N, Num}', <>The tuple of symbolic coordinates to differentiate with respect to, defined with the <code>@variables</code> macro.</>],
                 ]}
@@ -50,7 +52,7 @@ Num[2u*v u^2; v 1]
                 id="covariant-derivative"
                 name="CovariantDerivative"
                 code={`struct CovariantDerivative`}
-                description={<>The covariant derivative operator <Math>{'\\nabla'}</Math>, which extends the partial derivative to account for the curvature of the underlying space via connection coefficients. Required when basis vectors are not constant. Constructed from a <Math>{'(1, 2)'}</Math>-tensor of connection coefficients and a <code>PartialDerivative</code>. The connection coefficients can be defined manually or computed from a basis using <code>christoffel</code>, and the Levi-Civita connection can be constructed in one step with <code>levicivita</code>.</>}
+                description={<>The covariant derivative operator <Math>{'\\nabla'}</Math>, which extends the partial derivative to account for the curvature of the underlying space via connection coefficients. Required when basis vectors are not constant. Constructed from a <Math>{'(1, 2)'}</Math>-tensor of connection coefficients and a <Ref to={refLinks.PartialDerivative}>PartialDerivative</Ref>. The connection coefficients can be defined manually or computed from a basis using <Ref to={refLinks.christoffel}>christoffel</Ref>, and the Levi-Civita connection can be constructed in one step with <Ref to={refLinks.levicivita}>levicivita</Ref>.</>}
                 fields={[
                     ['connection', 'Tensor', <>A <Math>{'(1, 2)'}</Math>-tensor holding the connection coefficients <Math>{'\\Gamma^k_{ij}'}</Math>.</>],
                     ['partial', 'PartialDerivative', <>The underlying partial derivative operator, providing differentiation with respect to the coordinates.</>],
@@ -94,7 +96,7 @@ Num[cos(θ) 0; 0 cos(θ)]
                 id="exterior-derivative"
                 name="ExteriorDerivative"
                 code={`struct ExteriorDerivative`}
-                description={<>The exterior derivative operator <Math>{'d'}</Math>, which takes a differential <Math>{'k'}</Math>-form to a <Math>{'(k+1)'}</Math>-form by differentiating and antisymmetrizing the components. Constructed from a <code>PartialDerivative</code> and contracted against an <code>IndexedTensor</code> via symbolic indexing. A key property of the exterior derivative is nilpotency — applying it twice always returns the zero form, <Math>{'d^2 = 0'}</Math>.</>}
+                description={<>The exterior derivative operator <Math>{'d'}</Math>, which takes a differential <Math>{'k'}</Math>-form to a <Math>{'(k+1)'}</Math>-form by differentiating and antisymmetrizing the components. Constructed from a <Ref to={refLinks.PartialDerivative}>PartialDerivative</Ref> and contracted against an <code>IndexedTensor</code> via symbolic indexing. A key property of the exterior derivative is nilpotency — applying it twice always returns the zero form, <Math>{'d^2 = 0'}</Math>.</>}
                 fields={[
                     ['partial', 'PartialDerivative', <>The underlying partial derivative operator, providing differentiation with respect to the coordinates.</>],
                 ]}

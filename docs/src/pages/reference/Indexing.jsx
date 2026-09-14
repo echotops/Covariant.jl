@@ -2,6 +2,8 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function Indexing() {
     return (
@@ -19,7 +21,7 @@ export default function Indexing() {
                 id="tensor-getindex"
                 name="getindex(A, indices...)"
                 code={`Base.getindex(A::Tensor, indices...)`}
-                description={<>Indexes a <code>Tensor</code> along its contravariant indices, or along all indices for a purely covariant tensor. Integer indices slice the component array immediately. Symbolic indices label the index for Einstein summation and return either an <code>IndexedTensor</code> or a <code>PartialIndexedTensor</code>, depending on whether the tensor has remaining covariant indices to be labeled in a second bracket.</>}
+                description={<>Indexes a <Ref to={refLinks.Tensor}>Tensor</Ref> along its contravariant indices, or along all indices for a purely covariant tensor. Integer indices slice the component array immediately. Symbolic indices label the index for Einstein summation and return either an <code>IndexedTensor</code> or a <code>PartialIndexedTensor</code>, depending on whether the tensor has remaining covariant indices to be labeled in a second bracket.</>}
                 args={[
                     ['A', 'Tensor', <>The tensor to index.</>],
                     ['indices...', 'Int | Symbol', <>One index per contravariant index of <code>A</code>, or one per covariant index for a purely covariant tensor. Mixing integers and symbols is allowed.</>],
@@ -96,7 +98,7 @@ L[:i][1]`}
                 id="kronecker-delta-getindex"
                 name="getindex(δ, indices...)"
                 code={`Base.getindex(δ::KroneckerDelta, indices...)`}
-                description={<>Indexes a <code>KroneckerDelta</code> with two indices. Integer indices evaluate immediately, returning <Math>{'1'}</Math> if the indices are equal and <Math>{'0'}</Math> otherwise. Symbolic indices return an <code>IndexedKroneckerDelta</code> for use in Einstein summation.</>}
+                description={<>Indexes a <Ref to={refLinks.KroneckerDelta}>KroneckerDelta</Ref> with two indices. Integer indices evaluate immediately, returning <Math>{'1'}</Math> if the indices are equal and <Math>{'0'}</Math> otherwise. Symbolic indices return an <code>IndexedKroneckerDelta</code> for use in Einstein summation.</>}
                 args={[
                     ['δ', 'KroneckerDelta', <>The Kronecker delta to index.</>],
                     ['indices...', 'Int | Symbol', <>Exactly two indices.</>],
@@ -125,7 +127,7 @@ L[:i][:j] * δ[:i, :k]   # Relabels contravariant index i → k`}
                 id="levi-civita-getindex"
                 name="getindex(ε, indices...)"
                 code={`Base.getindex(ε::LeviCivita, indices...)`}
-                description={<>Indexes a <code>LeviCivita</code> with any number of indices. Integer indices evaluate immediately, returning <Math>{'1'}</Math> for an even permutation, <Math>{'-1'}</Math> for an odd permutation, and <Math>{'0'}</Math> if any two indices are equal. Symbolic indices return an <code>IndexedLeviCivita</code> for use in Einstein summation.</>}
+                description={<>Indexes a <Ref to={refLinks.LeviCivita}>LeviCivita</Ref> with any number of indices. Integer indices evaluate immediately, returning <Math>{'1'}</Math> for an even permutation, <Math>{'-1'}</Math> for an odd permutation, and <Math>{'0'}</Math> if any two indices are equal. Symbolic indices return an <code>IndexedLeviCivita</code> for use in Einstein summation.</>}
                 args={[
                     ['ε', 'LeviCivita', <>The Levi-Civita symbol to index.</>],
                     ['indices...', 'Int | Symbol', <>Any number of indices, matching the dimension of the space.</>],
@@ -154,7 +156,7 @@ v[:i] * u[:j] * ε[:i, :j]   # Signed area`}
                 id="partial-derivative-getindex"
                 name="getindex(∂, indices...)"
                 code={`Base.getindex(∂::PartialDerivative, indices...)`}
-                description={<>Indexes a <code>PartialDerivative</code> with a single symbolic index, returning an <code>IndexedPartialDerivative</code> for use in Einstein summation. Only symbolic indices are accepted — integer indexing returns <code>nothing</code>.</>}
+                description={<>Indexes a <Ref to={refLinks.PartialDerivative}>PartialDerivative</Ref> with a single symbolic index, returning an <code>IndexedPartialDerivative</code> for use in Einstein summation. Only symbolic indices are accepted — integer indexing returns <code>nothing</code>.</>}
                 args={[
                     ['∂', 'PartialDerivative', <>The partial derivative operator to index.</>],
                     ['indices...', 'Symbol', <>A single symbolic index.</>],
@@ -182,7 +184,7 @@ Num[v u; 0 2v]
                 id="covariant-derivative-getindex"
                 name="getindex(∇, indices...)"
                 code={`Base.getindex(∇::CovariantDerivative, indices...)`}
-                description={<>Indexes a <code>CovariantDerivative</code> with a single symbolic index, returning an <code>IndexedCovariantDerivative</code> for use in Einstein summation. Only symbolic indices are accepted — integer indexing returns <code>nothing</code>.</>}
+                description={<>Indexes a <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref> with a single symbolic index, returning an <code>IndexedCovariantDerivative</code> for use in Einstein summation. Only symbolic indices are accepted — integer indexing returns <code>nothing</code>.</>}
                 args={[
                     ['∇', 'CovariantDerivative', <>The covariant derivative operator to index.</>],
                     ['indices...', 'Symbol', <>A single symbolic index.</>],
@@ -211,7 +213,7 @@ Num[cos(θ) 0; 0 cos(θ)]
                 id="exterior-derivative-getindex"
                 name="getindex(d, indices...)"
                 code={`Base.getindex(d::ExteriorDerivative, indices...)`}
-                description={<>Indexes an <code>ExteriorDerivative</code> with a single symbolic index, returning an <code>IndexedExteriorDerivative</code> for use in Einstein summation. Only symbolic indices are accepted — integer indexing returns <code>nothing</code>.</>}
+                description={<>Indexes an <Ref to={refLinks.ExteriorDerivative}>ExteriorDerivative</Ref> with a single symbolic index, returning an <code>IndexedExteriorDerivative</code> for use in Einstein summation. Only symbolic indices are accepted — integer indexing returns <code>nothing</code>.</>}
                 args={[
                     ['d', 'ExteriorDerivative', <>The exterior derivative operator to index.</>],
                     ['indices...', 'Symbol', <>A single symbolic index.</>],
@@ -243,7 +245,7 @@ Num[0.0 0.0; 0.0 0.0;;; 0.0 0.0; 0.0 0.0]
                 id="basis-getindex"
                 name="getindex(e, indices...)"
                 code={`Base.getindex(e::Basis, indices...)`}
-                description={<>Indexes a <code>Basis</code> with either integer or symbolic indices. Integer indices return the corresponding basis element directly. Symbolic indices return an <code>IndexedBasis</code> for use in Einstein summation, enabling contraction with an <code>IndexedTensor</code> to form linear combinations of basis elements.</>}
+                description={<>Indexes a <Ref to={refLinks.Basis}>Basis</Ref> with either integer or symbolic indices. Integer indices return the corresponding basis element directly. Symbolic indices return an <code>IndexedBasis</code> for use in Einstein summation, enabling contraction with an <code>IndexedTensor</code> to form linear combinations of basis elements.</>}
                 args={[
                     ['e', 'Basis', <>The basis to index.</>],
                     ['indices...', 'Int | Symbol', <>One or more integer or symbolic indices.</>],

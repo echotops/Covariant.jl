@@ -46,20 +46,21 @@ end
 """
 Parallel transport along a path problem for the solver
 
-parallel_transport_path!(coordinates, Γ, path, velocity, du, u, p, t)
+parallel_transport_path!(coordinates, Γ, path, du, u, p, t)
 
 # State vector
 u[1:2] - vector being transported
 """
 function parallel_transport_path!(args...; kwargs...)
-    error("Load DifferentialEquations before using parallel_transport_path!")
+    error("Load DifferentialEquations and ForwardDiff before using parallel_transport_path!")
 end
 
 """
-Solve the parallel transport along a path problem given initial conditions
+Solve the parallel transport along a path problem given initial conditions.
+The path's velocity is computed automatically via automatic differentiation.
 
-solve_parallel_transport_path(coordinates, basis, path, velocity, w0, times; abstol=1e-5, reltol=1e-5)
+solve_parallel_transport_path(coordinates, basis, path, w0, times; abstol=1e-5, reltol=1e-5)
 """
 function solve_parallel_transport_path(args...; kwargs...)
-    error("Load DifferentialEquations before using solve_parallel_transport_path")
+    error("Load DifferentialEquations and ForwardDiff before using solve_parallel_transport_path")
 end

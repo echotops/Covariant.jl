@@ -1,6 +1,8 @@
 import CodeBlock from '../../components/Code/CodeBlock';
 import PageNav from '../../components/PageNav/PageNav';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function DifferentialGeometry() {
     return (
@@ -8,8 +10,10 @@ export default function DifferentialGeometry() {
             <p className="learn-title">Differential Geometry</p>
             <p className="learn-heading" id="metric-tensor">Metric Tensor</p>
             <p className="learn-body">
-                The metric tensor holds the inner products of basis vectors. The <code>metric</code>
-                function constructs the metric tensor from a <code>Basis</code>, and an optional
+                The metric tensor holds the inner products of basis vectors — the same information
+                as the Gram matrix from linear algebra, just packaged so it transforms correctly
+                under a change of basis. The <Ref to={refLinks.metric}>metric</Ref>
+                function constructs the metric tensor from a <Ref to={refLinks.Basis}>Basis</Ref>, and an optional
                 inner product, with the standard Euclidean inner product as default
             </p>
             <CodeBlock lang="julia"
@@ -23,7 +27,7 @@ result={`(0, 2)-Tensor:
     (:co, :co)`}
             />
             <p className="learn-body">
-                By passing in the included <code>minkowski</code> metric, the Minkowski metric
+                By passing in the included <Ref to={refLinks.minkowski}>minkowski</Ref> metric, the Minkowski metric
                 can be constructed for Special Relativity
             </p>
             <CodeBlock lang="julia"
@@ -41,7 +45,7 @@ result={`(0, 2)-Tensor:
   (:co, :co)`}
             />
             <p className="learn-body">
-                The metric, along with the inverse metric, found by <code>inv</code>, allows index
+                The metric, along with the inverse metric, found by <Ref to={refLinks.inv}>inv</Ref>, allows index
                 raising and lowering via contraction
             </p>
             <CodeBlock lang="julia"
@@ -57,8 +61,11 @@ Symbolics.Num[-3 2; 6 -4]
             <p className="learn-body">
                 Coordinates can be defined using <code>Symbolics.jl</code> and the <code>@variables</code> macro.
                 This allows the construction of tensors that are functions of the coordinates. Differentiating
-                tensor components is performed with the <code>PartialDerivative</code> type, although
-                this only provides the correct derivative when basis vectors are constant
+                tensor components is performed with the <Ref to={refLinks.PartialDerivative}>PartialDerivative</Ref> type.
+                In linear algebra the basis is fixed, so differentiating components tells you
+                everything about how a vector changes; here the basis can vary from point to point,
+                so <code>PartialDerivative</code> alone only gives the correct derivative when the
+                basis vectors happen to be constant
             </p>
             <CodeBlock lang="julia"
 code={`@variables u v
@@ -71,11 +78,11 @@ Num[v u; 0 2v]
     (:j,), (:i,)`}
             />
             <p className="learn-body">
-                For differentiating tensors with a non-constant basis, the <code>CovariantDerivative</code> type
+                For differentiating tensors with a non-constant basis, the <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref> type
                 is used. Defining a <code>CovariantDerivative</code> requires connection coefficients (also
                 called Christoffel symbols). You can define your own coefficients and pass them in,
-                or use <code>christoffel</code> to calculate the coefficients of the Levi-Civita
-                connection. Alternatively, the shortcut <code>levicivita</code> can define the
+                or use <Ref to={refLinks.christoffel}>christoffel</Ref> to calculate the coefficients of the Levi-Civita
+                connection. Alternatively, the shortcut <Ref to={refLinks.levicivita}>levicivita</Ref> can define the
                 Levi-Civita connection in one line.
             </p>
             <CodeBlock lang="julia"
@@ -96,8 +103,11 @@ Num[cos(θ) 0; 0 cos(θ)]
             />
             <p className="learn-heading" id="curvature">Curvature</p>
             <p className="learn-body">
-                There are a few measurements of curvature provided, the first being the Riemann
-                tensor. Passing the <code>simple=true</code> argument applies <code>simplify</code> to
+                Curvature measures how much a basis twists as it moves across a space — the reason
+                a vector parallel-transported around a small loop doesn't come back to where it
+                started (covered on the Solver page). There are a few measurements of curvature
+                provided, the first being the Riemann
+                tensor. Passing the <code>simple=true</code> argument applies <Ref to={refLinks.simplify}>simplify</Ref> to
                 the result
             </p>
             <CodeBlock lang="julia"
@@ -140,8 +150,9 @@ Num[0.0 0.0; 0.0 0]
             />
             <p className="learn-heading" id="lie-bracket">Lie Bracket</p>
             <p className="learn-body">
-                The Lie bracket of two vector fields <code>lie</code> measures the failure of the
-                vector fields to commute. Starting from a point, it measures the difference between
+                The Lie bracket of two vector fields <Ref to={refLinks.lie}>lie</Ref> measures the failure of the
+                vector fields to commute — similar in spirit to the matrix commutator <Math>{'AB - BA'}</Math>,
+                but for flows rather than fixed linear maps. Starting from a point, it measures the difference between
                 infinitesimal flows along X and then Y, and infinitesimal flows along Y and then X
             </p>
             <CodeBlock lang="julia"

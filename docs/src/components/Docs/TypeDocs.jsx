@@ -7,7 +7,7 @@ export default function TypeDocs({ id, name, code, description, fields=[], child
         <div className={style.docs} id={id}>
             <p className="learn-title">{name}</p>
             <CodeSimple lang="julia" code={code} />
-            <p className="learn-body">{description}</p>
+            <div className="learn-body">{description}</div>
             {fields.length != 0 && <p className="learn-heading">Fields</p>}
             {fields.map((item) => (
                 <div key={item[0]} className={style.attribute}>

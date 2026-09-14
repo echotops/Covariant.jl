@@ -401,6 +401,21 @@ function LinearAlgebra.:⋅(A::Tensor, B::Tensor)
 end
 
 """
+Define the standard Euclidean norm on a (1, 0) tensor.
+
+# Examples
+```
+julia> v = Tensor([3, 4])
+Tensor{Int64, 1}([3, 4], (:contra,))
+julia> norm(v)
+5.0
+```
+"""
+function LinearAlgebra.norm(A::Tensor)
+    return sqrt(A ⋅ A)
+end
+
+"""
 Symmetrizes a tensor A across the specified indices
 
 # Examples

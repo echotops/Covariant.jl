@@ -18,7 +18,7 @@ a {
 
 .logo {
     color: var(--pri);
-    font-size: 14px;
+    font-size: var(--text-base);
 }
 
 .navbar {
@@ -36,13 +36,50 @@ a {
     display: flex;
     align-items: center;
     color: var(--pri);
-    font-size: 14px;
+    font-size: var(--text-base);
     border-radius: 6px;
     transition: background-color 0.2s ease;
 }
 
 .navitem:hover {
     background-color: var(--border);
+}
+
+.search {
+    position: relative;
+    float: right;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 34px;
+    padding: 0 8px 0 12px;
+    margin: 0 15px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--sec);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.search p {
+    margin: 0;
+}
+
+.search:hover {
+    border-color: var(--sec);
+    color: var(--pri);
+}
+
+.searchKbd {
+    font-size: var(--text-xs);
+    color: var(--sec);
+    background: var(--bg-l);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 2px 5px;
 }
 
 .external {
@@ -115,7 +152,7 @@ a {
 }
 
 @media (max-width: 720px) {
-    .navbar, .vbar, .external {
+    .navbar, .vbar, .external, .search {
         display: none;
     }
 
@@ -147,10 +184,18 @@ a {
     }
 
     .mobileNavitem {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+        font-family: var(--font-sans);
         color: var(--pri);
-        font-size: 14px;
+        font-size: var(--text-base);
         padding: 12px 14px;
         border-radius: 6px;
+        cursor: pointer;
+        box-sizing: border-box;
         transition: background-color 0.2s ease;
     }
 

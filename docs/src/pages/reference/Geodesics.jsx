@@ -2,6 +2,8 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 import geodesic from '../../assets/learn/geodesic.png';
 
 export default function Geodesics() {
@@ -21,10 +23,10 @@ export default function Geodesics() {
                 id="geodesic"
                 name="geodesic!"
                 code={`geodesic!(coordinates, Γ, du, u, p, t)`}
-                description={<>The in-place ODE function defining the geodesic equation, for use directly with <code>DifferentialEquations.jl</code>. At each timestep, evaluates the Christoffel symbols <Math>{'\\Gamma'}</Math> at the current position and computes the geodesic acceleration <Math>{'\\ddot{x}^i = -\\Gamma^i_{jk} \\dot{x}^j \\dot{x}^k'}</Math>. The state vector <code>u</code> packs position in <code>u[1:2]</code> and velocity in <code>u[3:4]</code>. Most use cases should call <code>solve_geodesic</code> instead, which wraps this function in an <code>ODEProblem</code> automatically.</>}
+                description={<>The in-place ODE function defining the geodesic equation, for use directly with <code>DifferentialEquations.jl</code>. At each timestep, evaluates the Christoffel symbols <Math>{'\\Gamma'}</Math> at the current position and computes the geodesic acceleration <Math display>{'\\ddot{x}^i = -\\Gamma^i_{jk} \\dot{x}^j \\dot{x}^k'}</Math> The state vector <code>u</code> packs position in <code>u[1:2]</code> and velocity in <code>u[3:4]</code>. Most use cases should call <Ref to={refLinks.solve_geodesic}>solve_geodesic</Ref> instead, which wraps this function in an <code>ODEProblem</code> automatically.</>}
                 args={[
                     ['coordinates', 'Tuple{Num}', <>The symbolic coordinate variables, used to evaluate <code>Γ</code> at the current position.</>],
-                    ['Γ', 'Tensor', <>The <Math>{'(1, 2)'}</Math>-tensor of Christoffel symbols, computed by <code>christoffel</code>.</>],
+                    ['Γ', 'Tensor', <>The <Math>{'(1, 2)'}</Math>-tensor of Christoffel symbols, computed by <Ref to={refLinks.christoffel}>christoffel</Ref>.</>],
                     ['du', 'Vector{Float64}', <>The output derivative vector, mutated in place by the function.</>],
                     ['u', 'Vector{Float64}', <>The current state vector. <code>u[1:2]</code> is position, <code>u[3:4]</code> is velocity.</>],
                     ['p', 'Any', <>Parameters passed through by <code>DifferentialEquations.jl</code>. Not used internally.</>],

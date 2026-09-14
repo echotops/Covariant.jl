@@ -22,10 +22,7 @@ export default function CodeBlock({ code, inset = 0, result = null, img = null, 
 
     return (
         <div className={style.codeblock} style={{ marginLeft: inset + 60 }} data-block="code-block">
-            <div className={style.codeheader}>
-                <span className={style.codelang}>{lang}</span>
-                <span className={style.codecopy} onClick={copy} data-block="code-copy">copy</span>
-            </div>
+            <span className={style.codecopy} onClick={copy} data-block="code-copy">copy</span>
             <pre><code ref={ref} className={`language-${lang}`}>{code}</code></pre>
             <div className={`${style.result} ${result === null ? style.hide : ''}`}>{result}</div>
             <div className={`${style.imgblock} ${img === null ? style.hide : ''}`}>

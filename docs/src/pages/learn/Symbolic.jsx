@@ -1,5 +1,7 @@
 import CodeBlock from '../../components/Code/CodeBlock';
 import PageNav from '../../components/PageNav/PageNav';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function Symbolic() {
     return (
@@ -10,15 +12,15 @@ export default function Symbolic() {
                 functions return components as <code>Num</code>, the symbolic expression type from
                 <code>Symbolics.jl</code>, rather than plain floats. That keeps derivatives and curvature
                 exact instead of approximated, but it also means the expressions need a bit of shaping
-                before they're readable or usable elsewhere. <code>simplify</code>, <code>substitute</code>,
-                and <code>evaluate</code> cover that shaping, from cleaning up an expression to pinning
+                before they're readable or usable elsewhere. <Ref to={refLinks.simplify}>simplify</Ref>, <Ref to={refLinks.substitute}>substitute</Ref>,
+                and <Ref to={refLinks.evaluate}>evaluate</Ref> cover that shaping, from cleaning up an expression to pinning
                 it down to a single number.
             </p>
             <p className="learn-heading" id="simplify">Simplify</p>
             <p className="learn-body">
                 Symbolic results are rarely in their simplest form, since each step of a calculation
                 accumulates whatever terms fall out of it. <code>simplify</code> applies
-                <code>Symbolics.simplify</code> to every component of a <code>Tensor</code>
+                <code>Symbolics.simplify</code> to every component of a <Ref to={refLinks.Tensor}>Tensor</Ref>
                 or <code>IndexedTensor</code>, independently, and returns the same type with the same
                 variance and index labels
             </p>
@@ -46,9 +48,9 @@ result={`2`}
             />
             <p className="learn-heading" id="substitute">Substitute</p>
             <p className="learn-body">
-                <code>substitute</code> replaces symbolic variables in a <code>Tensor</code> with
+                <code>substitute</code> replaces symbolic variables in a <Ref to={refLinks.Tensor}>Tensor</Ref> with
                 concrete values or other expressions, component-wise, using a dictionary. Unlike
-                <code>evaluate</code>, it doesn't force a numerical result, so it's useful for
+                <Ref to={refLinks.evaluate}>evaluate</Ref>, it doesn't force a numerical result, so it's useful for
                 pinning down some coordinates while leaving others symbolic
             </p>
             <CodeBlock lang="julia"
@@ -73,8 +75,8 @@ Num[v^6, sin(v^2) + v]
             />
             <p className="learn-heading" id="evaluate">Evaluate</p>
             <p className="learn-body">
-                <code>evaluate</code> is a stricter version of <code>substitute</code> that fully
-                resolves a symbolic <code>Tensor</code>, or a scalar <code>Num</code>, down to
+                <code>evaluate</code> is a stricter version of <Ref to={refLinks.substitute}>substitute</Ref> that fully
+                resolves a symbolic <Ref to={refLinks.Tensor}>Tensor</Ref>, or a scalar <code>Num</code>, down to
                 <code>Float64</code>. Every free variable has to be given a value, or it raises an
                 error, which makes it the natural last step before handing a result to code that
                 expects plain numbers, like the visualization and solver functions on the following

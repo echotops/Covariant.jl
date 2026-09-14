@@ -8,11 +8,7 @@ export default function Curvature() {
         <>
             <p className="learn-title">Curvature</p>
             <p className="learn-body">
-                The curvature functions form a hierarchy — each builds on the previous.
-                The Riemann tensor encodes the full curvature of a space; contracting one
-                of its indices yields the Ricci tensor; tracing the Ricci tensor with the
-                inverse metric yields the Ricci scalar; and combining all three yields the
-                Einstein tensor. All four functions accept the same <code>coordinates</code> and{' '}
+                All four functions below accept the same <code>coordinates</code> and{' '}
                 <code>basis</code> arguments, and all support <code>simple=true</code> to
                 simplify symbolic results.
             </p>
@@ -21,7 +17,7 @@ export default function Curvature() {
                 id="riemann"
                 name="riemann"
                 code={`riemann(coordinates, basis; simple=false)`}
-                description={<>Computes the Riemann curvature tensor <Math>{'R^l{}_{jki}'}</Math>, a <Math>{'(1, 3)'}</Math>-tensor encoding how parallel transport around an infinitesimal loop fails to return a vector to its original orientation. Computed from the Christoffel symbols via <Math>{'R^l{}_{jki} = \\partial_i \\Gamma^l_{jk} - \\partial_j \\Gamma^l_{ik} + \\Gamma^l_{im} \\Gamma^m_{jk} - \\Gamma^l_{jm} \\Gamma^m_{ik}'}</Math>. A space is flat if and only if the Riemann tensor vanishes everywhere.</>}
+                description={<>Computes the Riemann curvature tensor <Math>{'R^l{}_{jki}'}</Math>, a <Math>{'(1, 3)'}</Math>-tensor encoding how parallel transport around an infinitesimal loop fails to return a vector to its original orientation. Computed from the Christoffel symbols via <Math display>{'R^l{}_{jki} = \\partial_i \\Gamma^l_{jk} - \\partial_j \\Gamma^l_{ik} + \\Gamma^l_{im} \\Gamma^m_{jk} - \\Gamma^l_{jm} \\Gamma^m_{ik}'}</Math> A space is flat if and only if the Riemann tensor vanishes everywhere.</>}
                 args={[
                     ['coordinates', 'Tuple{Num}', <>A tuple of symbolic variables defined with <code>@variables</code>, one per dimension.</>],
                     ['basis', 'Basis', <>A vector <Math>{'(:contra,)'}</Math> basis whose elements are expressions in <code>coordinates</code>.</>],
@@ -58,7 +54,7 @@ Num[0.0 0.0; 0.0 0.0;;; 0.0 0.0; 0.0 0.0;;;; 0.0 0.0; 0.0 0.0;;; 0.0 0.0; 0.0 0.
                 id="ricci"
                 name="ricci"
                 code={`ricci(coordinates, basis; simple=false)`}
-                description={<>Computes the Ricci curvature tensor <Math>{'R_{jk}'}</Math>, a symmetric <Math>{'(0, 2)'}</Math>-tensor obtained by contracting the first and last indices of the Riemann tensor, <Math>{'R_{jk} = R^i{}_{jki}'}</Math>. Measures the degree to which the geometry of a space differs from flat space in each direction — in particular, whether nearby geodesics converge or diverge.</>}
+                description={<>Computes the Ricci curvature tensor <Math>{'R_{jk}'}</Math>, a symmetric <Math>{'(0, 2)'}</Math>-tensor obtained by contracting the first and last indices of the Riemann tensor: <Math display>{'R_{jk} = R^i{}_{jki}'}</Math> Measures the degree to which the geometry of a space differs from flat space in each direction — in particular, whether nearby geodesics converge or diverge.</>}
                 args={[
                     ['coordinates', 'Tuple{Num}', <>A tuple of symbolic variables defined with <code>@variables</code>, one per dimension.</>],
                     ['basis', 'Basis', <>A vector <Math>{'(:contra,)'}</Math> basis whose elements are expressions in <code>coordinates</code>.</>],
@@ -93,7 +89,7 @@ Real[1 0; 0 sin(θ)^2]
                 id="ricci-scalar"
                 name="ricci_scalar"
                 code={`ricci_scalar(coordinates, basis, inner_product=⋅; simple=false)`}
-                description={<>Computes the Ricci scalar <Math>{'R'}</Math>, a single number obtained by tracing the Ricci tensor with the inverse metric, <Math>{'R = g^{ij} R_{ij}'}</Math>. Provides a single coordinate-independent measure of the curvature of a space at each point. On the 2-sphere of unit radius the Ricci scalar is identically <Math>{'2'}</Math>, reflecting constant positive curvature.</>}
+                description={<>Computes the Ricci scalar <Math>{'R'}</Math>, a single number obtained by tracing the Ricci tensor with the inverse metric: <Math display>{'R = g^{ij} R_{ij}'}</Math> Provides a single coordinate-independent measure of the curvature of a space at each point. On the 2-sphere of unit radius the Ricci scalar is identically <Math>{'2'}</Math>, reflecting constant positive curvature.</>}
                 args={[
                     ['coordinates', 'Tuple{Num}', <>A tuple of symbolic variables defined with <code>@variables</code>, one per dimension.</>],
                     ['basis', 'Basis', <>A vector <Math>{'(:contra,)'}</Math> basis whose elements are expressions in <code>coordinates</code>.</>],
@@ -126,7 +122,7 @@ ricci_scalar((x, y), e_flat, simple=true)`}
                 id="einstein"
                 name="einstein"
                 code={`einstein(coordinates, basis, inner_product=⋅; simple=false)`}
-                description={<>Computes the Einstein tensor <Math>{'G_{ij} = R_{ij} - \\frac{1}{2} R g_{ij}'}</Math>, a <Math>{'(0, 2)'}</Math>-tensor combining the Ricci tensor, Ricci scalar, and metric. The Einstein tensor appears on the left-hand side of Einstein's field equations and has the fundamental property that its covariant divergence vanishes identically, <Math>{'\\nabla^i G_{ij} = 0'}</Math>, which encodes the local conservation of energy and momentum.</>}
+                description={<>Computes the Einstein tensor, a <Math>{'(0, 2)'}</Math>-tensor combining the Ricci tensor, Ricci scalar, and metric: <Math display>{'G_{ij} = R_{ij} - \\frac{1}{2} R g_{ij}'}</Math> It appears on the left-hand side of Einstein's field equations and has the fundamental property that its covariant divergence vanishes identically, <Math>{'\\nabla^i G_{ij} = 0'}</Math>, which encodes the local conservation of energy and momentum.</>}
                 args={[
                     ['coordinates', 'Tuple{Num}', <>A tuple of symbolic variables defined with <code>@variables</code>, one per dimension.</>],
                     ['basis', 'Basis', <>A vector <Math>{'(:contra,)'}</Math> basis whose elements are expressions in <code>coordinates</code>.</>],

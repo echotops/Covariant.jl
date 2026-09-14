@@ -7,7 +7,7 @@ export default function FunctionDocs({ id, name, code, description, args=[], kwa
         <div className={style.docs} id={id}>
             <p className="learn-title">{name}</p>
             <CodeSimple lang="julia" code={code} />
-            <p className="learn-body">{description}</p>
+            <div className="learn-body">{description}</div>
             {args.length != 0 && <p className="learn-heading">Arguments</p>}
             {args.map((item) => (
                 <div key={item[0]} className={style.attribute}>

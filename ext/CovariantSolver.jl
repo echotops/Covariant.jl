@@ -2,6 +2,7 @@ module CovariantSolver
 
 using Covariant
 using DifferentialEquations
+using ForwardDiff
 
 """
 Geodesic problem for the solver
@@ -73,9 +74,9 @@ Parallel transport along a path problem for the solver
 # State vector
 u[1:2] - vector being transported
 """
-function Covariant.parallel_transport_path!(coordinates, Γ, path, velocity, du, u, p, t)
+function Covariant.parallel_transport_path!(coordinates, Γ, path, du, u, p, t)
     Γ_num = evaluate(Γ, Dict(coordinates[1]=>path(t)[1], coordinates[2]=>path(t)[2]))
-    v = Tensor([velocity(t)...])
+    v = Tensor(ForwardDiff.derivative(path, t))
     w = Tensor([u[1], u[2]])
     a = Γ_num[:i][:j, :k] * w[:j] * v[:k]
     du[1] = -a.tensor[1]
@@ -84,11 +85,14 @@ end
 
 """
 Solve the parallel transport along a path problem given initial conditions
+
+The path's velocity is computed automatically via automatic differentiation,
+so only the path itself needs to be provided.
 """
-function Covariant.solve_parallel_transport_path(coordinates, basis, path, velocity, w0, times; abstol=1e-5, reltol=1e-5)
+function Covariant.solve_parallel_transport_path(coordinates, basis, path, w0, times; abstol=1e-5, reltol=1e-5)
     Γ = christoffel(coordinates, basis)
     problem = ODEProblem(
-        (du, u, p, t) -> parallel_transport_path!(coordinates, Γ, path, velocity, du, u, p, t),
+        (du, u, p, t) -> parallel_transport_path!(coordinates, Γ, path, du, u, p, t),
         w0, (times[begin], times[end])
     )
     return solve(problem, abstol=abstol, reltol=reltol, saveat=times)

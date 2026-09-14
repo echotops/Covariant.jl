@@ -2,6 +2,8 @@ import TypeDocs from '../../components/Docs/TypeDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function SpecialObjects() {
     return (
@@ -12,7 +14,7 @@ export default function SpecialObjects() {
                 id="kronecker-delta"
                 name="KroneckerDelta"
                 code={`struct KroneckerDelta`}
-                description={<>The Kronecker delta <Math>{'\\delta^i_j'}</Math>, which returns <Math>{'1'}</Math> when its two indices are equal and <Math>{'0'}</Math> otherwise. Constructed with no arguments and contracted against tensors via symbolic indexing, it acts as the identity on index relabeling and is useful for verifying duality conditions between bases.</>}
+                description={<>The Kronecker delta <Math>{'\\delta^i_j'}</Math>, which returns <Math>{'1'}</Math> when its two indices are equal and <Math>{'0'}</Math> otherwise. Constructed with no arguments and contracted against tensors via symbolic indexing.</>}
             >
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
@@ -49,7 +51,7 @@ Id[:i][:i]`}
                 id="levi-civita-symbol"
                 name="LeviCivita"
                 code={`struct LeviCivita`}
-                description={<>The Levi-Civita symbol <Math>{'\\varepsilon_{i_1 i_2 \\cdots i_n}'}</Math>, a completely antisymmetric object that returns <Math>{'1'}</Math> for even permutations of its indices, <Math>{'-1'}</Math> for odd permutations, and <Math>{'0'}</Math> whenever any two indices are equal. Constructed with no arguments and contracted against tensors via symbolic indexing with any number of indices. It is the natural tool for computing cross products, determinants, and antisymmetrization.</>}
+                description={<>The Levi-Civita symbol <Math>{'\\varepsilon_{i_1 i_2 \\cdots i_n}'}</Math>, a completely antisymmetric object that returns <Math>{'1'}</Math> for even permutations of its indices, <Math>{'-1'}</Math> for odd permutations, and <Math>{'0'}</Math> whenever any two indices are equal. Constructed with no arguments and contracted against tensors via symbolic indexing with any number of indices.</>}
             >
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
@@ -83,7 +85,7 @@ v[:i] * v[:j] * ε[:i, :j]`}
                 id="hodge-star"
                 name="HodgeStar"
                 code={`struct HodgeStar`}
-                description={<>The Hodge star operator <Math>{'\\star'}</Math>, an isomorphism that maps a differential <Math>{'p'}</Math>-form to an <Math>{'(n-p)'}</Math>-form, where <Math>{'n'}</Math> is the dimension of the underlying space. Requires a metric tensor, which it uses to raise all covariant indices of the input form and scale by <Math>{'\\sqrt{|\\det g|}'}</Math> before contracting with the Levi-Civita symbol. The input must be a purely covariant <Math>{'(0, p)'}</Math>-tensor. Applied by calling the instance directly on a <code>Tensor</code>.</>}
+                description={<>The Hodge star operator <Math>{'\\star'}</Math>, mapping a differential <Math>{'p'}</Math>-form to an <Math>{'(n-p)'}</Math>-form via <Math display>{'(\\star\\alpha)_{i_{p+1}\\cdots i_n} = \\frac{1}{p!}\\sqrt{|\\det g|}\\ \\varepsilon_{i_1\\cdots i_n}\\alpha^{i_1\\cdots i_p}'}</Math> where <Math>{'n'}</Math> is the space dimension and <Math>{'g'}</Math> is the metric. The input must be a purely covariant <Math>{'(0, p)'}</Math>-tensor. Applied by calling the instance directly on a <Ref to={refLinks.Tensor}>Tensor</Ref>.</>}
                 fields={[
                     ['metric', 'Tensor', <>The <Math>{'(0, 2)'}</Math>-metric tensor used to raise indices and compute the volume factor <Math>{'\\sqrt{|\\det g|}'}</Math>.</>],
                 ]}

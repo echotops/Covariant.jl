@@ -2,7 +2,7 @@
 
 julia_version = "1.12.7"
 manifest_format = "2.0"
-project_hash = "9a5234dcd2f39c5c98ec49d1bb7cf81a16334ae3"
+project_hash = "111a85811787ab78052b1a4df0524f92e27ca671"
 
 [[deps.ADTypes]]
 deps = ["PrecompileTools"]
@@ -172,10 +172,11 @@ version = "0.1.0"
 
     [deps.Covariant.extensions]
     CovariantMakie = "GLMakie"
-    CovariantSolver = "DifferentialEquations"
+    CovariantSolver = ["DifferentialEquations", "ForwardDiff"]
 
     [deps.Covariant.weakdeps]
     DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
+    ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
     GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 
 [[deps.DataStructures]]

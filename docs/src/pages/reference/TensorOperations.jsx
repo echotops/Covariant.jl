@@ -2,6 +2,8 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function TensorOperations() {
     return (
@@ -13,7 +15,7 @@ export default function TensorOperations() {
                 name="⊗"
                 code={`⊗(A::Tensor, B::Tensor)
 ⊗(e::Basis, f::Basis)`}
-                description={<>The tensor product, taking an <Math>{'(m, n)'}</Math>-tensor and a <Math>{'(p, q)'}</Math>-tensor to an <Math>{'(m+p, n+q)'}</Math>-tensor by multiplying every component of <Math>{'A'}</Math> with every component of <Math>{'B'}</Math>. Also defined on two <code>Basis</code> objects, producing a higher-rank basis by taking the tensor product of every pair of elements. Both forms can be chained to build higher-rank tensors and bases.</>}
+                description={<>The tensor product, taking an <Math>{'(m, n)'}</Math>-tensor and a <Math>{'(p, q)'}</Math>-tensor to an <Math>{'(m+p, n+q)'}</Math>-tensor by multiplying every component of <Math>{'A'}</Math> with every component of <Math>{'B'}</Math>. Also defined on two <Ref to={refLinks.Basis}>Basis</Ref> objects, producing a higher-rank basis by taking the tensor product of every pair of elements. Both forms can be chained to build higher-rank tensors and bases.</>}
                 args={[
                     ['A', 'Tensor | Basis', <>The left operand.</>],
                     ['B', 'Tensor | Basis', <>The right operand. Must be the same type as <code>A</code>.</>],
@@ -50,7 +52,7 @@ e ⊗ ε`}
                 id="wedge-product"
                 name="∧"
                 code={`∧(A::Tensor, B::Tensor)`}
-                description={<>The wedge product, taking a differential <Math>{'p'}</Math>-form and a <Math>{'q'}</Math>-form to a <Math>{'(p+q)'}</Math>-form. Both operands must be purely covariant <Math>{'(0, p)'}</Math>- and <Math>{'(0, q)'}</Math>-tensors of the same dimension. Implemented as the antisymmetrization of the tensor product, scaled by the multinomial coefficient <Math>{'\\frac{(p+q)!}{p!\\,q!}'}</Math>, which ensures that the result is a properly normalized differential form. The wedge product is anticommutative — <Math>{'\\alpha \\wedge \\beta = -( \\beta \\wedge \\alpha)'}</Math> — so wedging a form with itself always yields zero.</>}
+                description={<>The wedge product, taking a differential <Math>{'p'}</Math>-form and a <Math>{'q'}</Math>-form to a <Math>{'(p+q)'}</Math>-form. Both operands must be purely covariant <Math>{'(0, p)'}</Math>- and <Math>{'(0, q)'}</Math>-tensors of the same dimension. Implemented as the antisymmetrization of the tensor product, scaled by the multinomial coefficient <Math>{'\\frac{(p+q)!}{p!\\,q!}'}</Math>. The wedge product is anticommutative — <Math>{'\\alpha \\wedge \\beta = -( \\beta \\wedge \\alpha)'}</Math> — so wedging a form with itself always yields zero.</>}
                 args={[
                     ['A', 'Tensor', <>A purely covariant <Math>{'(0, p)'}</Math>-tensor representing a differential <Math>{'p'}</Math>-form.</>],
                     ['B', 'Tensor', <>A purely covariant <Math>{'(0, q)'}</Math>-tensor representing a differential <Math>{'q'}</Math>-form, of the same dimension as <code>A</code>.</>],

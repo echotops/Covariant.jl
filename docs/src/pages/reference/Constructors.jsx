@@ -1,6 +1,8 @@
 import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function Constructors() {
     return (
@@ -11,7 +13,7 @@ export default function Constructors() {
                 id="tensor"
                 name="Tensor"
                 code={`Tensor(data)`}
-                description={<>Constructs a <code>Tensor</code> from nested Julia vectors and adjoints, inferring the variance of each index from the nesting structure. A plain vector <code>[]</code> introduces a contravariant index and an adjoint <code>[]'</code> introduces a covariant index, with the outermost nesting corresponding to the first index.</>}
+                description={<>Constructs a <Ref to={refLinks.Tensor}>Tensor</Ref> from nested Julia vectors and adjoints, inferring the variance of each index from the nesting structure. A plain vector <code>[]</code> introduces a contravariant index and an adjoint <code>[]'</code> introduces a covariant index, with the outermost nesting corresponding to the first index.</>}
                 args={[
                     ['data', 'Array', <>Nested Julia vectors and adjoints encoding both the component data and the variance of each index.</>],
                 ]}
@@ -50,7 +52,7 @@ Tensor([[[1, 0]', [0, 1]'], [[-1, 2]', [3, 0]']])`}
                 id="basis"
                 name="Basis"
                 code={`Basis(elements)`}
-                description={<>Constructs a <code>Basis</code> from an array of <code>Tensor</code>s. All elements must share the same variance — the constructor reads the variance of the first element and raises an error if any subsequent element differs.</>}
+                description={<>Constructs a <Ref to={refLinks.Basis}>Basis</Ref> from an array of <Ref to={refLinks.Tensor}>Tensor</Ref>s. All elements must share the same variance — the constructor reads the variance of the first element and raises an error if any subsequent element differs.</>}
                 args={[
                     ['elements', 'Array{Tensor}', <>An ordered array of <code>Tensor</code>s, all sharing the same variance, that form the basis.</>],
                 ]}

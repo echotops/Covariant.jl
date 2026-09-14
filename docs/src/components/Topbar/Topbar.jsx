@@ -6,7 +6,7 @@ import github from '../../assets/github.svg'
 const NAV_ITEMS = [
     { label: 'Learn', to: '/learn/getting-started' },
     { label: 'Reference', to: '/reference/geometric-objects' },
-    { label: 'Examples', to: null },
+    { label: 'Examples', to: '/examples' },
 ];
 
 export default function Topbar() {
@@ -37,6 +37,14 @@ export default function Topbar() {
                     </Link>
                 ))}
             </nav>
+            <button
+                className={style.search}
+                onClick={() => window.dispatchEvent(new CustomEvent('open-search'))}
+                aria-label="Search"
+            >
+                <p>Search</p>
+                <span className={style.searchKbd}>⌘K</span>
+            </button>
             <div className={style.vbar}></div>
             <a className={style.external} href='https://github.com/echotops/Covariant.jl' target='_blank'>
                 <img src={github} height="25px"></img>
@@ -52,6 +60,12 @@ export default function Topbar() {
                 <span></span>
             </button>
             <nav className={`${style.mobileMenu} ${open ? style.show : ''}`}>
+                <button
+                    className={style.mobileNavitem}
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-search'))}
+                >
+                    Search
+                </button>
                 {NAV_ITEMS.map((item) => (
                     <Link key={item.label} className={style.mobileNavitem} to={item.to}>
                         {item.label}

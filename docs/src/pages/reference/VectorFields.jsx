@@ -2,6 +2,8 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 import vectorfield from '../../assets/learn/vectorfield.png';
 import ptvector from '../../assets/learn/ptvector.png';
 
@@ -14,7 +16,7 @@ export default function VectorFields() {
                 space is <Math>{'\\mathbb{R}^2'}</Math> or embedded in <Math>{'\\mathbb{R}^3'}</Math>,
                 and whether the input is a field defined over a coordinate grid or a list of
                 individual vectors at specified positions. All three evaluate symbolic tensor
-                components via <code>evaluate</code> and pass arrows to GLMakie, with vector
+                components via <Ref to={refLinks.evaluate}>evaluate</Ref> and pass arrows to GLMakie, with vector
                 lengths mapped to color by default.
             </p>
 
@@ -113,7 +115,7 @@ vectors_2dembed!(ax3, (θ, φ), basis, embedding, θs, φs, gradR,
                 id="vector-embed"
                 name="vector_2dembed!"
                 code={`vector_2dembed!(ax, coordinates, basis, embedding, positions, Xs; normalize=false, kwargs...)`}
-                description={<>Plots a list of individual vectors at specified positions on a surface embedded in <Math>{'\\mathbb{R}^3'}</Math>. Unlike <code>vectors_2dembed!</code>, which evaluates a symbolic field over a grid, this function accepts explicit lists of positions and vectors — making it the natural choice for visualizing parallel-transported vectors or geodesic tangents at discrete points. Each vector in <code>Xs</code> is contracted with the basis at the corresponding position to produce a tangent vector in <Math>{'\\mathbb{R}^3'}</Math>.</>}
+                description={<>Plots a list of individual vectors at specified positions on a surface embedded in <Math>{'\\mathbb{R}^3'}</Math>. Unlike <Ref to={refLinks['vectors_2dembed!']}>vectors_2dembed!</Ref>, which evaluates a symbolic field over a grid, this function accepts explicit lists of positions and vectors — making it the natural choice for visualizing parallel-transported vectors or geodesic tangents at discrete points. Each vector in <code>Xs</code> is contracted with the basis at the corresponding position to produce a tangent vector in <Math>{'\\mathbb{R}^3'}</Math>.</>}
                 args={[
                     ['ax', 'Axis3', <>The GLMakie <code>Axis3</code> to plot into.</>],
                     ['coordinates', 'Tuple{Num}', <>A tuple of the symbolic variables used to evaluate the basis at each position.</>],

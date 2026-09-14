@@ -62,9 +62,9 @@ julia> christoffel((u, v), basis)
 IndexedTensor{Num, 3, 1, 2}(Tensor{Num, 3}..., (:l,), (:j, :k))
 ```
 """
-function christoffel(coordinates, basis; simple=false)
+function christoffel(coordinates, basis, inner_product=⋅; simple=false)
     ∂ = PartialDerivative(coordinates)
-    g = metric(basis)
+    g = metric(basis, inner_product)
     G = inv(g)
     T1 = ∂[:k] * g[:r, :j]
     T2 = ∂[:j] * g[:r, :k]
@@ -91,9 +91,9 @@ Num[...]
 )
 ```
 """
-function levicivita(coordinates, basis)
+function levicivita(coordinates, basis, inner_product=⋅)
     ∂ = PartialDerivative(coordinates)
-    Γ = christoffel(coordinates, basis)
+    Γ = christoffel(coordinates, basis, inner_product)
     return CovariantDerivative(Γ, ∂)
 end
 
@@ -134,9 +134,9 @@ julia> riemann((θ, φ), basis)
 Tensor{Num, 4}(Num[...], (:contra, :co, :co, :co))
 ```
 """
-function riemann(coordinates, basis; simple=false)
+function riemann(coordinates, basis, inner_product=⋅; simple=false)
     ∂ = PartialDerivative(coordinates)
-    Γ = christoffel(coordinates, basis)
+    Γ = christoffel(coordinates, basis, inner_product)
     T1 = ∂[:i] * Γ[:l][:j, :k]
     T2 = ∂[:j] * Γ[:l][:i, :k]
     T3 = Γ[:l][:i, :m] * Γ[:m][:j, :k]
@@ -160,8 +160,8 @@ julia> ricci((θ, φ), basis)
 Tensor{Num, 2}(Num[...], (:co, :co))
 ```
 """
-function ricci(coordinates, basis; simple=false)
-    R = riemann(coordinates, basis)
+function ricci(coordinates, basis, inner_product=⋅; simple=false)
+    R = riemann(coordinates, basis, inner_product)
     if simple
         return simplify(R[:i][:j, :k, :i].tensor)
     end
@@ -182,7 +182,7 @@ julia> simplify(ricci_scalar((θ, φ), basis))
 ```
 """
 function ricci_scalar(coordinates, basis, inner_product=⋅; simple=false)
-    R = ricci(coordinates, basis)
+    R = ricci(coordinates, basis, inner_product)
     g = metric(basis, inner_product)
     G = inv(g)
     if simple
@@ -205,7 +205,7 @@ Tensor{Num, 2}(Num[...], (:co, :co))
 ```
 """
 function einstein(coordinates, basis, inner_product=⋅; simple=false)
-    R = ricci(coordinates, basis)
+    R = ricci(coordinates, basis, inner_product)
     R_scalar = ricci_scalar(coordinates, basis, inner_product)
     g = metric(basis, inner_product)
     G = (R[:i, :j] - (0.5 * R_scalar * g[:i, :j])).tensor

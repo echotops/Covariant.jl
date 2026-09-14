@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
 import Topbar from '../Topbar/Topbar';
 import Sidebar from '../Sidebar/Sidebar';
+import { findSection } from '../../data/nav';
 import style from './layout.module.css';
 
 function ScrollToHash() {
@@ -22,6 +23,11 @@ export default function LearnLayout() {
     const section = pathname.startsWith('/reference') ? 'reference' : 'learn';
 
     useEffect(() => setSidebarOpen(false), [pathname]);
+
+    useEffect(() => {
+        const current = findSection(pathname);
+        document.title = current ? `${current.heading} — Covariant.jl` : 'Covariant.jl';
+    }, [pathname]);
 
     return (
         <>

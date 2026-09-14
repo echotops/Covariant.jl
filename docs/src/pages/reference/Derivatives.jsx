@@ -2,6 +2,8 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function Derivatives() {
     return (
@@ -18,7 +20,7 @@ export default function Derivatives() {
                 id="partial-differentiation"
                 name="Base.:* (PartialDerivative)"
                 code={`Base.:*(∂::IndexedPartialDerivative, A::IndexedTensor)`}
-                description={<>Differentiates each component of <code>A</code> with respect to every coordinate in <code>∂</code>, appending a new covariant index to the result. Given an <Math>{'(m, n)'}</Math>-tensor, returns an <Math>{'(m, n+1)'}</Math>-tensor. If the derivative index label already appears in <code>A</code>, the result is contracted over that index, yielding a divergence. Correct only when the basis vectors are constant — for a non-constant basis, use <code>CovariantDerivative</code>.</>}
+                description={<>Differentiates each component of <code>A</code> with respect to every coordinate in <code>∂</code>, appending a new covariant index to the result. Given an <Math>{'(m, n)'}</Math>-tensor, returns an <Math>{'(m, n+1)'}</Math>-tensor. If the derivative index label already appears in <code>A</code>, the result is contracted over that index, yielding a divergence. Correct only when the basis vectors are constant — for a non-constant basis, use <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref>.</>}
                 args={[
                     ['∂', 'IndexedPartialDerivative', <>The indexed partial derivative operator, produced by <code>PartialDerivative((coords...))[:i]</code>.</>],
                     ['A', 'IndexedTensor', <>The tensor to differentiate. Components must be symbolic expressions in the coordinates of <code>∂</code>.</>],
@@ -100,7 +102,7 @@ Num[0 cos(θ); -cos(θ) 0]
                 id="exterior-differentiation"
                 name="Base.:* (ExteriorDerivative)"
                 code={`Base.:*(d::IndexedExteriorDerivative, A::IndexedTensor)`}
-                description={<>Computes the exterior derivative of a differential form, taking a <Math>{'p'}</Math>-form to a <Math>{'(p+1)'}</Math>-form. The input must be a purely covariant <Math>{'(0, p)'}</Math>-tensor. Implemented by differentiating with the underlying <code>PartialDerivative</code> and fully antisymmetrizing the result, scaled by <Math>{'(p+1)!'}</Math>. Returns a <code>Tensor</code> directly rather than an <code>IndexedTensor</code>. The exterior derivative is nilpotent — applying it twice always returns the zero form, <Math>{'d^2 = 0'}</Math>.</>}
+                description={<>Computes the exterior derivative of a differential form, taking a <Math>{'p'}</Math>-form to a <Math>{'(p+1)'}</Math>-form. The input must be a purely covariant <Math>{'(0, p)'}</Math>-tensor. Implemented by differentiating with the underlying <code>PartialDerivative</code> and fully antisymmetrizing the result, scaled by <Math>{'(p+1)!'}</Math>. Returns a <Ref to={refLinks.Tensor}>Tensor</Ref> directly rather than an <code>IndexedTensor</code>. The exterior derivative is nilpotent — applying it twice always returns the zero form, <Math>{'d^2 = 0'}</Math>.</>}
                 args={[
                     ['d', 'IndexedExteriorDerivative', <>The indexed exterior derivative operator, produced by <code>ExteriorDerivative(∂)[:i]</code>.</>],
                     ['A', 'IndexedTensor', <>A purely covariant <Math>{'(0, p)'}</Math>-tensor representing a differential <Math>{'p'}</Math>-form.</>],

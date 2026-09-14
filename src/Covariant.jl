@@ -88,6 +88,7 @@ export PartialDerivative, CovariantDerivative, ExteriorDerivative, HodgeStar
 
 # Algebra
 export ⊗, ∧
+export ⋅, norm
 export symmetrize, antisymmetrize, dual_basis
 
 # Geometry

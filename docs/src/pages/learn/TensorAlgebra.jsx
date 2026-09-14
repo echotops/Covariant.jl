@@ -1,6 +1,8 @@
 import CodeBlock from '../../components/Code/CodeBlock';
 import PageNav from '../../components/PageNav/PageNav';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function TensorAlgebra() {
     return (
@@ -47,30 +49,33 @@ result={`(0, 2)-Tensor:
             <p className="learn-heading" id="contraction">Contraction</p>
             <p className="learn-body">
                 Contraction takes a linear combination along a pair of contravariant and covariant
-                indices. Any free indices are retained for subsequent operations and an <code>IndexedTensor</code>
-                is returned, unless the result is a scalar
+                indices — this is the single operation behind the dot product, matrix-vector and
+                matrix-matrix multiplication, and the trace, all of which are just sums over a
+                repeated index. Any free indices are retained for subsequent operations and an
+                <code>IndexedTensor</code> is returned, unless the result is a scalar
             </p>
             <CodeBlock lang="julia"
 code={`v = Tensor([2, -1])
 ω = Tensor([-2, 3]')
-v[:i] * ω[:i]`}
+v[:i] * ω[:i]   # The dot product v · ω`}
 result={`7`}
             />
             <CodeBlock lang="julia"
 code={`A = Tensor([[2, -3], [-4, -1]]')
 B = Tensor([[-1, 1], [2, 2]]')
-A[:i][:j] * B[:j][:k]`}
+A[:i][:j] * B[:j][:k]   # Matrix multiplication`}
 result={`(1, 1)-Tensor:
 [-6 -4; 2 -8]
     (:contra, :co)
     (:i,), (:k,)`}
             />
             <p className="learn-body">
-                A tensor can also be contracted against one of its own indices
+                A tensor can also be contracted against one of its own indices, generalizing the
+                trace of a matrix
             </p>
             <CodeBlock lang="julia"
 code={`A = Tensor([[2, 1], [-3, -1]]')
-A[:i][:i]`}
+A[:i][:i]   # tr(A)`}
 result={`1`}
             />
             <p className="learn-body">
@@ -79,10 +84,11 @@ result={`1`}
             </p>
             <p className="learn-heading" id="symmetrization">Symmetrization</p>
             <p className="learn-body">
-                For symmetrization, Covariant provides <code>symmetrize</code>, which symmetrizes
+                For symmetrization, Covariant provides <Ref to={refLinks.symmetrize}>symmetrize</Ref>, which symmetrizes
                 a tensor along the specified indices, all of the same variance. Mathematically, the
                 function sums permutations of the indices, and dividies by the number of permutations.
-                For a (2, 0)-tensor, this looks like <Math>{'\\frac{1}{2}(A^{ij} + A^{ji})'}</Math>
+                For a (2, 0)-tensor, this looks like <Math>{'\\frac{1}{2}(A^{ij} + A^{ji})'}</Math> — the
+                same <Math>{'(A + A^T)/2'}</Math> used to pull the symmetric part out of a matrix
             </p>
             <CodeBlock lang="julia"
 code={`A = Tensor([[2, 1], [-3, 1]])
@@ -92,9 +98,10 @@ result={`(2, 0)-Tensor:
     (:contra, :contra)`}
             />
             <p className="learn-body">
-                Similarly, antisymmetrization can be performed with <code>antisymmetrize</code>, with
-                similar implementation to <code>symmetrize</code>, but that it takes the difference instead
-                of the sum. For a (2, 0)-tensor, this looks like <Math>{'\\frac{1}{2}(A^{ij} - A^{ji})'}</Math>
+                Similarly, antisymmetrization can be performed with <Ref to={refLinks.antisymmetrize}>antisymmetrize</Ref>, with
+                similar implementation to <Ref to={refLinks.symmetrize}>symmetrize</Ref>, but that it takes the difference instead
+                of the sum. For a (2, 0)-tensor, this looks like <Math>{'\\frac{1}{2}(A^{ij} - A^{ji})'}</Math> — the
+                other half of the matrix, <Math>{'(A - A^T)/2'}</Math>
             </p>
             <CodeBlock lang="julia"
 code={`A = Tensor([[2, 1], [-3, 1]])
@@ -105,13 +112,15 @@ result={`(2, 0)-Tensor:
             />
             <p className="learn-heading" id="tensor-product">Tensor Product</p>
             <p className="learn-body">
-                One of the few operations that takes in a <code>Tensor</code>, the tensor product takes
+                Tensor product doesn't have a real linear algebra equivalent for general tensors —
+                the closest is the outer product <Math>{'vw^T'}</Math>, which turns two vectors into
+                a matrix. The tensor product generalizes that: instead of a fixed matrix, it takes
                 an (m, n)-tensor and a (p, q)-tensor to an (m+p, n+q)-tensor
             </p>
             <CodeBlock lang="julia"
 code={`v = Tensor([2, -1])
 w = Tensor([3, 4])
-L = v ⊗ w`}
+L = v ⊗ w   # The outer product vwᵀ`}
 result={`(2, 0)-Tensor:
 [6 8; -3 -4]
     (:contra, :contra)`}
@@ -128,9 +137,11 @@ result={`(3, 1)-Tensor:
             />
             <p className="learn-heading" id="basis-and-duality">Basis and Duality</p>
             <p className="learn-body">
-                A basis is an ordered set of tensors that allows you to build the metric tensor
-                and take derivatives, two operations that are vital in geometry. Tensor components
-                can be used to take linear combinations of basis vectors
+                A basis, in the usual linear algebra sense, is an ordered set of linearly
+                independent vectors that every other vector can be written as a combination
+                of — this is what makes the metric tensor and derivatives well-defined later on.
+                Covariant represents one as an array of vector-type tensors, and a vector's
+                components relative to that basis are recovered by contracting against it
             </p>
             <CodeBlock lang="julia"
 code={`e = Basis([
@@ -144,12 +155,14 @@ result={`(1, 0)-Tensor:
   (:contra,)`}
             />
             <p className="learn-body">
-                A vector basis and a covector basis are considered dual if the <Math>{`i`}</Math>th basis
-                vector times the <Math>{`j`}</Math>th basis covector yields
-                <Math>{`\\ 1`}</Math> if <Math>{`i=j`}</Math> and <Math>{`0`}</Math> if <Math>{`i \\neq j`}</Math>.
+                Every vector basis has a dual covector basis — the covector analog of the dual
+                vectors introduced on the previous page — defined by the same property used in
+                linear algebra: the <Math>{`i`}</Math>th dual basis covector paired with the{' '}
+                <Math>{`j`}</Math>th basis vector yields <Math>{`\\ 1`}</Math> if <Math>{`i=j`}</Math> and{' '}
+                <Math>{`0`}</Math> if <Math>{`i \\neq j`}</Math>.
                 This condition is so common that it is called the Kronecker Delta <Math>{`\\delta^i_j`}</Math>.
-                Covariant includes the <code>KrockerDelta</code> type with this condition, along with
-                <code>dual_basis</code> that finds a dual basis
+                Covariant includes the <Ref to={refLinks.KroneckerDelta}>KroneckerDelta</Ref> type with this condition, along with
+                <Ref to={refLinks.dual_basis}>dual_basis</Ref> that finds a dual basis
             </p>
             <CodeBlock lang="julia"
 code={`ϵ = dual_basis(e)

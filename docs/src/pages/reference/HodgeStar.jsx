@@ -2,6 +2,8 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function HodgeStar() {
     return (
@@ -12,7 +14,7 @@ export default function HodgeStar() {
                 id="hodge-star"
                 name="HodgeStar"
                 code={`(hodge::HodgeStar)(A::Tensor)`}
-                description={<>Applies the Hodge star operator to a differential form, mapping a <Math>{'p'}</Math>-form to an <Math>{'(n-p)'}</Math>-form, where <Math>{'n'}</Math> is the dimension of the space. The input must be a purely covariant <Math>{'(0, p)'}</Math>-tensor. Internally, all <Math>{'p'}</Math> indices are raised using the inverse metric, the result is contracted with the Levi-Civita symbol across <Math>{'p'}</Math> indices, and the whole expression is scaled by <Math>{'\\frac{\\sqrt{|\\det g|}}{p!}'}</Math>. When the input is a top-form (<Math>{'p = n'}</Math>), the result is a scalar. Applied by calling the <code>HodgeStar</code> instance directly on a <code>Tensor</code>.</>}
+                description={<>Applies the Hodge star operator to a differential form, mapping a <Math>{'p'}</Math>-form to an <Math>{'(n-p)'}</Math>-form via <Math display>{'(\\star\\alpha)_{i_{p+1}\\cdots i_n} = \\frac{1}{p!}\\sqrt{|\\det g|}\\ \\varepsilon_{i_1\\cdots i_n}\\alpha^{i_1\\cdots i_p}'}</Math> where <Math>{'n'}</Math> is the dimension of the space. The input must be a purely covariant <Math>{'(0, p)'}</Math>-tensor; when <Math>{'p = n'}</Math>, the result is a scalar. Applied by calling the <Ref to={refLinks.HodgeStar}>HodgeStar</Ref> instance directly on a <Ref to={refLinks.Tensor}>Tensor</Ref>.</>}
                 args={[
                     ['A', 'Tensor', <>A purely covariant <Math>{'(0, p)'}</Math>-tensor representing a differential <Math>{'p'}</Math>-form.</>],
                 ]}

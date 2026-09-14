@@ -2,6 +2,8 @@ import TypeDocs from '../../components/Docs/TypeDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function GeometricObjects() {
     return (
@@ -52,7 +54,7 @@ T = Tensor([[[1, 0]', [0, 1]'], [[-1, 2]', [3, 0]']])`}
                 id="basis"
                 name="Basis"
                 code={`struct Basis`}
-                description={<>An ordered collection of <code>Tensor</code>s sharing the same variance, forming a frame for a vector space. A basis is required for computing the metric tensor and connection coefficients, and can be contracted with an <code>IndexedTensor</code> to express components as a linear combination of basis elements. All elements must share identical variance, which the constructor enforces.</>}
+                description={<>An ordered collection of <Ref to={refLinks.Tensor}>Tensor</Ref>s sharing the same variance, forming a frame for a vector space. A basis is required for computing the metric tensor and connection coefficients, and can be contracted with an <code>IndexedTensor</code> to express components as a linear combination of basis elements. All elements must share identical variance, which the constructor enforces.</>}
                 fields={[
                     ['elements', 'Array', <>The ordered array of basis tensors.</>],
                     ['variance', 'Tuple', <>The shared variance of every element, e.g. <code>(:contra,)</code> for a vector basis or <code>(:co,)</code> for a covector basis.</>],

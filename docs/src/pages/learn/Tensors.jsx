@@ -1,6 +1,8 @@
 import CodeBlock from '../../components/Code/CodeBlock';
 import PageNav from '../../components/PageNav/PageNav';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function Tensors() {
     return (
@@ -18,7 +20,7 @@ export default function Tensors() {
                 A (0, 0)-tensor, whose coordinates are invariant under all coordinate changes, is
                 also known as a scalar. A (1, 0)-tensor follows 1 contravariant transformation, and
                 is known as a vector. A (0, 1)-tensor follows 1 covariant transformation, and is known
-                as a covector. 
+                as a covector.
             </p>
             <p className="learn-body">
                 Covariant uses Julia's vector <code>[]</code> and adjoint <code>[]'</code> types to
@@ -39,7 +41,7 @@ g = Tensor([[2, 1]', [1, 2]']') # A bilinear form`}
             />
             <p className="learn-heading" id="tensor-type">Tensor Type</p>
             <p className="learn-body">
-                The <code>Tensor</code> type contains a data and a variance field.
+                The <Ref to={refLinks.Tensor}>Tensor</Ref> type contains a data and a variance field.
                 <code>Tensor.data</code> is an <code>Array</code> that holds the tensor components,
                 while <code>Tensor.variance</code> is an <code>NTuple</code> containing the variance
                 of each index as either <code>:contra</code> or <code>:co</code>. Printing a tensor
@@ -60,7 +62,7 @@ result={`(1, 1)-Tensor:
                 tensor as <Math>{`T^{ijk...}_{xyz...}`}</Math>
             </p>
             <p className="learn-body">
-                Indexing a <code>Tensor</code> uses <code>Base.getindex()</code>, where
+                Indexing a <Ref to={refLinks.Tensor}>Tensor</Ref> uses <code>Base.getindex()</code>, where
                 contravariant indices are written first and covariant indices are second. If
                 the tensor contains only contravariant or covariant indices, then only those
                 indices are included, so any (k, 0)- or (0, k)-tensor is indexed as <code>T[i1, i2...ik]</code>,
@@ -81,7 +83,7 @@ result={`-2`}
             />
             <p className="learn-body">
                 Indexing either entirely with symbols or with a mix of integers and symbols will
-                return an <code>IndexedTensor</code>, a thin wrapper pairing a <code>Tensor</code>
+                return an <code>IndexedTensor</code>, a thin wrapper pairing a <Ref to={refLinks.Tensor}>Tensor</Ref>
                 with the symbols labeling its indices. Those labels are what let operations line
                 indices up against each other, contracting the ones that repeat, which is covered
                 on the next page. Operating on an <code>IndexedTensor</code> returns another
@@ -114,8 +116,8 @@ result={`(0, 1)-Tensor:
             />
             <p className="learn-body">
                 This indexing method is applied mostly unchanged to various other objects, including
-                <code>KroneckerDelta</code>, <code>LeviCivita</code>, <code>PartialDerivative</code>,
-                <code>CovariantDerivative</code>, and <code>ExteriorDerivative</code> types, each returning
+                <Ref to={refLinks.KroneckerDelta}>KroneckerDelta</Ref>, <Ref to={refLinks.LeviCivita}>LeviCivita</Ref>, <Ref to={refLinks.PartialDerivative}>PartialDerivative</Ref>,
+                <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref>, and <Ref to={refLinks.ExteriorDerivative}>ExteriorDerivative</Ref> types, each returning
                 a respective indexed variant.
             </p>   
             <PageNav prev="Getting Started" next="Tensor Algebra" />

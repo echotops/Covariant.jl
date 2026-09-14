@@ -1,5 +1,7 @@
 import CodeBlock from '../../components/Code/CodeBlock';
 import PageNav from '../../components/PageNav/PageNav';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 import surface from '../../assets/learn/surface.png';
 import path from '../../assets/learn/path.png';
 import scalarfield from '../../assets/learn/scalarfield.png';
@@ -32,14 +34,11 @@ embedding(u, v) = [
 basis = Basis([
     Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
     Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
-])
-# Optional decorations
-hidedecorations!(ax3)
-set_theme!(theme_black())`} 
+])`}
             />
             <p className="learn-heading" id="surfaces">Surfaces</p>
             <p className="learn-body">
-                Surfaces can be plotted with <code>surface_2dembed!</code>
+                Surfaces can be plotted with <Ref to={refLinks['surface_2dembed!']}>surface_2dembed!</Ref>
             </p>
             <CodeBlock lang="julia"
 code={`surface_2dembed!(ax3, embedding, θs, φs)`} 
@@ -47,7 +46,7 @@ img={surface}
             />
             <p className="learn-heading" id="paths">Paths</p>
             <p className="learn-body">
-                Paths are defined as parametrics and then plotted with <code>path_2dembed!</code>
+                Paths are defined as parametrics and then plotted with <Ref to={refLinks['path_2dembed!']}>path_2dembed!</Ref>
             </p>
             <CodeBlock lang="julia"
 code={`λ(t) = [t - π/2, t^3 - 3t + π/2]
@@ -57,23 +56,27 @@ img={path}
             />
             <p className="learn-heading" id="scalar-fields">Scalar Fields</p>
             <p className="learn-body">
-                Scalar functions of the <code>@variables</code> can be plotted with <code>scalar_2dembed!</code>
+                Scalar functions of the <code>@variables</code> can be plotted with <Ref to={refLinks['scalar_2dembed!']}>scalar_2dembed!</Ref>
             </p>
             <CodeBlock lang="julia"
 code={`R = ricci_scalar((θ, φ), basis)
-s = scalar_2dembed!(ax3, (θ, φ), embedding, θs, φs, R, colormap=:RdBu, colorrange=(0, 2))
-Colorbar(fig[1,2], s)`}
+scalar_2dembed!(ax3, (θ, φ), embedding, θs, φs, R)`}
 img={scalarfield}
             />
             <p className="learn-heading" id="vector-fields">Vector Fields</p>
             <p className="learn-body">
-                Vector functions of the <code>@variables</code> can be plotted with <code>vectors_2dembed!</code>
+                Vector functions of the <code>@variables</code> can be plotted with <Ref to={refLinks['vectors_2dembed!']}>vectors_2dembed!</Ref>
             </p>
             <CodeBlock lang="julia"
 code={`X = Tensor([sin(θ), cos(φ)])
-vectors_2dembed!(ax3, (θ, φ), basis, embedding, θs, φs, X, spacing=2, normalize=true, lengthscale=0.15, colormap=:magma)`}
+vectors_2dembed!(ax3, (θ, φ), basis, embedding, θs, φs, X, spacing=2, normalize=true)`}
 img={vectorfield}
             />
+            <p className="learn-body">
+                Each of these functions also accepts standard GLMakie styling keywords like
+                <code>colormap</code> and <code>colorrange</code> — see the <Ref to="/reference/surfaces-and-paths">Reference</Ref> for
+                the full list.
+            </p>
             <PageNav prev="Symbolic" next="Solver" />
         </>
     );

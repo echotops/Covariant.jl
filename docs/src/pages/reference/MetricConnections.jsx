@@ -2,6 +2,8 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function MetricConnections() {
     return (
@@ -12,7 +14,7 @@ export default function MetricConnections() {
                 id="metric"
                 name="metric"
                 code={`metric(e::Basis, inner_product=⋅; simple=false)`}
-                description={<>Constructs the metric tensor from a vector basis by computing the inner product of every pair of basis elements. The result is a symmetric <Math>{'(0, 2)'}</Math>-tensor whose components are <Math>{'g_{ij} = \\langle e_i, e_j \\rangle'}</Math>. The basis must be a vector <Math>{'(:contra,)'}</Math> basis. By default uses the Euclidean inner product <Math>{'\\cdot'}</Math>, but any function of the same signature can be passed — most notably <code>minkowski</code> for special-relativistic geometry.</>}
+                description={<>Constructs the metric tensor from a vector basis by computing the inner product of every pair of basis elements, producing a symmetric <Math>{'(0, 2)'}</Math>-tensor with components <Math display>{'g_{ij} = \\langle e_i, e_j \\rangle'}</Math> The basis must be a vector <Math>{'(:contra,)'}</Math> basis. By default uses the Euclidean inner product <Math>{'\\cdot'}</Math>, but any function of the same signature can be passed — most notably <Ref to={refLinks.minkowski}>minkowski</Ref> for special-relativistic geometry.</>}
                 args={[
                     ['e', 'Basis', <>A vector <Math>{'(:contra,)'}</Math> basis whose elements define the geometry of the space.</>],
                     ['inner_product', 'Function', <>A function <code>(A::Tensor, B::Tensor) -&gt; Number</code> defining the inner product. Defaults to the Euclidean dot product <code>⋅</code>.</>],
@@ -88,7 +90,7 @@ g = metric(e)
                 id="minkowski"
                 name="minkowski"
                 code={`minkowski(A::Tensor, B::Tensor, timelike_positive=false)`}
-                description={<>The Minkowski inner product on two <Math>{'(1, 0)'}</Math>-tensors, for use as the <code>inner_product</code> argument of <code>metric</code>. The default sign convention is <Math>{'(-, +, +, +)'}</Math> — the timelike component is negative. Passing <code>timelike_positive=true</code> switches to <Math>{'(+, -, -, -)'}</Math>. Both operands must be <Math>{'(1, 0)'}</Math>-tensors.</>}
+                description={<>The Minkowski inner product on two <Math>{'(1, 0)'}</Math>-tensors, for use as the <code>inner_product</code> argument of <Ref to={refLinks.metric}>metric</Ref>. The default sign convention is <Math>{'(-, +, +, +)'}</Math> — the timelike component is negative. Passing <code>timelike_positive=true</code> switches to <Math>{'(+, -, -, -)'}</Math>. Both operands must be <Math>{'(1, 0)'}</Math>-tensors.</>}
                 args={[
                     ['A', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor.</>],
                     ['B', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor of the same dimension as <code>A</code>.</>],
@@ -132,7 +134,7 @@ g = metric(e)
                 id="christoffel"
                 name="christoffel"
                 code={`christoffel(coordinates, basis; simple=false)`}
-                description={<>Computes the Christoffel symbols <Math>{'\\Gamma^l_{jk}'}</Math> of the Levi-Civita connection from a set of symbolic coordinates and a vector basis. Returns a <Math>{'(1, 2)'}</Math>-tensor. Computed via the standard formula <Math>{'\\Gamma^l_{jk} = \\frac{1}{2} g^{lr} (\\partial_k g_{rj} + \\partial_j g_{rk} - \\partial_r g_{jk})'}</Math>, where <Math>{'g'}</Math> is the metric derived from the basis. The result is passed to <code>CovariantDerivative</code> to construct a covariant derivative operator — or use <code>levicivita</code> to do both in one step.</>}
+                description={<>Computes the Christoffel symbols <Math>{'\\Gamma^l_{jk}'}</Math> of the Levi-Civita connection from a set of symbolic coordinates and a vector basis, returning a <Math>{'(1, 2)'}</Math>-tensor via <Math display>{'\\Gamma^l_{jk} = \\frac{1}{2} g^{lr} (\\partial_k g_{rj} + \\partial_j g_{rk} - \\partial_r g_{jk})'}</Math> where <Math>{'g'}</Math> is the metric derived from the basis. The result is passed to <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref> to construct a covariant derivative operator — or use <Ref to={refLinks.levicivita}>levicivita</Ref> to do both in one step.</>}
                 args={[
                     ['coordinates', 'Tuple{Num}', <>A tuple of symbolic variables defined with <code>@variables</code>, one per dimension.</>],
                     ['basis', 'Basis', <>A vector <Math>{'(:contra,)'}</Math> basis whose elements are expressions in <code>coordinates</code>.</>],
@@ -170,7 +172,7 @@ Num[cos(θ) 0; 0 cos(θ)]
                 id="levi-civita"
                 name="levicivita"
                 code={`levicivita(coordinates, basis)`}
-                description={<>Constructs the Levi-Civita connection as a <code>CovariantDerivative</code> in one step, combining <code>christoffel</code> and <code>CovariantDerivative</code>. Equivalent to <code>CovariantDerivative(christoffel(coordinates, basis), PartialDerivative(coordinates))</code>. The preferred way to build a covariant derivative when no custom connection is needed.</>}
+                description={<>Constructs the Levi-Civita connection as a <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref> in one step, combining <Ref to={refLinks.christoffel}>christoffel</Ref> and <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref>. Equivalent to <code>CovariantDerivative(christoffel(coordinates, basis), PartialDerivative(coordinates))</code>. The preferred way to build a covariant derivative when no custom connection is needed.</>}
                 args={[
                     ['coordinates', 'Tuple{Num}', <>A tuple of symbolic variables defined with <code>@variables</code>, one per dimension.</>],
                     ['basis', 'Basis', <>A vector <Math>{'(:contra,)'}</Math> basis whose elements are expressions in <code>coordinates</code>.</>],
@@ -203,7 +205,7 @@ Num[cos(θ) 0; 0 cos(θ)]
                 id="lie"
                 name="lie"
                 code={`lie(X::Tensor, Y::Tensor, ∂::PartialDerivative; simple=false)`}
-                description={<>Computes the Lie bracket <Math>{'[X, Y]'}</Math> of two vector fields, defined as <Math>{'[X, Y]^k = X^i \\partial_i Y^k - Y^i \\partial_i X^k'}</Math>. The result is a <Math>{'(1, 0)'}</Math>-tensor measuring the failure of the flows of <Math>{'X'}</Math> and <Math>{'Y'}</Math> to commute. Both inputs must be <Math>{'(1, 0)'}</Math>-tensors and their components must be symbolic expressions in the coordinates of <code>∂</code>.</>}
+                description={<>Computes the Lie bracket <Math>{'[X, Y]'}</Math> of two vector fields, defined as <Math display>{'[X, Y]^k = X^i \\partial_i Y^k - Y^i \\partial_i X^k'}</Math> The result is a <Math>{'(1, 0)'}</Math>-tensor measuring the failure of the flows of <Math>{'X'}</Math> and <Math>{'Y'}</Math> to commute. Both inputs must be <Math>{'(1, 0)'}</Math>-tensors and their components must be symbolic expressions in the coordinates of <code>∂</code>.</>}
                 args={[
                     ['X', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the coordinates of <code>∂</code>.</>],
                     ['Y', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the coordinates of <code>∂</code>.</>],

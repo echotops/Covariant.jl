@@ -2,6 +2,8 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
+import Ref from '../../components/Ref/Ref';
+import { refLinks } from '../../data/nav';
 
 export default function SymmetryDuality() {
     return (
@@ -12,7 +14,7 @@ export default function SymmetryDuality() {
                 id="symmetrize"
                 name="symmetrize"
                 code={`symmetrize(A::IndexedTensor, indices...)`}
-                description={<>Symmetrizes a tensor across the specified indices by summing over all permutations of those indices and dividing by the number of permutations. For a <Math>{'(2, 0)'}</Math>-tensor this yields <Math>{'\\frac{1}{2}(A^{ij} + A^{ji})'}</Math>, and the pattern extends naturally to higher rank. All specified indices must belong to <code>A</code> and must share the same variance — mixing contravariant and covariant indices raises an error. Returns a <code>Tensor</code>.</>}
+                description={<>Symmetrizes a tensor across the specified indices by summing over all permutations of those indices and dividing by the number of permutations. For a <Math>{'(2, 0)'}</Math>-tensor this yields <Math display>{'\\frac{1}{2}(A^{ij} + A^{ji})'}</Math> and the pattern extends naturally to higher rank. All specified indices must belong to <code>A</code> and must share the same variance — mixing contravariant and covariant indices raises an error. Returns a <Ref to={refLinks.Tensor}>Tensor</Ref>.</>}
                 args={[
                     ['A', 'IndexedTensor', <>The tensor to symmetrize.</>],
                     ['indices...', 'Symbol', <>Two or more index labels to symmetrize over. All must be present in <code>A</code> and share the same variance.</>],
@@ -46,7 +48,7 @@ symmetrize(L[:i][:j], :i, :j)`}
                 id="antisymmetrize"
                 name="antisymmetrize"
                 code={`antisymmetrize(A::IndexedTensor, indices...)`}
-                description={<>Antisymmetrizes a tensor across the specified indices by summing over all permutations of those indices weighted by their sign, then dividing by the number of permutations. For a <Math>{'(2, 0)'}</Math>-tensor this yields <Math>{'\\frac{1}{2}(A^{ij} - A^{ji})'}</Math>. The result is guaranteed to be fully antisymmetric in the specified indices — swapping any two of them negates the tensor. All specified indices must belong to <code>A</code> and share the same variance. Returns a <code>Tensor</code>.</>}
+                description={<>Antisymmetrizes a tensor across the specified indices by summing over all permutations of those indices weighted by their sign, then dividing by the number of permutations. For a <Math>{'(2, 0)'}</Math>-tensor this yields <Math display>{'\\frac{1}{2}(A^{ij} - A^{ji})'}</Math> The result is guaranteed to be fully antisymmetric in the specified indices — swapping any two of them negates the tensor. All specified indices must belong to <code>A</code> and share the same variance. Returns a <Ref to={refLinks.Tensor}>Tensor</Ref>.</>}
                 args={[
                     ['A', 'IndexedTensor', <>The tensor to antisymmetrize.</>],
                     ['indices...', 'Symbol', <>Two or more index labels to antisymmetrize over. All must be present in <code>A</code> and share the same variance.</>],
@@ -82,7 +84,7 @@ antisymmetrize(g[:i, :j], :i, :j)`}
                 id="dual-basis"
                 name="dual_basis"
                 code={`dual_basis(basis::Basis)`}
-                description={<>Computes the dual basis of a vector or covector basis. The dual of a vector basis is a covector basis, and vice versa, with the duality condition <Math>{'\\varepsilon^i(e_j) = \\delta^i_j'}</Math> — the <Math>{'i'}</Math>th dual element contracts with the <Math>{'j'}</Math>th basis element to yield <Math>{'1'}</Math> if <Math>{'i = j'}</Math> and <Math>{'0'}</Math> otherwise. Computed by inverting the matrix of basis element components. Only rank-1 bases (vector or covector) are accepted. Returns a <code>Basis</code> of opposite variance.</>}
+                description={<>Computes the dual basis of a vector or covector basis. The dual of a vector basis is a covector basis, and vice versa, with the duality condition <Math display>{'\\varepsilon^i(e_j) = \\delta^i_j'}</Math> the <Math>{'i'}</Math>th dual element contracts with the <Math>{'j'}</Math>th basis element to yield <Math>{'1'}</Math> if <Math>{'i = j'}</Math> and <Math>{'0'}</Math> otherwise. Computed by inverting the matrix of basis element components. Only rank-1 bases (vector or covector) are accepted. Returns a <Ref to={refLinks.Basis}>Basis</Ref> of opposite variance.</>}
                 args={[
                     ['basis', 'Basis', <>A vector <Math>{'(:contra,)'}</Math> or covector <Math>{'(:co,)'}</Math> basis. Higher-rank bases are not supported.</>],
                 ]}
