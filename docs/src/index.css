@@ -30,12 +30,15 @@
   --text-xs: 12px;    /* meta labels, badges, captions, sidebar group labels */
   --text-sm: 13px;    /* nav items, buttons, code, secondary UI text */
   --text-base: 15px;  /* body copy */
+  --text-md: 16px;    /* nav items, buttons */
+  --text-card: 14px;  /* home card subtitles */
+  --text-card-title: 19px; /* home card titles */
   --text-lg: 18px;    /* card/argument titles, small sub-headings */
   --text-xl: 22px;    /* in-page section headings */
   --text-2xl: 28px;   /* page titles */
-  --text-display: 40px; /* hero headline only */
+  --text-display: 52px; /* hero headline only */
 
-  --topbar-h: 70px;
+  --navbar-h: 64px;
   --sidebar-w: 270px;
   --right-w: 200px;
   --content-max: 680px;

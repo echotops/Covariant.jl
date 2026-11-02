@@ -1,6 +1,6 @@
 .layout {
   position: absolute;
-  top: 60px;
+  top: var(--navbar-h);
   right: 0;
   left: 265px;
 }
@@ -61,7 +61,7 @@
   .backdrop.show {
     display: block;
     position: fixed;
-    top: 60px;
+    top: var(--navbar-h);
     left: 0; right: 0; bottom: 0;
     z-index: 120;
     background-color: rgba(0, 0, 0, 0.4);

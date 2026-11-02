@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { learnNav, referenceNav } from '../../data/nav';
-import { examples } from '../../data/examples';
 import style from './search.module.css';
 
 function buildIndex() {
@@ -23,13 +22,6 @@ function buildIndex() {
                 }
             }
         }
-    }
-    for (const ex of examples) {
-        entries.push({
-            title: ex.title,
-            subtitle: `Examples · ${ex.tags[0] ?? ''}`,
-            path: `/examples/${ex.slug}`,
-        });
     }
     return entries;
 }

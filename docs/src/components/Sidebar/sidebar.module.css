@@ -4,7 +4,7 @@ p {
 
 .sidebar {
     position: fixed;
-    top: 60px; bottom: 0;
+    top: var(--navbar-h); bottom: 0;
     padding-top: 15px;
     padding-left: 30px; padding-right: 15px;
     box-sizing: border-box;

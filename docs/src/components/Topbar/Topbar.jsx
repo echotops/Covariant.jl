@@ -6,7 +6,6 @@ import github from '../../assets/github.svg'
 const NAV_ITEMS = [
     { label: 'Learn', to: '/learn/getting-started' },
     { label: 'Reference', to: '/reference/geometric-objects' },
-    { label: 'Examples', to: '/examples' },
 ];
 
 export default function Topbar() {
