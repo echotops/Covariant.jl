@@ -196,7 +196,7 @@ partial::PartialDerivative
 julia> @variables u v
 julia> basis = (Tensor([1, 0]), Tensor([0, 1]))
 julia> x = Tensor([u^2, v])
-julia> Γ = christoffel((u, v), basis)
+julia> Γ = christoffel(Manifold((u, v), basis))
 julia> ∂ = PartialDerivative((u, v))
 julia> ∇ = CovariantDerivative(Γ, ∂)
 julia> ∇[:k] * x[:k]
@@ -223,7 +223,7 @@ index::Symbol
 ```
 julia> @variables u v
 julia> basis = (Tensor([1, 0]), Tensor([0, 1]))
-julia> Γ = christoffel((u, v), basis)
+julia> Γ = christoffel(Manifold((u, v), basis))
 julia> ∂ = PartialDerivative((u, v))
 julia> ∇ = CovariantDerivative(Γ, ∂)
 julia> ∇[:k]
@@ -348,4 +348,45 @@ julia> e[:i]
 struct IndexedBasis
     basis::Basis
     indices::Tuple
+end
+
+"""
+A Riemannian (or pseudo-Riemannian) manifold in a coordinate chart, defined by its coordinates and metric,
+optionally with an embedding in R3 and a range to plot each coordinate over.
+
+Curvature quantities computed from it (Christoffel symbols, Riemann, Ricci, Einstein) are cached, so
+each is only computed once however many times it is requested. The same object is passed to the solver
+and the plotting functions.
+
+# Fields
+coordinates::NTuple{N, Num}
+    - The coordinate symbols
+metric::Tensor
+    - The (0, 2) metric tensor g
+ranges::Union{Tuple, Nothing}
+    - The range of values to plot each coordinate over, or nothing
+embedding::Union{Function, Nothing}
+    - A function (u, v) -> [x, y, z] mapping coordinates to R3, or nothing for a chart plotted flat in R2
+basis::Union{Basis, Nothing}
+    - The vector basis in R3 that vector components are given in when plotting on an embedded surface
+simple::Bool
+    - Whether results are simplified symbolically
+cache::Dict{Symbol, Any}
+    - Computed quantities, filled in on first use
+
+# Examples
+```
+julia> @variables θ φ
+julia> M = Manifold((θ, φ), Tensor([[1, 0]', [0, sin(θ)^2]']'))
+julia> ricci_scalar(M)
+```
+"""
+struct Manifold{N}
+    coordinates::NTuple{N, Num}
+    metric::Tensor
+    ranges::Union{Tuple, Nothing}
+    embedding::Union{Function, Nothing}
+    basis::Union{Basis, Nothing}
+    simple::Bool
+    cache::Dict{Symbol, Any}
 end

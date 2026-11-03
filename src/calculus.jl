@@ -29,6 +29,24 @@ function Base.:*(∂::IndexedPartialDerivative, A::IndexedTensor)
 end
 
 """
+Computes the partial derivative of a scalar function f with respect to the coordinates of ∂.
+
+Returns a (0, 1) tensor of the derivative with respect to each coordinate, the gradient components of f.
+
+# Examples
+```
+julia> @variables u v
+julia> ∂ = PartialDerivative((u, v))
+julia> ∂[:i] * (u^2 * v)
+IndexedTensor{Num, 1, 0, 1}(Tensor{Num, 1}(Num[2u*v, u^2], (:co,)), (), (:i,))
+```
+"""
+function Base.:*(∂::IndexedPartialDerivative, f::Num)
+    data = [expand_derivatives(Differential(coordinate)(f)) for coordinate in ∂.partial.coordinates]
+    return IndexedTensor(Tensor(data, (:co,)), (), (∂.index,))
+end
+
+"""
 Computes the covariant derivative of a tensor A with respect to the coordinates of ∇.
 
 Given an (m, n) tensor A, returns an (m, n+1) tensor. If indices are repeated, contract over them.
@@ -39,7 +57,7 @@ Accounts for the change in the basis vectors from the connection coefficients.
 julia> @variables u v
 julia> basis = (Tensor([u, 0]), Tensor([0, v]))
 julia> ∂ = PartialDerivative((u, v))
-julia> Γ = christoffel((u, v), basis)
+julia> Γ = christoffel(Manifold((u, v), basis))
 julia> x = Tensor([2u + v^2, 1v])
 julia> ∇ = CovariantDerivative(Γ, ∂)
 julia> ∇[:k] * x[:i]
@@ -98,6 +116,25 @@ function Base.:*(d::IndexedExteriorDerivative, A::IndexedTensor)
     p = length(A.tensor.variance)
     C = factorial(p + 1) * antisymmetrize(B.tensor[indices...], indices...)[indices...]
     return C.tensor
+end
+
+"""
+Computes the exterior derivative of a scalar function f, a 0-form, with respect to the coordinates of d.
+
+Returns a (0, 1) tensor, the 1-form df.
+
+# Examples
+```
+julia> @variables u v
+julia> d = ExteriorDerivative(PartialDerivative((u, v)))
+julia> d[:i] * (u^2 * v)
+(0, 1)-Tensor:
+Num[2u*v, u^2]
+  (:co,)
+```
+"""
+function Base.:*(d::IndexedExteriorDerivative, f::Num)
+    return (d.exterior.partial[d.index] * f).tensor
 end
 
 """

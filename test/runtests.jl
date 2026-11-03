@@ -65,18 +65,37 @@ using Symbolics
             @variables x y
             basis = Basis([Tensor([1, 0]), Tensor([0, 1])])
 
-            @test all(iszero, christoffel((x, y), basis).data)
+            @test all(iszero, christoffel(Manifold((x, y), basis)).data)
         end
 
         @testset "Riemann" begin
             @variables u v
             basis = Basis([Tensor([1, 0]), Tensor([0, sin(u)])])
-            R = simplify(riemann((u, v), basis))
+            R = simplify(riemann(Manifold((u, v), basis)))
 
             @test isequal(R.data[2, 2, 1, 1], -1)
             @test isequal(R.data[1, 2, 2, 1], sin(u)^2)
             @test isequal(R.data[2, 1, 1, 2], 1)
             @test isequal(R.data[1, 1, 2, 2], -(sin(u)^2))
+        end
+
+        @testset "Manifold" begin
+            @variables θ φ
+            g = Tensor([[1, 0]', [0, sin(θ)^2]']')
+            M = Manifold((θ, φ), g)
+
+            @test metric(M) === M.metric
+            @test christoffel(M) === christoffel(M)
+            @test isequal(simplify(ricci_scalar(M)), 2)
+
+            basis = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
+            N = Manifold((θ, φ), basis; simple=true)
+            @test isequal(ricci_scalar(N), 2)
+            @test isequal(simplify(riemann(M)).data, simplify(riemann(Manifold((θ, φ), basis))).data)
+            @test_throws ErrorException Manifold((θ, φ), Tensor([1, 2]))
+            @test isequal(ricci_scalar(Manifold((θ, φ))), 0)
+            @test_throws ErrorException Manifold((θ, φ), g; ranges=(1:2,))
+            @test Manifold((θ, φ), basis; ranges=(1:2, 1:3)).basis === basis
         end
 
         @testset "Lie Bracket" begin
@@ -115,7 +134,7 @@ using Symbolics
             @variables u v
             x = Tensor([u^2, v])
             basis = Basis([Tensor([1, 0]), Tensor([0, 1])])
-            Γ = christoffel((u, v), basis)
+            Γ = christoffel(Manifold((u, v), basis))
             ∂ = PartialDerivative((u, v))
             ∇ = CovariantDerivative(Γ, ∂)
 
