@@ -1,62 +1,38 @@
 """
-Plot a 2D surface embedded in R3
+Plot an embedded surface in an Axis3
 
-surface_2dembed!(ax, embedding, xs, ys; kwargs...)
+plot_surface!(ax, M; kwargs...)
+
+M is a Manifold with an embedding and ranges.
 """
-function surface_2dembed!(args...; kwargs...)
-    error("Load GLMakie before using surface_2dembed!")
+function plot_surface!(args...; kwargs...)
+    error("Load GLMakie before using plot_surface!")
 end
 
 """
-Plot a scalar field in R2
+Plot a scalar field on a manifold: a heatmap if flat, a coloring of the surface if embedded
 
-scalar_2d!(ax, coordinates, xs, ys, f; kwargs...)
+plot_scalar!(ax, M, f; kwargs...)
 """
-function scalar_2d!(args...; kwargs...)
-    error("Load GLMakie before using scalar_2d!")
+function plot_scalar!(args...; kwargs...)
+    error("Load GLMakie before using plot_scalar!")
 end
 
 """
-Plot a scalar field on a 2D surface embedded in R3
+Plot a vector field over a manifold, or individual vectors at given positions
 
-scalar_2dembed!(ax, coordinates, embedding, xs, ys, f; kwargs...)
+plot_vectors!(ax, M, X; spacing=1, normalize=false, kwargs...)
+plot_vectors!(ax, M, positions, Xs; normalize=false, kwargs...)
 """
-function scalar_2dembed!(args...; kwargs...)
-    error("Load GLMakie before using scalar_2dembed!")
+function plot_vectors!(args...; kwargs...)
+    error("Load GLMakie before using plot_vectors!")
 end
 
 """
-Plot a path on a 2D surface embedded in R3
+Plot a parametric path on a manifold
 
-path_2dembed!(ax, embedding, path, times; kwargs...)
+plot_path!(ax, M, path, times; kwargs...)
 """
-function path_2dembed!(args...; kwargs...)
-    error("Load GLMakie before using scalar_2dembed!")
-end
-
-"""
-Plot individual vectors on a 2D surface embedded in R3
-
-vector_2dembed!(ax, coordinates, basis, embedding, positions, Xs; normalize=false, kwargs...)
-"""
-function vector_2dembed!(args...; kwargs...)
-    error("Load GLMakie before using scalar_2dembed!")
-end
-
-"""
-Plot a vector field in R2
-
-vectors_2d!(ax, coordinates, xs, ys, X; spacing=1, normalize=false, kwargs...)
-"""
-function vectors_2d!(args...; kwargs...)
-    error("Load GLMakie before using vectors_2d!")
-end
-
-"""
-Plot a vector field on a 2D surface in R3
-
-vectors_2dembed!(ax, coordinates, basis, embedding, xs, ys, X; spacing=1, normalize=false, kwargs...)
-"""
-function vectors_2dembed!(args...; kwargs...)
-    error("Load GLMakie before using vectors_2dembed!")
+function plot_path!(args...; kwargs...)
+    error("Load GLMakie before using plot_path!")
 end
