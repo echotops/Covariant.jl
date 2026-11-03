@@ -90,6 +90,9 @@ p {
 .toggle {
     position: relative;
     float: right;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--pri);
     width: 28px; height: 28px;
     transition: transform 0.2s ease;
@@ -98,13 +101,6 @@ p {
 
 .toggle.show {
     transform: rotate(90deg);
-}
-
-.toggle>p {
-    position: absolute;
-    top: 0px; left: 8px;
-    font-size: 18px;
-    height: 33px;
 }
 
 .menu {
