@@ -48,7 +48,7 @@ basis = Basis([
     Tensor([1, 0]),
     Tensor([0, sin(u)])
 ])
-riemann((u, v), basis, simple=true)`}
+riemann(Manifold((u, v), basis, simple=true))`}
 result={`(1, 3)-Tensor:
 Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(u)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(u)^2) 0; 0 0]
     (:contra, :co, :co, :co)`}

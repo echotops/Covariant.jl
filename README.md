@@ -48,7 +48,8 @@ julia> basis = Basis([
     Tensor([1, 0]),
     Tensor([0, sin(θ)])
 ])
-julia> riemann((θ, φ), basis, simple=true)
+julia> M = Manifold((θ, φ), basis, simple=true)
+julia> riemann(M)
 (1, 3)-Tensor:
 Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(θ)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(θ)^2) 0; 0 0]
   (:contra, :co, :co, :co)
@@ -58,13 +59,13 @@ Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(θ)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(θ)^2) 0; 
 
 **Algebra** — tensors and bases of tensors, with contraction, scaling, addition, the tensor product, wedge product for differential forms, dot product for vectors, and symmetrization/antisymmetrization, all driven by Einstein-notation indexing.
 
-**Geometry** — the metric, connection coefficients, and Lie bracket, plus the Riemann, Ricci, and Einstein tensors and the Ricci scalar.
+**Geometry** — a `Manifold` holding the coordinates and metric, with its connection coefficients and Lie bracket, plus the Riemann, Ricci, and Einstein tensors and the Ricci scalar.
 
 **Calculus** — the partial, covariant, and exterior derivatives, and the Hodge star, for tensor and differential form calculus.
 
 **Symbolic** — symbolic tensor components via Symbolics.jl, with `simplify`, `substitute`, and `evaluate` for turning exact symbolic results into concrete numbers.
 
-**Visualization & solving** — plot surfaces, scalar fields, and vector fields with GLMakie, and solve the geodesic and parallel transport equations with DifferentialEquations.jl. These are optional package extensions — load `GLMakie` and/or `DifferentialEquations` alongside Covariant to enable them.
+**Visualization & solving** — plot surfaces, scalar fields, vector fields, and paths with GLMakie, and solve the geodesic and parallel transport equations with DifferentialEquations.jl. These are optional package extensions — load `GLMakie` and/or `DifferentialEquations` and `ForwardDiff` alongside Covariant to enable them.
 
 ## Core Types & Operators
 

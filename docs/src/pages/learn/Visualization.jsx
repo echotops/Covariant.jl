@@ -14,8 +14,9 @@ export default function Visualization() {
             <p className="learn-heading" id="setup">Setup</p>
             <p className="learn-body">
                 Plotting with Covariant can be accomplished with GLMakie in <code>Makie.jl</code>.
-                Most of the visualization functions are for 2-dimensional manifolds embedded in 3
-                dimensions. The main two objects needed are the embedding and the vector basis
+                Everything is plotted on a <Ref to={refLinks.Manifold}>Manifold</Ref>, which holds the
+                coordinates, the metric (taken here from the vector basis), the range to plot each coordinate over,
+                and the embedding into 3 dimensions. It is given once and reused by every plotting function
             </p>
             <CodeBlock lang="julia"
 code={`fig = Figure()
@@ -26,50 +27,51 @@ embedding(u, v) = [
     sin(v)*sin(u),
     cos(u)
 ]
-# Coordinate ranges
-θs = range(0, π, 50)
-φs = range(0, 2π, 50)
 # Unit sphere basis vectors
 @variables θ, φ
 basis = Basis([
     Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
     Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
-])`}
+])
+# Coordinate ranges
+θs = range(0, π, 50)
+φs = range(0, 2π, 50)
+M = Manifold((θ, φ), basis; ranges=(θs, φs), embedding=embedding)`}
             />
             <p className="learn-heading" id="surfaces">Surfaces</p>
             <p className="learn-body">
-                Surfaces can be plotted with <Ref to={refLinks['surface_2dembed!']}>surface_2dembed!</Ref>
+                Surfaces can be plotted with <Ref to={refLinks['plot_surface!']}>plot_surface!</Ref>
             </p>
             <CodeBlock lang="julia"
-code={`surface_2dembed!(ax3, embedding, θs, φs)`} 
+code={`plot_surface!(ax3, M)`} 
 img={surface}
             />
             <p className="learn-heading" id="paths">Paths</p>
             <p className="learn-body">
-                Paths are defined as parametrics and then plotted with <Ref to={refLinks['path_2dembed!']}>path_2dembed!</Ref>
+                Paths are defined as parametrics and then plotted with <Ref to={refLinks['plot_path!']}>plot_path!</Ref>
             </p>
             <CodeBlock lang="julia"
 code={`λ(t) = [t - π/2, t^3 - 3t + π/2]
 times = range(0, 1.0, 50)
-path_2dembed!(ax3, embedding, λ, times)`}
+plot_path!(ax3, M, λ, times)`}
 img={path}
             />
             <p className="learn-heading" id="scalar-fields">Scalar Fields</p>
             <p className="learn-body">
-                Scalar functions of the <code>@variables</code> can be plotted with <Ref to={refLinks['scalar_2dembed!']}>scalar_2dembed!</Ref>
+                Scalar functions of the <code>@variables</code> can be plotted with <Ref to={refLinks['plot_scalar!']}>plot_scalar!</Ref>
             </p>
             <CodeBlock lang="julia"
-code={`R = ricci_scalar((θ, φ), basis)
-scalar_2dembed!(ax3, (θ, φ), embedding, θs, φs, R)`}
+code={`R = ricci_scalar(M)
+plot_scalar!(ax3, M, R)`}
 img={scalarfield}
             />
             <p className="learn-heading" id="vector-fields">Vector Fields</p>
             <p className="learn-body">
-                Vector functions of the <code>@variables</code> can be plotted with <Ref to={refLinks['vectors_2dembed!']}>vectors_2dembed!</Ref>
+                Vector functions of the <code>@variables</code> can be plotted with <Ref to={refLinks['plot_vectors!']}>plot_vectors!</Ref>
             </p>
             <CodeBlock lang="julia"
 code={`X = Tensor([sin(θ), cos(φ)])
-vectors_2dembed!(ax3, (θ, φ), basis, embedding, θs, φs, X, spacing=2, normalize=true)`}
+plot_vectors!(ax3, M, X, spacing=2, normalize=true)`}
 img={vectorfield}
             />
             <p className="learn-body">

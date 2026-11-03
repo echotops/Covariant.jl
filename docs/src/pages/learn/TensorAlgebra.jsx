@@ -58,7 +58,7 @@ result={`(0, 2)-Tensor:
 code={`v = Tensor([2, -1])
 ω = Tensor([-2, 3]')
 v[:i] * ω[:i]   # The dot product v · ω`}
-result={`7`}
+result={`-7`}
             />
             <CodeBlock lang="julia"
 code={`A = Tensor([[2, -3], [-4, -1]]')

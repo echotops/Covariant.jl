@@ -14,7 +14,7 @@ export default function DifferentialOperators() {
                 id="partial-derivative"
                 name="PartialDerivative"
                 code={`struct PartialDerivative{N}`}
-                description={<>The partial derivative operator <Math>{'\\partial'}</Math> with respect to a set of symbolic coordinates. Constructed from a tuple of <code>Symbolics.jl</code> variables and contracted against an <code>IndexedTensor</code> via symbolic indexing, where the index ranges over each coordinate in turn. Produces the correct derivative only when the basis vectors are constant — for non-constant bases, use <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref> instead.</>}
+                description={<>The partial derivative operator <Math>{'\\partial'}</Math> with respect to a set of symbolic coordinates. Constructed from a tuple of <code>Symbolics.jl</code> variables, or from a <code>Manifold</code>, <code>PartialDerivative(M)</code>, which takes its coordinates, and contracted against an <code>IndexedTensor</code> via symbolic indexing, where the index ranges over each coordinate in turn. Produces the correct derivative only when the basis vectors are constant — for non-constant bases, use <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref> instead.</>}
                 fields={[
                     ['coordinates', 'NTuple{N, Num}', <>The tuple of symbolic coordinates to differentiate with respect to, defined with the <code>@variables</code> macro.</>],
                 ]}
@@ -37,14 +37,14 @@ Num[v u; 0 2v]
 α = Tensor([u^2 * v, v + 2]')
 ∂[:i] * α[:j]`}
                     result={`(0, 2)-Tensor:
-Num[2u*v u^2; v 1]
+Num[2u*v u^2; 0 1]
     (:co, :co)
     (), (:i, :j)`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Contracting with a matching index computes the divergence
 ∂[:i] * X[:i]`}
-                    result={`v + 2v`}
+                    result={`3v`}
                 />
             </TypeDocs>
 
@@ -65,8 +65,9 @@ e = Basis([
     Tensor([1, 0]),
     Tensor([0, sin(θ)])
 ])
+M = Manifold((θ, φ), e)
 ∂ = PartialDerivative((θ, φ))
-Γ = christoffel((θ, φ), e)
+Γ = christoffel(M)
 ∇ = CovariantDerivative(Γ, ∂)
 
 X = Tensor([sin(θ), 0])
@@ -78,7 +79,7 @@ Num[cos(θ) 0; 0 cos(θ)]
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# levicivita constructs the Levi-Civita connection in one step
-∇ = levicivita((θ, φ), e)
+∇ = levicivita(M)
 ∇[:i] * X[:j]`}
                     result={`(1, 1)-Tensor:
 Num[cos(θ) 0; 0 cos(θ)]
@@ -120,7 +121,7 @@ Num[0.0 u^2; -(u^2) 0.0]
 ∂3 = PartialDerivative((x, y, z))
 d3 = ExteriorDerivative(∂3)
 f = x^2 * y + z
-d3[:i] * Tensor([f]')`}
+d3[:i] * f`}
                     result={`(0, 1)-Tensor:
 Num[2x*y, x^2, 1]
     (:co,)`}
@@ -128,7 +129,7 @@ Num[2x*y, x^2, 1]
                 <CodeBlock lang="julia" inset={60}
                     code={`# Nilpotency: applying d twice returns the zero form
 β = d[:i] * α[:j]
-d[:k] * β[:k, :l]`}
+d[:m] * β[:k, :l]`}
                     result={`(0, 3)-Tensor:
 Num[0.0 0.0; 0.0 0.0;;; 0.0 0.0; 0.0 0.0]
     (:co, :co, :co)`}

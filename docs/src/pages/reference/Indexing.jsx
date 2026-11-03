@@ -194,7 +194,7 @@ Num[v u; 0 2v]
                 <CodeBlock lang="julia" inset={60}
                     code={`@variables θ φ
 e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
-∇ = levicivita((θ, φ), e)
+∇ = levicivita(Manifold((θ, φ), e))
 X = Tensor([sin(θ), 0])
 ∇[:i] * X[:j]   # Covariant Jacobian of X`}
                     result={`(1, 1)-Tensor:

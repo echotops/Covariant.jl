@@ -12,60 +12,22 @@ export default function ParallelTransport() {
         <>
             <p className="learn-title">Parallel Transport</p>
             <p className="learn-body">
-                Covariant provides two variants: transporting along a geodesic defined
-                by an initial position and velocity, and transporting along an arbitrary
-                parametric path. Both variants expose the raw ODE
-                function for use with <code>DifferentialEquations.jl</code> directly,
-                and a higher-level solver that wraps it automatically.
+                A vector is transported along a path, which is either a parametric function or
+                a <Ref to={refLinks.Trajectory}>Trajectory</Ref> from <Ref to={refLinks.solve_geodesic}>solve_geodesic</Ref>.
+                A single function covers both, so transport along a geodesic, along a straight line in
+                coordinates, and around a closed loop are all the same call with a different path.
             </p>
-
-            <FunctionDocs
-                id="parallel-transport"
-                name="parallel_transport!"
-                code={`parallel_transport!(coordinates, Γ, du, u, p, t)`}
-                description={<>The in-place ODE function defining parallel transport along a geodesic, for use directly with <code>DifferentialEquations.jl</code>. At each timestep, evaluates <Math>{'\\Gamma'}</Math> at the current position and computes the transport equation <Math display>{'\\dot{w}^i = -\\Gamma^i_{jk} w^j \\dot{x}^k'}</Math> where <Math>{'\\dot{x}'}</Math> is the geodesic velocity and <Math>{'w'}</Math> is the transported vector. The geodesic velocity is held constant — position evolves but the curve is not re-solved. The state vector <code>u</code> packs position in <code>u[1:2]</code>, geodesic velocity in <code>u[3:4]</code>, and the transported vector in <code>u[5:6]</code>. Most use cases should call <Ref to={refLinks.solve_parallel_transport}>solve_parallel_transport</Ref> instead.</>}
-                args={[
-                    ['coordinates', 'Tuple{Num}', <>The symbolic coordinate variables, used to evaluate <code>Γ</code> at the current position.</>],
-                    ['Γ', 'Tensor', <>The <Math>{'(1, 2)'}</Math>-tensor of Christoffel symbols, computed by <Ref to={refLinks.christoffel}>christoffel</Ref>.</>],
-                    ['du', 'Vector{Float64}', <>The output derivative vector, mutated in place by the function.</>],
-                    ['u', 'Vector{Float64}', <>The current state vector. <code>u[1:2]</code> is position, <code>u[3:4]</code> is geodesic velocity, <code>u[5:6]</code> is the transported vector.</>],
-                    ['p', 'Any', <>Parameters passed through by <code>DifferentialEquations.jl</code>. Not used internally.</>],
-                    ['t', 'Float64', <>The current time, passed through by <code>DifferentialEquations.jl</code>. Not used internally.</>],
-                ]}
-            >
-                <p className="learn-heading">Examples</p>
-                <CodeBlock lang="julia" inset={60}
-                    code={`# Using parallel_transport! directly with DifferentialEquations.jl
-@variables θ φ
-e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
-Γ = christoffel((θ, φ), e)
-
-x0 = [π/4, 3π/4]
-v0 = [0.5, 2]
-w0 = [2, 0]
-u0 = [x0..., v0..., w0...]
-times = range(0.0, 1.5, 15)
-
-problem = ODEProblem(
-    (du, u, p, t) -> parallel_transport!((θ, φ), Γ, du, u, p, t),
-    u0, (times[begin], times[end])
-)
-solution = solve(problem, abstol=1e-5, reltol=1e-5, saveat=times)`}
-                />
-            </FunctionDocs>
 
             <FunctionDocs
                 id="solve-parallel-transport"
                 name="solve_parallel_transport"
-                code={`solve_parallel_transport(coordinates, basis, x0, v0, w0, times; abstol=1e-5, reltol=1e-5)`}
-                description={<>Solves the parallel transport equation along a geodesic, given an initial position, geodesic velocity, and vector to transport. Internally computes the Christoffel symbols, constructs an <code>ODEProblem</code> from <code>parallel_transport!</code>, and solves with <code>DifferentialEquations.jl</code>. Returns a solution object whose <code>.u</code> field is a vector of state vectors, each packing position in <code>1:2</code>, geodesic velocity in <code>3:4</code>, and the transported vector in <code>5:6</code>.</>}
+                code={`solve_parallel_transport(M, path, w0, times; abstol=1e-5, reltol=1e-5)`}
+                description={<>Solves the parallel transport equation <Math display>{'\\dot{w}^i = -\\Gamma^i_{jk} w^j \\dot{x}^k'}</Math> along a path, given an initial vector to transport. When the path is a function, its velocity is computed automatically via automatic differentiation, so only the path itself needs to be provided, and it need not be a geodesic. When it is a <code>Trajectory</code>, its saved velocities are used, so the vector is carried along the geodesic exactly. Returns a <code>Trajectory</code> with the positions and velocities of the path and the transported vectors.</>}
                 args={[
-                    ['coordinates', 'Tuple{Num}', <>A tuple of symbolic variables defined with <code>@variables</code>, one per dimension.</>],
-                    ['basis', 'Basis', <>A vector <Math>{'(:contra,)'}</Math> basis defining the geometry of the manifold.</>],
-                    ['x0', 'Vector{Float64}', <>The initial position in coordinate space.</>],
-                    ['v0', 'Vector{Float64}', <>The initial geodesic velocity in coordinate space.</>],
+                    ['M', 'Manifold', <>The manifold to solve on, of any dimension.</>],
+                    ['path', 'Function or Trajectory', <>A parametric function <code>t -&gt; [u, v]</code> giving the position at each time, or a solved <code>Trajectory</code> that has velocities.</>],
                     ['w0', 'Vector{Float64}', <>The initial vector to transport in coordinate space.</>],
-                    ['times', 'AbstractRange', <>The time range over which to solve, also used as the <code>saveat</code> grid.</>],
+                    ['times', 'AbstractRange', <>The times to save the solution at.</>],
                 ]}
                 kwargs={[
                     ['abstol', 'Float64', '1e-5', <>Absolute tolerance passed to the ODE solver.</>],
@@ -74,115 +36,36 @@ solution = solve(problem, abstol=1e-5, reltol=1e-5, saveat=times)`}
             >
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
-                    code={`@variables θ φ
-e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
-
+                    code={`# Transport along a straight line in coordinates: a constant direction
 x0 = [π/4, 3π/4]
 v0 = [0.5, 2]
 w0 = [2, 0]
 times = range(0.0, 1.5, 15)
 
-solution = solve_parallel_transport((θ, φ), e, x0, v0, w0, times;
-    abstol=1e-5, reltol=1e-5)
+trajectory = solve_parallel_transport(M, t -> x0 + v0 * t, w0, times)
 
-positions = [(u[1], u[2]) for u in solution.u]
-vectors   = [Tensor([u[5], u[6]]) for u in solution.u]
-
-# Initial velocity in red, transported vector in blue
-vector_2dembed!(ax3, (θ, φ), basis, embedding, positions,
-    [Tensor(v0) for _ in positions], lengthscale=0.1, colormap=:reds)
-vector_2dembed!(ax3, (θ, φ), basis, embedding, positions,
-    vectors, lengthscale=0.1, colormap=:ice)`}
+# The path's velocity in red, the transported vector in blue
+plot_vectors!(ax3, M, trajectory, which=:velocities, lengthscale=0.1, colormap=:reds)
+plot_vectors!(ax3, M, trajectory, lengthscale=0.1, colormap=:ice)`}
                     img={ptvector}
                 />
                 <CodeBlock lang="julia" inset={60}
-                    code={`# The angle between the initial and final transported vector
-# reveals the holonomy of the loop
-w_initial = Tensor(w0)
-w_final   = Tensor([solution.u[end][5], solution.u[end][6]])
-w_initial ⋅ w_final / (norm(w_initial) * norm(w_final)) |> acos`}
-                />
-            </FunctionDocs>
-
-            <FunctionDocs
-                id="parallel-transport-path"
-                name="parallel_transport_path!"
-                code={`parallel_transport_path!(coordinates, Γ, path, du, u, p, t)`}
-                description={<>The in-place ODE function defining parallel transport along an arbitrary parametric path, for use directly with <code>DifferentialEquations.jl</code>. Unlike <Ref to={refLinks.parallel_transport}>parallel_transport!</Ref>, the curve is specified explicitly as a function — <code>path(t)</code> returning the position at time <code>t</code> — rather than being solved as a geodesic. Its velocity is computed automatically via <code>ForwardDiff.derivative</code>, so only <code>path</code> itself needs to be provided. The state vector <code>u</code> holds only the transported vector in <code>u[1:2]</code>, since the path is evaluated analytically at each timestep. Most use cases should call <Ref to={refLinks.solve_parallel_transport_path}>solve_parallel_transport_path</Ref> instead.</>}
-                args={[
-                    ['coordinates', 'Tuple{Num}', <>The symbolic coordinate variables, used to evaluate <code>Γ</code> at the current position.</>],
-                    ['Γ', 'Tensor', <>The <Math>{'(1, 2)'}</Math>-tensor of Christoffel symbols, computed by <Ref to={refLinks.christoffel}>christoffel</Ref>.</>],
-                    ['path', 'Function', <>A parametric function <code>t -&gt; [u, v]</code> giving the position at each time. Differentiated automatically to find the velocity.</>],
-                    ['du', 'Vector{Float64}', <>The output derivative vector, mutated in place by the function.</>],
-                    ['u', 'Vector{Float64}', <>The current state vector. <code>u[1:2]</code> is the transported vector.</>],
-                    ['p', 'Any', <>Parameters passed through by <code>DifferentialEquations.jl</code>. Not used internally.</>],
-                    ['t', 'Float64', <>The current time, used to evaluate <code>path</code> and its derivative.</>],
-                ]}
-            >
-                <p className="learn-heading">Examples</p>
-                <CodeBlock lang="julia" inset={60}
-                    code={`@variables θ φ
-e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
-Γ = christoffel((θ, φ), e)
-
+                    code={`# Around a closed loop. The angle between the initial and final
+# transported vector reveals the holonomy of the loop
 path(t) = [0.4cos(t) + 0.1sin(2t) + π/3, 0.7sin(t) - 2π/3]
-w0   = [2.0, -1.0]
 times = range(0.0, 2π, 101)
 
-problem = ODEProblem(
-    (du, u, p, t) -> parallel_transport_path!((θ, φ), Γ, path, du, u, p, t),
-    w0, (times[begin], times[end])
-)
-solution = solve(problem, abstol=1e-5, reltol=1e-5, saveat=times)`}
-                />
-            </FunctionDocs>
-
-            <FunctionDocs
-                id="solve-parallel-transport-path"
-                name="solve_parallel_transport_path"
-                code={`solve_parallel_transport_path(coordinates, basis, path, w0, times; abstol=1e-5, reltol=1e-5)`}
-                description={<>Solves the parallel transport equation along an arbitrary parametric path, given the path and an initial vector to transport. The path's velocity is computed automatically via automatic differentiation, so it doesn't need to be supplied separately. The path need not be a geodesic — any smooth curve is accepted. Returns a solution object whose <code>.u</code> field is a vector of state vectors, each holding the transported vector in <code>u[1:2]</code>.</>}
-                args={[
-                    ['coordinates', 'Tuple{Num}', <>A tuple of symbolic variables defined with <code>@variables</code>, one per dimension.</>],
-                    ['basis', 'Basis', <>A vector <Math>{'(:contra,)'}</Math> basis defining the geometry of the manifold.</>],
-                    ['path', 'Function', <>A parametric function <code>t -&gt; [u, v]</code> giving the position at each time. Differentiated automatically to find the velocity.</>],
-                    ['w0', 'Vector{Float64}', <>The initial vector to transport in coordinate space.</>],
-                    ['times', 'AbstractRange', <>The time range over which to solve, also used as the <code>saveat</code> grid.</>],
-                ]}
-                kwargs={[
-                    ['abstol', 'Float64', '1e-5', <>Absolute tolerance passed to the ODE solver.</>],
-                    ['reltol', 'Float64', '1e-5', <>Relative tolerance passed to the ODE solver.</>],
-                ]}
-            >
-                <p className="learn-heading">Examples</p>
-                <CodeBlock lang="julia" inset={60}
-                    code={`@variables θ φ
-e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
-
-path(t) = [0.4cos(t) + 0.1sin(2t) + π/3, 0.7sin(t) - 2π/3]
-w0    = [2.0, -1.0]
-times = range(0.0, 2π, 101)
-
-solution = solve_parallel_transport_path((θ, φ), e, path, w0, times;
+trajectory = solve_parallel_transport(M, path, [2.0, -1.0], times;
     abstol=1e-5, reltol=1e-5)
 
-positions = [path(t) for t in times[begin:5:end]]
-vectors   = [Tensor([u[1], u[2]]) for u in solution.u[begin:5:end]]
-colorscale = [RGBf(1-i/length(positions), 0, i/length(positions))
-    for i in 1:length(positions)]
-
-path_2dembed!(ax3, embedding, path, times, color=:lightblue)
-vector_2dembed!(ax3, (θ, φ), basis, embedding, positions,
-    vectors, lengthscale=0.1, colormap=:ice)
-scatter!(ax3, [Point3f(embedding(p...)) for p in positions],
-    color=colorscale, markersize=10)`}
+plot_path!(ax3, M, trajectory, color=:lightblue)
+plot_vectors!(ax3, M, trajectory, spacing=5, lengthscale=0.1, colormap=:ice)`}
                     img={ptpath}
                 />
                 <CodeBlock lang="julia" inset={60}
-                    code={`# Measuring the holonomy angle after one full loop
-w_initial = Tensor(w0)
-w_final   = Tensor([solution.u[end][1], solution.u[end][2]])
-holonomy  = acos(w_initial ⋅ w_final / (norm(w_initial) * norm(w_final)))`}
+                    code={`# Along a geodesic: pass the solved geodesic as the path
+geodesic = solve_geodesic(M, [π/2, π/6], [0.5, -0.5], range(0.0, 5.0, 50))
+transported = solve_parallel_transport(M, geodesic, [1.0, 0.0], range(0.0, 5.0, 50))`}
                 />
             </FunctionDocs>
 

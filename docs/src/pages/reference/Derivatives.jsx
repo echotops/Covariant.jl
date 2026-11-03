@@ -51,7 +51,7 @@ Num[1 0; 3 0;;; 0 2; 0 2v]
                 <CodeBlock lang="julia" inset={60}
                     code={`# Repeated index triggers contraction — yields the divergence
 ∂[:i] * X[:i]`}
-                    result={`v + 2v`}
+                    result={`3v`}
                 />
             </FunctionDocs>
 
@@ -61,7 +61,7 @@ Num[1 0; 3 0;;; 0 2; 0 2v]
                 code={`Base.:*(∇::IndexedCovariantDerivative, A::IndexedTensor)`}
                 description={<>Computes the covariant derivative of <code>A</code>, correcting the partial derivative for the curvature of the underlying space via the connection coefficients. Given an <Math>{'(m, n)'}</Math>-tensor, returns an <Math>{'(m, n+1)'}</Math>-tensor. For each contravariant index of <code>A</code>, a term <Math>{'+ \\Gamma^i_{kj} A^{\\cdots}_{\\cdots}'}</Math> is added; for each covariant index, a term <Math>{'- \\Gamma^k_{ij} A^{\\cdots}_{\\cdots}'}</Math> is subtracted. If the derivative index label already appears in <code>A</code>, the result is contracted, yielding a covariant divergence.</>}
                 args={[
-                    ['∇', 'IndexedCovariantDerivative', <>The indexed covariant derivative operator, produced by <code>CovariantDerivative(Γ, ∂)[:i]</code> or <code>levicivita((coords...), basis)[:i]</code>.</>],
+                    ['∇', 'IndexedCovariantDerivative', <>The indexed covariant derivative operator, produced by <code>CovariantDerivative(Γ, ∂)[:i]</code> or <code>levicivita(M)[:i]</code>.</>],
                     ['A', 'IndexedTensor', <>The tensor to differentiate. Components must be symbolic expressions in the coordinates of the underlying <code>PartialDerivative</code>.</>],
                 ]}
             >
@@ -72,7 +72,8 @@ e = Basis([
     Tensor([1, 0]),
     Tensor([0, sin(θ)])
 ])
-∇ = levicivita((θ, φ), e)
+M = Manifold((θ, φ), e)
+∇ = levicivita(M)
 
 # Covariant derivative of a vector field on the 2-sphere
 X = Tensor([sin(θ), 0])
@@ -127,18 +128,21 @@ Num[0.0 0.0 -1.0; 0.0 0.0 y; 1.0 -y 0.0]
 d = ExteriorDerivative(∂)
 
 # Exterior derivative of a 0-form (scalar function) yields a 1-form
-f = Tensor([u^2 * v]')
-d[:i] * f[:i]`}
+f = u^2 * v
+d[:i] * f`}
                     result={`(0, 1)-Tensor:
 Num[2u*v, u^2]
     (:co,)`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Nilpotency: applying d twice always yields the zero form
+@variables x y z
+d = ExteriorDerivative(PartialDerivative((x, y, z)))
+α = Tensor([x^2, y*z, x]')
 β = d[:k] * α[:i]
-d[:l] * β[:l, :i]`}
+d[:m] * β[:k, :i]`}
                     result={`(0, 3)-Tensor:
-Num[0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0]
+Num[0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0;;; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0;;; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0]
     (:co, :co, :co)`}
                 />
             </FunctionDocs>

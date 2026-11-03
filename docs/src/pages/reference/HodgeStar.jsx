@@ -35,9 +35,9 @@ Num[1.0, 3.0]
                 <CodeBlock lang="julia" inset={60}
                     code={`# In 3D, a 1-form maps to a 2-form
 e3 = Basis([Tensor([1,0,0]), Tensor([0,1,0]), Tensor([0,0,1])])
-⋆3 = HodgeStar(metric(e3))
+star3 = HodgeStar(metric(e3))
 β = Tensor([1, 0, 0]')
-⋆3(β)`}
+star3(β)`}
                     result={`(0, 2)-Tensor:
 Num[0.0 0.0 0.0; 0.0 0.0 1.0; 0.0 -1.0 0.0]
     (:co, :co)`}

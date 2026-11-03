@@ -30,20 +30,21 @@ e = Basis([
     Tensor([1, 0]),
     Tensor([0, sin(θ)])
 ])
-R = ricci((θ, φ), e)
+M = Manifold((θ, φ), e)
+R = ricci(M)
 simplify(R)`}
 result={`(0, 2)-Tensor:
 Num[1.0 0.0; 0.0 sin(θ)^2]
     (:co, :co)`}
             />
             <p className="learn-body">
-                This is common enough after a geometry calculation that most of those functions accept
-                a <code>simple=true</code> keyword as a shorthand for calling <code>simplify</code> on
-                the result, as seen throughout the previous two pages
+                This is common enough after a geometry calculation that a <code>Manifold</code> can be
+                constructed with <code>simple=true</code> as a shorthand for calling <code>simplify</code> on
+                every result, as seen throughout the previous two pages
             </p>
             <CodeBlock lang="julia"
-code={`# Equivalent to simplify(ricci_scalar((θ, φ), e))
-ricci_scalar((θ, φ), e, simple=true)`}
+code={`# Equivalent to simplify(ricci_scalar(M))
+ricci_scalar(Manifold((θ, φ), e, simple=true))`}
 result={`2`}
             />
             <p className="learn-heading" id="substitute">Substitute</p>
@@ -54,7 +55,7 @@ result={`2`}
                 pinning down some coordinates while leaving others symbolic
             </p>
             <CodeBlock lang="julia"
-code={`R = ricci((θ, φ), e, simple=true)
+code={`R = ricci(Manifold((θ, φ), e, simple=true))
 
 # Evaluate at the equator θ = π/2
 substitute(R, Dict(θ => π/2))`}

@@ -27,7 +27,8 @@ e = Basis([
     Tensor([1, 0]),
     Tensor([0, sin(θ)])
 ])
-R = ricci((θ, φ), e)
+M = Manifold((θ, φ), e)
+R = ricci(M)
 simplify(R)`}
                     result={`(0, 2)-Tensor:
 Num[1.0 0.0; 0.0 sin(θ)^2]
@@ -45,8 +46,8 @@ Num[1 0; 0 1]
     (:j,), (:i,)`}
                 />
                 <CodeBlock lang="julia" inset={60}
-                    code={`# Equivalent to passing simple=true to geometry functions
-ricci_scalar((θ, φ), e, simple=true)`}
+                    code={`# Equivalent to passing simple=true when constructing the manifold
+ricci_scalar(Manifold((θ, φ), e, simple=true))`}
                     result={`2`}
                 />
             </FunctionDocs>
@@ -65,7 +66,7 @@ ricci_scalar((θ, φ), e, simple=true)`}
                 <CodeBlock lang="julia" inset={60}
                     code={`@variables θ φ
 e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
-R = ricci((θ, φ), e, simple=true)
+R = ricci(Manifold((θ, φ), e, simple=true))
 
 # Evaluate at the equator θ = π/2
 substitute(R, Dict(θ => π/2))`}
@@ -106,7 +107,7 @@ evaluate(x::Num, dict)`}
                 <CodeBlock lang="julia" inset={60}
                     code={`@variables θ φ
 e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
-R = ricci((θ, φ), e, simple=true)
+R = ricci(Manifold((θ, φ), e, simple=true))
 
 # Numerically evaluate the Ricci tensor at θ = π/4
 evaluate(R, Dict(θ => π/4, φ => 0.0))`}

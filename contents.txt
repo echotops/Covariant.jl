@@ -15,6 +15,7 @@ IndexedExteriorDerivative
 HodgeStar
 Basis
 IndexedBasis
+Manifold
 
 --- constructors.jl ---
 Tensor
@@ -41,7 +42,9 @@ Base.* (IndexedTensor, Number)
 Base./ (IndexedTensor, Number)
 Base.* (IndexedTensor, IndexedKroneckerDelta)
 Base.* (IndexedTensor, IndexedLeviCivita)
+Base.* (IndexedTensor, IndexedBasis)
 LinearAlgebra.⋅ (Tensor, Tensor)
+LinearAlgebra.norm (Tensor)
 symmetrize
 antisymmetrize
 dual_basis
@@ -55,7 +58,14 @@ HodgeStar
 --- geometry.jl ---
 inv
 minkowski
-metric
+Manifold (coordinates, Tensor)
+Manifold (coordinates, Basis)
+Manifold (coordinates)
+PartialDerivative (Manifold)
+HodgeStar (Manifold)
+metric (Basis)
+metric (Manifold)
+inverse_metric
 christoffel
 levicivita
 lie
@@ -70,20 +80,29 @@ Symbolics.simplify (IndexedTensor)
 Symbolics.substitute
 evaluate (Tensor)
 evaluate (Num)
+lambdify (Tensor)
+lambdify (Num)
 
---- visualization.jl ---
-surface_2dembed!
-scalar_2d!
-scalar_2dembed!
-path_2dembed!
-vector_2dembed!
-vectors_2d!
-vectors_2dembed!
+--- visualization.jl --- (stubs, implemented in ext/CovariantMakie.jl)
+plot_surface!
+plot_scalar!
+plot_vectors!
+plot_path!
 
---- solver.jl ---
-geodesic!
-solve_geodesic!
-parallel_transport!
-solve_parallel_transport!
-parallel_transport_path!
-solve_parallel_transport_path!
+--- solver.jl --- (solve_* are stubs, implemented in ext/CovariantSolver.jl)
+Trajectory
+solve_geodesic
+solve_parallel_transport
+
+--- ext/CovariantSolver.jl ---
+solve_geodesic (Manifold)
+solve_parallel_transport (Manifold)
+
+--- ext/CovariantMakie.jl ---
+plot_surface! (Manifold)
+plot_scalar! (Manifold)
+plot_vectors! (Manifold, Tensor)
+plot_vectors! (Manifold, positions, vectors)
+plot_vectors! (Manifold, Trajectory)
+plot_path! (Manifold, function)
+plot_path! (Manifold, Trajectory)

@@ -215,6 +215,7 @@ export const referenceNav = [
                 heading: 'Metric & Connections',
                 path: '/reference/metric-and-connections',
                 items: [
+                    { title: 'Manifold', anchor: 'manifold' },
                     { title: 'metric', anchor: 'metric' },
                     { title: 'LinearAlgebra.inv', anchor: 'inv' },
                     { title: 'minkowski', anchor: 'minkowski' },
@@ -256,25 +257,23 @@ export const referenceNav = [
                 heading: 'Surfaces & Paths',
                 path: '/reference/surfaces-and-paths',
                 items: [
-                    { title: 'surface_2dembed!', anchor: 'surface-embed' },
-                    { title: 'path_2dembed!', anchor: 'path-embed' },
+                    { title: 'plot_surface!', anchor: 'plot-surface' },
+                    { title: 'plot_path!', anchor: 'plot-path' },
                 ],
             },
             {
                 heading: 'Scalar Fields',
                 path: '/reference/scalar-fields',
                 items: [
-                    { title: 'scalar_2d!', anchor: 'scalar' },
-                    { title: 'scalar_2dembed!', anchor: 'scalar-embed' },
+                    { title: 'plot_scalar!', anchor: 'plot-scalar' },
                 ],
             },
             {
                 heading: 'Vector Fields',
                 path: '/reference/vector-fields',
                 items: [
-                    { title: 'vectors_2d!', anchor: 'vectors' },
-                    { title: 'vectors_2dembed!', anchor: 'vectors-embed' },
-                    { title: 'vector_2dembed!', anchor: 'vector-embed' },
+                    { title: 'plot_vectors! (field)', anchor: 'vectors' },
+                    { title: 'plot_vectors! (positions)', anchor: 'vectors-positions' },
                 ],
             },
         ]
@@ -286,18 +285,15 @@ export const referenceNav = [
                 heading: 'Geodesics',
                 path: '/reference/geodesics',
                 items: [
-                    { title: 'geodesic!', anchor: 'geodesic' },
-                    { title: 'solve_geodesic!', anchor: 'solve-geodesic' },
+                    { title: 'Trajectory', anchor: 'trajectory' },
+                    { title: 'solve_geodesic', anchor: 'solve-geodesic' },
                 ],
             },
             {
                 heading: 'Parallel Transport',
                 path: '/reference/parallel-transport',
                 items: [
-                    { title: 'parallel_transport!', anchor: 'parallel-transport' },
                     { title: 'solve_parallel_transport', anchor: 'solve-parallel-transport' },
-                    { title: 'parallel_transport_path!', anchor: 'parallel-transport-path' },
-                    { title: 'solve_parallel_transport_path', anchor: 'solve-parallel-transport-path' },
                 ],
             },
         ]
@@ -338,27 +334,16 @@ export const refLinks = {
     substitute: '/reference/simplify-evaluate#substitute',
     evaluate: '/reference/simplify-evaluate#evaluate',
 
-    'surface_2dembed!': '/reference/surfaces-and-paths#surface-embed',
-    'path_2dembed!': '/reference/surfaces-and-paths#path-embed',
-    'scalar_2d!': '/reference/scalar-fields#scalar',
-    'scalar_2dembed!': '/reference/scalar-fields#scalar-embed',
-    'vectors_2d!': '/reference/vector-fields#vectors',
-    'vectors_2dembed!': '/reference/vector-fields#vectors-embed',
-    'vector_2dembed!': '/reference/vector-fields#vector-embed',
+    Manifold: '/reference/metric-and-connections#manifold',
+    'plot_surface!': '/reference/surfaces-and-paths#plot-surface',
+    'plot_path!': '/reference/surfaces-and-paths#plot-path',
+    'plot_scalar!': '/reference/scalar-fields#plot-scalar',
+    'plot_vectors!': '/reference/vector-fields#vectors',
 
-    'geodesic!': '/reference/geodesics#geodesic',
-    geodesic: '/reference/geodesics#geodesic',
-    'solve_geodesic!': '/reference/geodesics#solve-geodesic',
+    Trajectory: '/reference/geodesics#trajectory',
     solve_geodesic: '/reference/geodesics#solve-geodesic',
 
-    'parallel_transport!': '/reference/parallel-transport#parallel-transport',
-    parallel_transport: '/reference/parallel-transport#parallel-transport',
-    'solve_parallel_transport!': '/reference/parallel-transport#solve-parallel-transport',
     solve_parallel_transport: '/reference/parallel-transport#solve-parallel-transport',
-    'parallel_transport_path!': '/reference/parallel-transport#parallel-transport-path',
-    parallel_transport_path: '/reference/parallel-transport#parallel-transport-path',
-    'solve_parallel_transport_path!': '/reference/parallel-transport#solve-parallel-transport-path',
-    solve_parallel_transport_path: '/reference/parallel-transport#solve-parallel-transport-path',
 };
 
 // Section (path -> heading/group) lookup, used to derive per-page <title> and search entries.

@@ -82,7 +82,8 @@ Num[v u; 0 2v]
                 is used. Defining a <code>CovariantDerivative</code> requires connection coefficients (also
                 called Christoffel symbols). You can define your own coefficients and pass them in,
                 or use <Ref to={refLinks.christoffel}>christoffel</Ref> to calculate the coefficients of the Levi-Civita
-                connection. Alternatively, the shortcut <Ref to={refLinks.levicivita}>levicivita</Ref> can define the
+                connection of a <Ref to={refLinks.Manifold}>Manifold</Ref>, which holds the coordinates along
+                with the metric, taken here from the basis. Alternatively, the shortcut <Ref to={refLinks.levicivita}>levicivita</Ref> can define the
                 Levi-Civita connection in one line.
             </p>
             <CodeBlock lang="julia"
@@ -91,9 +92,10 @@ e = Basis([
     Tensor([1, 0]),
     Tensor([0, sin(θ)])
 ])
+M = Manifold((θ, φ), e) # The coordinates, with the metric from the basis
 ∂ = PartialDerivative((θ, φ))
-Γ = christoffel((θ, φ), e) # The Christoffel symbols of the Levi-Civita connection
-∇ = CovariantDerivative(Γ, ∂) # Alternatively ∇ = levicivita((θ, φ), e)
+Γ = christoffel(M) # The Christoffel symbols of the Levi-Civita connection
+∇ = CovariantDerivative(Γ, ∂) # Alternatively ∇ = levicivita(M)
 X = Tensor([sin(θ), 0])
 ∇[:i] * X[:j]`} 
 result={`(1, 1)-Tensor:
@@ -107,8 +109,8 @@ Num[cos(θ) 0; 0 cos(θ)]
                 a vector parallel-transported around a small loop doesn't come back to where it
                 started (covered on the Solver page). There are a few measurements of curvature
                 provided, the first being the Riemann
-                tensor. Passing the <code>simple=true</code> argument applies <Ref to={refLinks.simplify}>simplify</Ref> to
-                the result
+                tensor. Passing <code>simple=true</code> when constructing the <code>Manifold</code> applies <Ref to={refLinks.simplify}>simplify</Ref> to
+                the results. Each curvature quantity is computed once and cached on the manifold
             </p>
             <CodeBlock lang="julia"
 code={`@variables θ φ
@@ -116,7 +118,8 @@ e = Basis([
     Tensor([1, 0]),
     Tensor([0, sin(θ)])
 ])
-riemann((θ, φ), e, simple=true)`} 
+M = Manifold((θ, φ), e, simple=true)
+riemann(M)`} 
 result={`(1, 3)-Tensor:
 Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(θ)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(θ)^2) 0; 0 0]
     (:contra, :co, :co, :co)`}
@@ -125,7 +128,7 @@ Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(θ)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(θ)^2) 0; 
                 Contracting two indices of the Riemann tensor yields the Ricci tensor
             </p>
             <CodeBlock lang="julia"
-code={`ricci((θ, φ), e, simple=true)`} 
+code={`ricci(M)`} 
 result={`(0, 2)-Tensor:
 Num[1.0 0.0; 0.0 sin(θ)^2]
     (:co, :co)`}
@@ -135,7 +138,7 @@ Num[1.0 0.0; 0.0 sin(θ)^2]
                 the Ricci scalar
             </p>
             <CodeBlock lang="julia"
-code={`ricci_scalar((θ, φ), e, simple=true)`} 
+code={`ricci_scalar(M)`} 
 result={`2`}
             />
             <p className="learn-body">
@@ -143,7 +146,7 @@ result={`2`}
                 has the special property that its divergence is <Math>{`0`}</Math>
             </p>
             <CodeBlock lang="julia"
-code={`einstein((θ, φ), e, simple=true)`} 
+code={`einstein(M)`} 
 result={`(0, 2)-Tensor:
 Num[0.0 0.0; 0.0 0]
     (:co, :co)`}

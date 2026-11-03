@@ -2,8 +2,6 @@ import FunctionDocs from '../../components/Docs/FunctionDocs';
 import PageNav from '../../components/PageNav/PageNav';
 import CodeBlock from '../../components/Code/CodeBlock';
 import Math from '../../components/Math/Math';
-import Ref from '../../components/Ref/Ref';
-import { refLinks } from '../../data/nav';
 import vectorfield from '../../assets/learn/vectorfield.png';
 import ptvector from '../../assets/learn/ptvector.png';
 
@@ -12,28 +10,25 @@ export default function VectorFields() {
         <>
             <p className="learn-title">Vector Fields</p>
             <p className="learn-body">
-                The three vector plotting functions differ in two ways — whether the output
-                space is <Math>{'\\mathbb{R}^2'}</Math> or embedded in <Math>{'\\mathbb{R}^3'}</Math>,
-                and whether the input is a field defined over a coordinate grid or a list of
-                individual vectors at specified positions. All three evaluate symbolic tensor
-                components via <Ref to={refLinks.evaluate}>evaluate</Ref> and pass arrows to GLMakie, with vector
-                lengths mapped to color by default.
+                <code>plot_vectors!</code> has two forms — a field defined over the whole surface,
+                or a list of individual vectors at specified positions. Both draw arrows with GLMakie,
+                with vector lengths mapped to color by default. On a flat chart the components are drawn
+                as given. On an embedded surface they are lifted to <Math>{'\\mathbb{R}^3'}</Math> through
+                the basis of the <code>Manifold</code>.
             </p>
 
             <FunctionDocs
                 id="vectors"
-                name="vectors_2d!"
-                code={`vectors_2d!(ax, coordinates, xs, ys, X; spacing=1, normalize=false, kwargs...)`}
-                description={<>Plots a symbolic vector field as arrows in <Math>{'\\mathbb{R}^2'}</Math> by evaluating the field at each point on a subsampled coordinate grid. Arrow colors are mapped to vector lengths, with the colorrange centered symmetrically. The field <code>X</code> must be a <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the given coordinates.</>}
+                name="plot_vectors!"
+                code={`plot_vectors!(ax, M, X; spacing=1, normalize=false, kwargs...)`}
+                description={<>Plots a symbolic vector field as arrows by evaluating it at each point on a subsampled grid of the ranges of <code>M</code>. Arrow colors are mapped to vector lengths, with the colorrange centered symmetrically. The field <code>X</code> must be a <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the coordinates of <code>M</code>. On an embedded surface the <code>Manifold</code> must have a basis.</>}
                 args={[
-                    ['ax', 'Axis', <>The GLMakie <code>Axis</code> to plot into.</>],
-                    ['coordinates', 'Tuple{Num}', <>A tuple of the symbolic variables <code>X</code> is expressed in, matching the order of <code>xs</code> and <code>ys</code>.</>],
-                    ['xs', 'AbstractRange', <>The range of values for the first coordinate.</>],
-                    ['ys', 'AbstractRange', <>The range of values for the second coordinate.</>],
-                    ['X', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the given coordinates.</>],
+                    ['ax', 'Axis3 or Axis', <>The GLMakie <code>Axis3</code> for an embedded surface, or <code>Axis</code> for a flat chart.</>],
+                    ['M', 'Manifold', <>The manifold to plot over, with ranges and, to plot in 3D, an embedding.</>],
+                    ['X', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the coordinates of <code>M</code>.</>],
                 ]}
                 kwargs={[
-                    ['spacing', 'Int', '1', <>Subsampling stride applied to <code>xs</code> and <code>ys</code> before evaluation. Increasing this reduces arrow density.</>],
+                    ['spacing', 'Int', '1', <>Subsampling stride applied to the ranges before evaluation. Increasing this reduces arrow density.</>],
                     ['normalize', 'Bool', 'false', <>When <code>true</code>, all arrows are scaled to unit length before plotting, showing direction only.</>],
                     ['lengthscale', 'Number', '1', <>Scale factor applied to arrow lengths.</>],
                     ['colormap', 'Any', ':viridis', <>The colormap used to color arrows by length.</>],
@@ -41,86 +36,52 @@ export default function VectorFields() {
             >
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
-                    code={`fig = Figure()
+                    code={`# On a flat chart
+fig = Figure()
 ax = Axis(fig[1, 1])
 
 @variables u v
-xs = range(-2, 2, 30)
-ys = range(-2, 2, 30)
+F = Manifold((u, v); ranges=(range(-2, 2, 30), range(-2, 2, 30)))
 
 # Rotational vector field
 X = Tensor([-v, u])
-vectors_2d!(ax, (u, v), xs, ys, X, spacing=2, normalize=true)`}
+plot_vectors!(ax, F, X, spacing=2, normalize=true)`}
                 />
                 <CodeBlock lang="julia" inset={60}
-                    code={`# Gradient field of a scalar function
-f = u^2 + v^2
-∂ = PartialDerivative((u, v))
-grad = Tensor([∂[:i] * Tensor([f])[1] for i in 1:2])  # ∇f as a vector
-vectors_2d!(ax, (u, v), xs, ys, grad, spacing=2, lengthscale=0.2, colormap=:plasma)`}
-                />
-            </FunctionDocs>
-
-            <FunctionDocs
-                id="vectors-embed"
-                name="vectors_2dembed!"
-                code={`vectors_2dembed!(ax, coordinates, basis, embedding, xs, ys, X; spacing=1, normalize=false, kwargs...)`}
-                description={<>Plots a symbolic vector field on a 2-dimensional surface embedded in <Math>{'\\mathbb{R}^3'}</Math>. At each grid point, the symbolic vector components are evaluated and contracted with the basis to produce a tangent vector in <Math>{'\\mathbb{R}^3'}</Math>, which is then drawn as an arrow at the embedded position. Arrow colors are mapped to vector lengths.</>}
-                args={[
-                    ['ax', 'Axis3', <>The GLMakie <code>Axis3</code> to plot into.</>],
-                    ['coordinates', 'Tuple{Num}', <>A tuple of the symbolic variables <code>X</code> is expressed in, matching the order of <code>xs</code> and <code>ys</code>.</>],
-                    ['basis', 'Basis', <>The vector basis used to lift components from coordinate space to <Math>{'\\mathbb{R}^3'}</Math>.</>],
-                    ['embedding', 'Function', <>A function <code>(u, v) -&gt; [x, y, z]</code> mapping coordinate values to a point in <Math>{'\\mathbb{R}^3'}</Math>.</>],
-                    ['xs', 'AbstractRange', <>The range of values for the first coordinate.</>],
-                    ['ys', 'AbstractRange', <>The range of values for the second coordinate.</>],
-                    ['X', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the given coordinates.</>],
-                ]}
-                kwargs={[
-                    ['spacing', 'Int', '1', <>Subsampling stride applied to <code>xs</code> and <code>ys</code> before evaluation. Increasing this reduces arrow density.</>],
-                    ['normalize', 'Bool', 'false', <>When <code>true</code>, all arrows are scaled to unit length before plotting, showing direction only.</>],
-                    ['lengthscale', 'Number', '1', <>Scale factor applied to arrow lengths.</>],
-                    ['colormap', 'Any', ':viridis', <>The colormap used to color arrows by length.</>],
-                ]}
-            >
-                <p className="learn-heading">Examples</p>
-                <CodeBlock lang="julia" inset={60}
-                    code={`fig = Figure()
+                    code={`# On the sphere
+fig = Figure()
 ax3 = Axis3(fig[1, 1])
 
-embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
 @variables θ φ
 basis = Basis([
     Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
     Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
 ])
-θs = range(0.1, π-0.1, 20)
-φs = range(0, 2π, 20)
+M = Manifold((θ, φ), basis; ranges=(range(0.1, π-0.1, 20), range(0, 2π, 20)),
+    embedding=(u, v) -> [cos(v)*sin(u), sin(v)*sin(u), cos(u)])
 
 X = Tensor([sin(θ), cos(φ)])
-vectors_2dembed!(ax3, (θ, φ), basis, embedding, θs, φs, X,
+plot_vectors!(ax3, M, X,
     spacing=2, normalize=true, lengthscale=0.15, colormap=:magma)`}
                     img={vectorfield}
                 />
                 <CodeBlock lang="julia" inset={60}
-                    code={`# Plotting the gradient of the Ricci scalar as a vector field
+                    code={`# The gradient of a scalar function as a vector field
+f = sin(θ)^2 * cos(φ)
 ∂ = PartialDerivative((θ, φ))
-R = ricci_scalar((θ, φ), Basis([Tensor([1, 0]), Tensor([0, sin(θ)])]), simple=true)
-gradR = Tensor([∂[:i] * Tensor([R])[1] for i in 1:2])
-vectors_2dembed!(ax3, (θ, φ), basis, embedding, θs, φs, gradR,
-    spacing=2, lengthscale=0.1, colormap=:RdBu)`}
+gradf = (∂[:i] * f).tensor
+plot_vectors!(ax3, M, gradf, spacing=2, lengthscale=0.1, colormap=:RdBu)`}
                 />
             </FunctionDocs>
 
             <FunctionDocs
-                id="vector-embed"
-                name="vector_2dembed!"
-                code={`vector_2dembed!(ax, coordinates, basis, embedding, positions, Xs; normalize=false, kwargs...)`}
-                description={<>Plots a list of individual vectors at specified positions on a surface embedded in <Math>{'\\mathbb{R}^3'}</Math>. Unlike <Ref to={refLinks['vectors_2dembed!']}>vectors_2dembed!</Ref>, which evaluates a symbolic field over a grid, this function accepts explicit lists of positions and vectors — making it the natural choice for visualizing parallel-transported vectors or geodesic tangents at discrete points. Each vector in <code>Xs</code> is contracted with the basis at the corresponding position to produce a tangent vector in <Math>{'\\mathbb{R}^3'}</Math>.</>}
+                id="vectors-positions"
+                name="plot_vectors!"
+                code={`plot_vectors!(ax, M, positions, Xs; normalize=false, kwargs...)`}
+                description={<>Plots a list of individual vectors at specified positions. Unlike the field form, which evaluates a symbolic field over a grid, this accepts explicit lists of positions and vectors, making it the natural choice for visualizing parallel-transported vectors or geodesic tangents at discrete points. Each vector in <code>Xs</code> holds numeric components at the corresponding position, lifted through the basis of <code>M</code> on an embedded surface.</>}
                 args={[
-                    ['ax', 'Axis3', <>The GLMakie <code>Axis3</code> to plot into.</>],
-                    ['coordinates', 'Tuple{Num}', <>A tuple of the symbolic variables used to evaluate the basis at each position.</>],
-                    ['basis', 'Basis', <>The vector basis used to lift components from coordinate space to <Math>{'\\mathbb{R}^3'}</Math>.</>],
-                    ['embedding', 'Function', <>A function <code>(u, v) -&gt; [x, y, z]</code> mapping coordinate values to a point in <Math>{'\\mathbb{R}^3'}</Math>.</>],
+                    ['ax', 'Axis3 or Axis', <>The GLMakie axis to plot into.</>],
+                    ['M', 'Manifold', <>The manifold the vectors are on.</>],
                     ['positions', 'Vector', <>An ordered list of coordinate pairs <code>(u, v)</code> at which to draw each vector.</>],
                     ['Xs', 'Vector{Tensor}', <>An ordered list of <Math>{'(1, 0)'}</Math>-tensors, one per position, giving the vector components in coordinate space.</>],
                 ]}
@@ -137,15 +98,16 @@ x0 = [π/4, 3π/4]
 v0 = [0.5, 2]
 w0 = [2, 0]
 times = range(0.0, 1.5, 15)
-solution = solve_parallel_transport((θ, φ), basis, x0, v0, w0, times)
-positions = [(u[1], u[2]) for u in solution.u]
-vectors  = [Tensor([u[5], u[6]]) for u in solution.u]
+trajectory = solve_parallel_transport(M, t -> x0 + v0 * t, w0, times)
 
-# Initial velocity vectors in red, transported vectors in blue
-vector_2dembed!(ax3, (θ, φ), basis, embedding, positions,
-    [Tensor(v0) for _ in positions], lengthscale=0.1, colormap=:reds)
-vector_2dembed!(ax3, (θ, φ), basis, embedding, positions,
-    vectors, lengthscale=0.1, colormap=:ice)`}
+# The vectors of a Trajectory are plotted directly: the path's velocity
+# in red, and the transported vectors in blue
+plot_vectors!(ax3, M, trajectory, which=:velocities, lengthscale=0.1, colormap=:reds)
+plot_vectors!(ax3, M, trajectory, lengthscale=0.1, colormap=:ice)
+
+# Individual vectors can also be given at explicit positions
+positions = trajectory.positions
+plot_vectors!(ax3, M, positions, [Tensor(w0) for _ in positions], lengthscale=0.1)`}
                     img={ptvector}
                 />
                 <CodeBlock lang="julia" inset={60}
@@ -153,11 +115,9 @@ vector_2dembed!(ax3, (θ, φ), basis, embedding, positions,
 x0 = [π/2, π/6]
 v0 = [0.5, -0.5]
 times = range(0.0, 5.0, 20)
-solution = solve_geodesic((θ, φ), basis, x0, v0, times)
-positions = [(u[1], u[2]) for u in solution.u]
-tangents  = [Tensor([u[3], u[4]]) for u in solution.u]
-vector_2dembed!(ax3, (θ, φ), basis, embedding, positions,
-    tangents, normalize=true, lengthscale=0.1, colormap=:viridis)`}
+trajectory = solve_geodesic(M, x0, v0, times)
+plot_vectors!(ax3, M, trajectory,
+    normalize=true, lengthscale=0.1, colormap=:viridis)`}
                 />
             </FunctionDocs>
 

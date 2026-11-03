@@ -45,7 +45,7 @@ A[:i, :j] + B[:i, :j]`}
                 <CodeBlock lang="julia" inset={60}
                     code={`# Mismatched index labels raise an error
 A[:i, :j] + B[:i, :k]`}
-                    result={`ERROR: Covariant indices must match`}
+                    result={`ERROR: Contravariant indices must match`}
                 />
             </FunctionDocs>
 
