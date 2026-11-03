@@ -13,16 +13,33 @@ _shows(s) = !(s isa Expr && (s.head in _quiet || (s.head == :macrocall && string
 _show(x) = (x === nothing || x isa Makie.AbstractPlot || x isa Makie.Figure) ? nothing : (display(x); nothing)
 
 """
-Internal. Runs a block of statements in the calling function's scope, displaying the value of each one
-like a REPL would
+Internal. Whether a statement is an assignment, rather than a function definition
 """
+_assigns(s) = s isa Expr && s.head == :(=) && !(s.args[1] isa Expr && s.args[1].head == :call)
+
+"""
+Internal. Runs a block of statements in the calling function's scope, displaying the value of each one
+like a REPL would. With `result`, the docs show the block's output, so its last assignment is displayed too,
+and with `results`, where the docs show several outputs, every assignment is
+"""
+macro ex(mode, block)
+    return _ex(block, mode in (:result, :results), mode === :results)
+end
+
 macro ex(block)
+    return _ex(block, false, false)
+end
+
+function _ex(block, result, every)
+    stmts = filter(s -> !(s isa LineNumberNode), block.args)
     out = Expr(:block)
     for s in block.args
-        if s isa LineNumberNode || !_shows(s)
-            push!(out.args, esc(s))
-        else
+        if s isa LineNumberNode
+            push!(out.args, s)
+        elseif _shows(s) || (result && _assigns(s) && (every || s === last(stmts)))
             push!(out.args, :(_show($(esc(s)))))
+        else
+            push!(out.args, esc(s))
         end
     end
     return out
@@ -65,7 +82,7 @@ end
 Examples from the docs page reference/Constructors #tensor
 """
 function ref_constructors_tensor()
-    @ex begin
+    @ex results begin
         Tensor([1, 3])         # (1, 0)-tensor — vector
         Tensor([2, -5]')       # (0, 1)-tensor — covector
         # Docs output:
@@ -76,7 +93,7 @@ function ref_constructors_tensor()
         #   [2, -5]
         #       (:co,)
     end
-    @ex begin
+    @ex results begin
         Tensor([[0, -1]', [1, 0]'])    # (1, 1)-tensor — the 90° rotation map
         Tensor([[1, 0]', [0, 1]']')   # (0, 2)-tensor — the identity metric
         # Docs output:
@@ -87,7 +104,7 @@ function ref_constructors_tensor()
         #   [1 0; 0 1]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # The pattern extends to arbitrary rank
         Tensor([[[1, 0]', [0, 1]'], [[-1, 2]', [3, 0]']])
         # Docs output:
@@ -128,7 +145,7 @@ end
 Examples from the docs page reference/Curvature #riemann
 """
 function ref_curvature_riemann()
-    @ex begin
+    @ex result begin
         # Riemann tensor on the 2-sphere
         @variables θ φ
         e = Basis([
@@ -142,7 +159,7 @@ function ref_curvature_riemann()
         #   Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(θ)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(θ)^2) 0; 0 0]
         #       (:contra, :co, :co, :co)
     end
-    @ex begin
+    @ex result begin
         # Flat space — the Riemann tensor vanishes
         e_flat = Basis([Tensor([1, 0]), Tensor([0, 1])])
         @variables x y
@@ -159,7 +176,7 @@ end
 Examples from the docs page reference/Curvature #ricci
 """
 function ref_curvature_ricci()
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([
             Tensor([1, 0]),
@@ -172,7 +189,7 @@ function ref_curvature_ricci()
         #   Num[1.0 0.0; 0.0 sin(θ)^2]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # On the 2-sphere the Ricci tensor is proportional to the metric,
         # R_ij = K * g_ij, where K is the Gaussian curvature (here K = 1)
         metric(M)
@@ -187,7 +204,7 @@ end
 Examples from the docs page reference/Curvature #ricci-scalar
 """
 function ref_curvature_ricci_scalar()
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([
             Tensor([1, 0]),
@@ -198,7 +215,7 @@ function ref_curvature_ricci_scalar()
         # Docs output:
         #   2
     end
-    @ex begin
+    @ex result begin
         # Flat space has zero Ricci scalar
         @variables x y
         e_flat = Basis([Tensor([1, 0]), Tensor([0, 1])])
@@ -213,7 +230,7 @@ end
 Examples from the docs page reference/Curvature #einstein
 """
 function ref_curvature_einstein()
-    @ex begin
+    @ex result begin
         # The Einstein tensor vanishes identically in any 2D space,
         # regardless of curvature — a low-dimensional degeneracy of
         # general relativity, not a special property of the sphere
@@ -235,7 +252,7 @@ end
 Examples from the docs page reference/Derivatives #partial-differentiation
 """
 function ref_derivatives_partial_differentiation()
-    @ex begin
+    @ex result begin
         @variables u v
         ∂ = PartialDerivative((u, v))
 
@@ -248,7 +265,7 @@ function ref_derivatives_partial_differentiation()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         # Differentiating a (1, 1)-tensor yields a (1, 2)-tensor
         A = Tensor([[u, 2v]', [3u, v^2]'])
         ∂[:k] * A[:i][:j]
@@ -258,11 +275,11 @@ function ref_derivatives_partial_differentiation()
         #       (:contra, :co, :co)
         #       (:i,), (:j, :k)
     end
-    @ex begin
+    @ex result begin
         # Repeated index triggers contraction — yields the divergence
         ∂[:i] * X[:i]
         # Docs output:
-        #   v + 2v
+        #   3v
     end
 end
 
@@ -270,7 +287,7 @@ end
 Examples from the docs page reference/Derivatives #covariant-differentiation
 """
 function ref_derivatives_covariant_differentiation()
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([
             Tensor([1, 0]),
@@ -288,7 +305,7 @@ function ref_derivatives_covariant_differentiation()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         # Covariant derivative of a covector field
         ω = Tensor([1, sin(θ)]')
         ∇[:i] * ω[:j]
@@ -298,7 +315,7 @@ function ref_derivatives_covariant_differentiation()
         #       (:co, :co)
         #       (), (:j, :i)
     end
-    @ex begin
+    @ex result begin
         # Repeated index yields the covariant divergence
         ∇[:i] * X[:i]
         # Docs output:
@@ -310,7 +327,7 @@ end
 Examples from the docs page reference/Derivatives #exterior-differentiation
 """
 function ref_derivatives_exterior_differentiation()
-    @ex begin
+    @ex result begin
         @variables x y z
         ∂ = PartialDerivative((x, y, z))
         d = ExteriorDerivative(∂)
@@ -323,7 +340,7 @@ function ref_derivatives_exterior_differentiation()
         #   Num[0.0 0.0 -1.0; 0.0 0.0 y; 1.0 -y 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         @variables u v
         ∂ = PartialDerivative((u, v))
         d = ExteriorDerivative(∂)
@@ -336,7 +353,7 @@ function ref_derivatives_exterior_differentiation()
         #   Num[2u*v, u^2]
         #       (:co,)
     end
-    @ex begin
+    @ex result begin
         # Nilpotency: applying d twice always yields the zero form
         @variables x y z
         d = ExteriorDerivative(PartialDerivative((x, y, z)))
@@ -345,7 +362,7 @@ function ref_derivatives_exterior_differentiation()
         d[:m] * β[:k, :i]
         # Docs output:
         #   (0, 3)-Tensor:
-        #   Num[0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0]
+        #   Num[0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0;;; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0;;; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0]
         #       (:co, :co, :co)
     end
 end
@@ -354,7 +371,7 @@ end
 Examples from the docs page reference/DifferentialOperators
 """
 function ref_differential_operators()
-    @ex begin
+    @ex result begin
         @variables u v
         ∂ = PartialDerivative((u, v))
 
@@ -367,23 +384,23 @@ function ref_differential_operators()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         # Differentiating a covector field — yields a (0, 2)-tensor
         α = Tensor([u^2 * v, v + 2]')
         ∂[:i] * α[:j]
         # Docs output:
         #   (0, 2)-Tensor:
-        #   Num[2u*v u^2; v 1]
+        #   Num[2u*v u^2; 0 1]
         #       (:co, :co)
         #       (), (:i, :j)
     end
-    @ex begin
+    @ex result begin
         # Contracting with a matching index computes the divergence
         ∂[:i] * X[:i]
         # Docs output:
-        #   v + 2v
+        #   3v
     end
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([
             Tensor([1, 0]),
@@ -402,7 +419,7 @@ function ref_differential_operators()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         # levicivita constructs the Levi-Civita connection in one step
         ∇ = levicivita(M)
         ∇[:i] * X[:j]
@@ -412,13 +429,13 @@ function ref_differential_operators()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         # Contracting with a matching index computes the covariant divergence
         ∇[:i] * X[:i]
         # Docs output:
         #   2cos(θ)
     end
-    @ex begin
+    @ex result begin
         @variables u v
         ∂ = PartialDerivative((u, v))
         d = ExteriorDerivative(∂)
@@ -431,7 +448,7 @@ function ref_differential_operators()
         #   Num[0.0 u^2; -(u^2) 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Exterior derivative of a 0-form (scalar) yields a 1-form
         @variables x y z
         ∂3 = PartialDerivative((x, y, z))
@@ -443,7 +460,7 @@ function ref_differential_operators()
         #   Num[2x*y, x^2, 1]
         #       (:co,)
     end
-    @ex begin
+    @ex result begin
         # Nilpotency: applying d twice returns the zero form
         β = d[:i] * α[:j]
         d[:m] * β[:k, :l]
@@ -499,7 +516,7 @@ end
 Examples from the docs page reference/GeometricObjects
 """
 function ref_geometric_objects()
-    @ex begin
+    @ex results begin
         v = Tensor([1, 2])         # (1, 0)-tensor — vector
         ω = Tensor([-3, 1]')       # (0, 1)-tensor — covector
         # Docs output:
@@ -510,7 +527,7 @@ function ref_geometric_objects()
         #   [-3, 1]
         #       (:co,)
     end
-    @ex begin
+    @ex results begin
         L = Tensor([[4, -2]', [1, 1]'])   # (1, 1)-tensor — linear map
         g = Tensor([[2, 1]', [1, 2]']')  # (0, 2)-tensor — bilinear form
         # Docs output:
@@ -521,7 +538,7 @@ function ref_geometric_objects()
         #   [2 1; 1 2]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # The pattern extends naturally to higher rank
         T = Tensor([[[1, 0]', [0, 1]'], [[-1, 2]', [3, 0]']])
         # Docs output:
@@ -529,7 +546,7 @@ function ref_geometric_objects()
         #   [1 0; 0 1;;; -1 2; 3 0]
         #       (:contra, :contra, :co)
     end
-    @ex begin
+    @ex result begin
         e = Basis([
             Tensor([1, 0]),
             Tensor([0, 1])
@@ -540,7 +557,7 @@ function ref_geometric_objects()
         #   [0, 1]
         #       (:contra,)
     end
-    @ex begin
+    @ex result begin
         # Symbolic indexing and contraction yields a linear combination
         v = Tensor([3, -2])
         v[:i] * e[:i]
@@ -549,7 +566,7 @@ function ref_geometric_objects()
         #   [3, -2]
         #       (:contra,)
     end
-    @ex begin
+    @ex result begin
         # Two bases can be combined with the tensor product
         ε = Basis([Tensor([1, 0]'), Tensor([0, 1]')])
         e ⊗ ε
@@ -562,7 +579,7 @@ end
 Examples from the docs page reference/HodgeStar #hodge-star
 """
 function ref_hodge_star_hodge_star()
-    @ex begin
+    @ex result begin
         e = Basis([Tensor([1, 0]), Tensor([0, 1])])
         g = metric(e)
         ⋆ = HodgeStar(g)
@@ -575,7 +592,7 @@ function ref_hodge_star_hodge_star()
         #   Num[1.0, 3.0]
         #       (:co,)
     end
-    @ex begin
+    @ex result begin
         # In 3D, a 1-form maps to a 2-form
         e3 = Basis([Tensor([1,0,0]), Tensor([0,1,0]), Tensor([0,0,1])])
         star3 = HodgeStar(metric(e3))
@@ -586,7 +603,7 @@ function ref_hodge_star_hodge_star()
         #   Num[0.0 0.0 0.0; 0.0 0.0 1.0; 0.0 -1.0 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # A top-form maps to a scalar
         ω = Tensor([[0, 1]', [-1, 0]']')   # A 2-form in 2D
         ⋆(ω)
@@ -599,7 +616,7 @@ end
 Examples from the docs page reference/IndexedArithmetic #addition
 """
 function ref_indexed_arithmetic_addition()
-    @ex begin
+    @ex result begin
         v = Tensor([1, 2])
         w = Tensor([-3, 1])
         v[:i] + w[:i]
@@ -609,7 +626,7 @@ function ref_indexed_arithmetic_addition()
         #       (:contra,)
         #       (:i,), ()
     end
-    @ex begin
+    @ex result begin
         A = Tensor([[2, 1], [-3, 1]])
         B = Tensor([[0, -1], [4, 2]])
         A[:i, :j] + B[:i, :j]
@@ -631,7 +648,7 @@ end
 Examples from the docs page reference/IndexedArithmetic #subtraction
 """
 function ref_indexed_arithmetic_subtraction()
-    @ex begin
+    @ex result begin
         v = Tensor([1, 2])
         w = Tensor([-3, 1])
         v[:i] - w[:i]
@@ -641,7 +658,7 @@ function ref_indexed_arithmetic_subtraction()
         #       (:contra,)
         #       (:i,), ()
     end
-    @ex begin
+    @ex result begin
         L = Tensor([[4, -2], [3, 3]])
         M = Tensor([[0, 0], [-3, 3]])
         L[:i, :j] - M[:i, :j]
@@ -657,7 +674,7 @@ end
 Examples from the docs page reference/IndexedArithmetic #multiplication-scalar
 """
 function ref_indexed_arithmetic_multiplication_scalar()
-    @ex begin
+    @ex result begin
         g = Tensor([[2, -1]', [0, 2]']')
         2 * g[:i, :j]
         # Docs output:
@@ -666,7 +683,7 @@ function ref_indexed_arithmetic_multiplication_scalar()
         #       (:co, :co)
         #       (), (:i, :j)
     end
-    @ex begin
+    @ex result begin
         v = Tensor([3, -1])
         v[:i] * -1
         # Docs output:
@@ -681,7 +698,7 @@ end
 Examples from the docs page reference/IndexedArithmetic #division-scalar
 """
 function ref_indexed_arithmetic_division_scalar()
-    @ex begin
+    @ex result begin
         A = Tensor([[1, 2]', [3, -1]'])
         A[:i][:j] / 2
         # Docs output:
@@ -696,7 +713,7 @@ end
 Examples from the docs page reference/IndexedArithmetic #multiplication-kronecker-delta
 """
 function ref_indexed_arithmetic_multiplication_kronecker_delta()
-    @ex begin
+    @ex result begin
         δ = KroneckerDelta()
         L = Tensor([[1, 2]', [3, -1]'])
         L[:i][:j] * δ[:j, :k]   # Relabels covariant index j → k
@@ -706,7 +723,7 @@ function ref_indexed_arithmetic_multiplication_kronecker_delta()
         #       (:contra, :co)
         #       (:i,), (:k,)
     end
-    @ex begin
+    @ex result begin
         # When both indices match, the result is a trace
         L[:i][:j] * δ[:j, :i]
         # Docs output:
@@ -718,7 +735,7 @@ end
 Examples from the docs page reference/IndexedArithmetic #multiplication-levi-civita
 """
 function ref_indexed_arithmetic_multiplication_levi_civita()
-    @ex begin
+    @ex result begin
         ε = LeviCivita()
 
         # Signed area of the parallelogram spanned by v and u
@@ -728,7 +745,7 @@ function ref_indexed_arithmetic_multiplication_levi_civita()
         # Docs output:
         #   5
     end
-    @ex begin
+    @ex result begin
         # Cross product in 3D — free index k becomes the output
         a = Tensor([1, 0, 0])
         b = Tensor([0, 1, 0])
@@ -745,7 +762,7 @@ end
 Examples from the docs page reference/IndexedArithmetic #multiplication-linearalgebra
 """
 function ref_indexed_arithmetic_multiplication_linearalgebra()
-    @ex begin
+    @ex result begin
         # Covector acting on a vector — full contraction returns a scalar
         v = Tensor([2, -1])
         ω = Tensor([-2, 3]')
@@ -753,7 +770,7 @@ function ref_indexed_arithmetic_multiplication_linearalgebra()
         # Docs output:
         #   -7
     end
-    @ex begin
+    @ex result begin
         # Linear map acting on a vector — one free index remains
         L = Tensor([[2, 1]', [-1, 3]'])
         v = Tensor([1, 2])
@@ -764,7 +781,7 @@ function ref_indexed_arithmetic_multiplication_linearalgebra()
         #       (:contra,)
         #       (:i,), ()
     end
-    @ex begin
+    @ex result begin
         # No matching indices — returns the tensor product
         v = Tensor([1, 2])
         w = Tensor([3, 4])
@@ -781,7 +798,7 @@ end
 Examples from the docs page reference/Indexing #tensor-getindex
 """
 function ref_indexing_tensor_getindex()
-    @ex begin
+    @ex result begin
         v = Tensor([1, 2])
         v[1]       # Integer index — returns a scalar
         v[:i]      # Symbolic index — returns an IndexedTensor
@@ -792,7 +809,7 @@ function ref_indexing_tensor_getindex()
         #       (:contra,)
         #       (:i,), ()
     end
-    @ex begin
+    @ex results begin
         # Mixed-variance tensors use two brackets
         L = Tensor([[4, -2]', [1, 1]'])
         L[1][:j]   # Slice first contravariant index, label covariant
@@ -807,7 +824,7 @@ function ref_indexing_tensor_getindex()
         #       (:contra, :co)
         #       (:i,), (:j,)
     end
-    @ex begin
+    @ex result begin
         # Repeating the same symbol in both brackets triggers a self-contraction
         A = Tensor([[3, 1]', [-2, 4]'])
         A[:i][:i]   # trace
@@ -820,7 +837,7 @@ end
 Examples from the docs page reference/Indexing #partial-indexed-tensor-getindex
 """
 function ref_indexing_partial_indexed_tensor_getindex()
-    @ex begin
+    @ex result begin
         L = Tensor([[4, -2]', [1, 1]'])
         L[:i][:j]   # Second bracket labels the covariant index
         # Docs output:
@@ -829,13 +846,13 @@ function ref_indexing_partial_indexed_tensor_getindex()
         #       (:contra, :co)
         #       (:i,), (:j,)
     end
-    @ex begin
+    @ex result begin
         # Matching symbols across brackets trigger an implicit self-contraction
         L[:i][:i]   # trace
         # Docs output:
         #   5
     end
-    @ex begin
+    @ex result begin
         # Integer in the second bracket slices the covariant index
         L[:i][1]
         # Docs output:
@@ -850,7 +867,7 @@ end
 Examples from the docs page reference/Indexing #kronecker-delta-getindex
 """
 function ref_indexing_kronecker_delta_getindex()
-    @ex begin
+    @ex result begin
         δ = KroneckerDelta()
         δ[1, 1]    # Equal integer indices → 1
         δ[1, 2]    # Unequal integer indices → 0
@@ -858,7 +875,7 @@ function ref_indexing_kronecker_delta_getindex()
         #   1
         #   0
     end
-    @ex begin
+    @ex result begin
         # Symbolic indexing returns an IndexedKroneckerDelta
         L = Tensor([[4, -2]', [1, 1]'])
         L[:i][:j] * δ[:i, :k]   # Relabels contravariant index i → k
@@ -874,7 +891,7 @@ end
 Examples from the docs page reference/Indexing #levi-civita-getindex
 """
 function ref_indexing_levi_civita_getindex()
-    @ex begin
+    @ex result begin
         ε = LeviCivita()
         ε[1, 2]    # Even permutation → 1
         ε[2, 1]    # Odd permutation → -1
@@ -884,7 +901,7 @@ function ref_indexing_levi_civita_getindex()
         #   -1
         #   0
     end
-    @ex begin
+    @ex result begin
         # Symbolic indexing for use in summation
         v = Tensor([2, 1])
         u = Tensor([-3, 2])
@@ -898,7 +915,7 @@ end
 Examples from the docs page reference/Indexing #partial-derivative-getindex
 """
 function ref_indexing_partial_derivative_getindex()
-    @ex begin
+    @ex result begin
         @variables u v
         ∂ = PartialDerivative((u, v))
         X = Tensor([u * v, v^2 - 1])
@@ -909,7 +926,7 @@ function ref_indexing_partial_derivative_getindex()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         # Contracting with a matching index gives the divergence
         ∂[:i] * X[:i]
         # Docs output:
@@ -921,7 +938,7 @@ end
 Examples from the docs page reference/Indexing #covariant-derivative-getindex
 """
 function ref_indexing_covariant_derivative_getindex()
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
         ∇ = levicivita(Manifold((θ, φ), e))
@@ -933,7 +950,7 @@ function ref_indexing_covariant_derivative_getindex()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         # Contracting with a matching index gives the covariant divergence
         ∇[:i] * X[:i]
         # Docs output:
@@ -945,7 +962,7 @@ end
 Examples from the docs page reference/Indexing #exterior-derivative-getindex
 """
 function ref_indexing_exterior_derivative_getindex()
-    @ex begin
+    @ex result begin
         @variables u v
         ∂ = PartialDerivative((u, v))
         d = ExteriorDerivative(∂)
@@ -956,7 +973,7 @@ function ref_indexing_exterior_derivative_getindex()
         #   Num[0.0 u^2; -(u^2) 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Nilpotency: d² = 0 — β's indices must be freshly labeled,
         # distinct from d's next index, since β carries no memory of :i, :j
         β = d[:i] * α[:j]
@@ -972,7 +989,7 @@ end
 Examples from the docs page reference/Indexing #basis-getindex
 """
 function ref_indexing_basis_getindex()
-    @ex begin
+    @ex result begin
         e = Basis([Tensor([1, 0]), Tensor([0, 1])])
         e[2]    # Integer index — returns the second basis element
         # Docs output:
@@ -980,7 +997,7 @@ function ref_indexing_basis_getindex()
         #   [0, 1]
         #       (:contra,)
     end
-    @ex begin
+    @ex result begin
         # Symbolic indexing and contraction yields a linear combination
         v = Tensor([3, -2])
         v[:i] * e[:i]
@@ -989,7 +1006,7 @@ function ref_indexing_basis_getindex()
         #   [3, -2]
         #       (:contra,)
     end
-    @ex begin
+    @ex result begin
         # Works with non-orthogonal bases too
         e = Basis([Tensor([1, 1]), Tensor([0, 1])])
         v = Tensor([2, -1])
@@ -1026,7 +1043,7 @@ end
 Examples from the docs page reference/MetricConnections #metric
 """
 function ref_metric_connections_metric()
-    @ex begin
+    @ex result begin
         # Euclidean metric from the standard Cartesian basis
         e = Basis([Tensor([1, 0]), Tensor([0, 1])])
         metric(e)
@@ -1035,7 +1052,7 @@ function ref_metric_connections_metric()
         #   [1 0; 0 1]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Non-trivial metric from an oblique basis
         e = Basis([Tensor([1, 2]), Tensor([3, -1])])
         metric(e)
@@ -1044,7 +1061,7 @@ function ref_metric_connections_metric()
         #   [5 1; 1 10]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Minkowski metric for special relativity
         η = metric(
             Basis([
@@ -1066,7 +1083,7 @@ end
 Examples from the docs page reference/MetricConnections #inv
 """
 function ref_metric_connections_inv()
-    @ex begin
+    @ex result begin
         e = Basis([Tensor([1, 0]), Tensor([0, 1])])
         g = metric(e)
         𝔤 = inv(g)   # (0, 2) → (2, 0)
@@ -1075,7 +1092,7 @@ function ref_metric_connections_inv()
         #   [1 0; 0 1]
         #       (:contra, :contra)
     end
-    @ex begin
+    @ex result begin
         # Using the inverse metric to raise an index
         ω = Tensor([1, -2]') ⊗ Tensor([-3, 2]')   # A (0, 2)-tensor
         𝔤[:i, :j] * ω[:i, :k]
@@ -1091,7 +1108,7 @@ end
 Examples from the docs page reference/MetricConnections #minkowski
 """
 function ref_metric_connections_minkowski()
-    @ex begin
+    @ex result begin
         # Constructing the Minkowski metric with (-, +, +, +) convention
         η = metric(
             Basis([
@@ -1107,7 +1124,7 @@ function ref_metric_connections_minkowski()
         #   [-1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Switching to (+ , -, -, -) convention
         η = metric(
             Basis([
@@ -1129,7 +1146,7 @@ end
 Examples from the docs page reference/MetricConnections #christoffel
 """
 function ref_metric_connections_christoffel()
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([
             Tensor([1, 0]),
@@ -1142,7 +1159,7 @@ function ref_metric_connections_christoffel()
         #   Num[0.0 0.0; 0.0 -sin(θ)*cos(θ);;; 0.0 cos(θ)/sin(θ); cos(θ)/sin(θ) 0.0]
         #       (:contra, :co, :co)
     end
-    @ex begin
+    @ex result begin
         # Passing to CovariantDerivative to build the connection
         ∂ = PartialDerivative((θ, φ))
         ∇ = CovariantDerivative(Γ, ∂)
@@ -1160,7 +1177,7 @@ end
 Examples from the docs page reference/MetricConnections #levi-civita
 """
 function ref_metric_connections_levi_civita()
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([
             Tensor([1, 0]),
@@ -1177,7 +1194,7 @@ function ref_metric_connections_levi_civita()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         # Covariant divergence of a vector field
         ∇[:i] * X[:i]
         # Docs output:
@@ -1189,7 +1206,7 @@ end
 Examples from the docs page reference/MetricConnections #lie
 """
 function ref_metric_connections_lie()
-    @ex begin
+    @ex result begin
         @variables u v
         ∂ = PartialDerivative((u, v))
         X = Tensor([u, v])
@@ -1200,7 +1217,7 @@ function ref_metric_connections_lie()
         #   Num[u^2, -2]
         #       (:contra,)
     end
-    @ex begin
+    @ex result begin
         # The Lie bracket is antisymmetric: [X, Y] = -[Y, X]
         lie(Y, X, ∂)
         # Docs output:
@@ -1208,7 +1225,7 @@ function ref_metric_connections_lie()
         #   Num[-(u^2), 2]
         #       (:contra,)
     end
-    @ex begin
+    @ex result begin
         # A vector field commutes with itself
         lie(X, X, ∂, simple=true)
         # Docs output:
@@ -1295,7 +1312,7 @@ end
 Examples from the docs page reference/SimplifyEvaluate #simplify
 """
 function ref_simplify_evaluate_simplify()
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([
             Tensor([1, 0]),
@@ -1309,7 +1326,7 @@ function ref_simplify_evaluate_simplify()
         #   Num[1.0 0.0; 0.0 sin(θ)^2]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Also works on IndexedTensors
         @variables u v
         ∂ = PartialDerivative((u, v))
@@ -1321,7 +1338,7 @@ function ref_simplify_evaluate_simplify()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         # Equivalent to passing simple=true when constructing the manifold
         ricci_scalar(Manifold((θ, φ), e, simple=true))
         # Docs output:
@@ -1333,7 +1350,7 @@ end
 Examples from the docs page reference/SimplifyEvaluate #substitute
 """
 function ref_simplify_evaluate_substitute()
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
         R = ricci(Manifold((θ, φ), e, simple=true))
@@ -1345,7 +1362,7 @@ function ref_simplify_evaluate_substitute()
         #   Num[1.0 0.0; 0.0 1.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Partial substitution — result is still symbolic
         @variables u v
         X = Tensor([u^2 * v, sin(u) + v])
@@ -1355,7 +1372,7 @@ function ref_simplify_evaluate_substitute()
         #   Num[4v, sin(2) + v]
         #       (:contra,)
     end
-    @ex begin
+    @ex result begin
         # Replacing a variable with an expression
         substitute(X, Dict(u => v^2))
         # Docs output:
@@ -1369,7 +1386,7 @@ end
 Examples from the docs page reference/SimplifyEvaluate #evaluate
 """
 function ref_simplify_evaluate_evaluate()
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
         R = ricci(Manifold((θ, φ), e, simple=true))
@@ -1381,7 +1398,7 @@ function ref_simplify_evaluate_evaluate()
         #   [1.0 0.0; 0.0 0.5]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Also works on scalars
         @variables u v
         f = u^2 * sin(v)
@@ -1389,7 +1406,7 @@ function ref_simplify_evaluate_evaluate()
         # Docs output:
         #   4.5
     end
-    @ex begin
+    @ex result begin
         # Useful for sampling a symbolic vector field at a point
         X = Tensor([sin(θ) * cos(φ), cos(θ)])
         evaluate(X, Dict(θ => π/3, φ => π/4))
@@ -1404,7 +1421,7 @@ end
 Examples from the docs page reference/SpecialObjects
 """
 function ref_special_objects()
-    @ex begin
+    @ex result begin
         δ = KroneckerDelta()
         L = Tensor([[1, 2]', [3, 4]'])
         L[:i][:j] * δ[:i, :k]   # Relabels the contravariant index i → k
@@ -1414,7 +1431,7 @@ function ref_special_objects()
         #       (:contra, :co)
         #       (:k,), (:j,)
     end
-    @ex begin
+    @ex result begin
         # Verifying that a dual basis satisfies the duality condition
         e = Basis([Tensor([2, 0]), Tensor([0, 3])])
         ϵ = dual_basis(e)
@@ -1427,7 +1444,7 @@ function ref_special_objects()
         #   true
         #   true
     end
-    @ex begin
+    @ex result begin
         # The identity tensor is δ made concrete in a fixed dimension —
         # contracting it with itself recovers that dimension
         Id = Tensor([[1, 0]', [0, 1]'])
@@ -1435,7 +1452,7 @@ function ref_special_objects()
         # Docs output:
         #   2
     end
-    @ex begin
+    @ex result begin
         ε = LeviCivita()
 
         # 2D: computes the signed area of the parallelogram spanned by v and u
@@ -1445,7 +1462,7 @@ function ref_special_objects()
         # Docs output:
         #   7
     end
-    @ex begin
+    @ex result begin
         # 3D: computes the cross product of two vectors
         a = Tensor([1, 0, 0])
         b = Tensor([0, 1, 0])
@@ -1456,14 +1473,14 @@ function ref_special_objects()
         #       (:co,)
         #       (), (:k,)
     end
-    @ex begin
+    @ex result begin
         # Antisymmetry means repeated indices always cancel to 0,
         # so crossing a vector with itself vanishes
         v[:i] * v[:j] * ε[:i, :j]
         # Docs output:
         #   0
     end
-    @ex begin
+    @ex result begin
         e = Basis([Tensor([1, 0]), Tensor([0, 1])])
         g = metric(e)
         ⋆ = HodgeStar(g)
@@ -1475,7 +1492,7 @@ function ref_special_objects()
         #   Num[1, 3.0]
         #       (:co,)
     end
-    @ex begin
+    @ex result begin
         # In 3D, a 1-form maps to a 2-form
         e3 = Basis([Tensor([1,0,0]), Tensor([0,1,0]), Tensor([0,0,1])])
         ⋆₃ = HodgeStar(metric(e3))
@@ -1486,7 +1503,7 @@ function ref_special_objects()
         #   Num[0.0 0.0 0.0; 0.0 0.0 1; 0.0 -1.0 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # A top-form (n-form) maps to a scalar
         ω = Tensor([[0, 1]', [-1, 0]']')   # A 2-form in 2D
         ⋆(ω)
@@ -1536,7 +1553,7 @@ end
 Examples from the docs page reference/SymmetryDuality #symmetrize
 """
 function ref_symmetry_duality_symmetrize()
-    @ex begin
+    @ex result begin
         A = Tensor([[2, 1], [-3, 1]])
         symmetrize(A[:i, :j], :i, :j)
         # Docs output:
@@ -1544,7 +1561,7 @@ function ref_symmetry_duality_symmetrize()
         #   [2.0 -1.0; -1.0 1.0]
         #       (:contra, :contra)
     end
-    @ex begin
+    @ex result begin
         # Symmetrizing an already symmetric tensor leaves it unchanged
         g = Tensor([[1, 0]', [0, 1]']')
         symmetrize(g[:i, :j], :i, :j)
@@ -1566,7 +1583,7 @@ end
 Examples from the docs page reference/SymmetryDuality #antisymmetrize
 """
 function ref_symmetry_duality_antisymmetrize()
-    @ex begin
+    @ex result begin
         A = Tensor([[2, 1], [-3, 1]])
         antisymmetrize(A[:i, :j], :i, :j)
         # Docs output:
@@ -1574,7 +1591,7 @@ function ref_symmetry_duality_antisymmetrize()
         #   [0.0 2.0; -2.0 0.0]
         #       (:contra, :contra)
     end
-    @ex begin
+    @ex result begin
         # Antisymmetrizing an already antisymmetric tensor leaves it unchanged
         ω = Tensor([[0, 1]', [-1, 0]']')
         antisymmetrize(ω[:i, :j], :i, :j)
@@ -1583,7 +1600,7 @@ function ref_symmetry_duality_antisymmetrize()
         #   [0.0 1.0; -1.0 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Antisymmetrizing a symmetric tensor yields zero
         g = Tensor([[1, 0]', [0, 1]']')
         antisymmetrize(g[:i, :j], :i, :j)
@@ -1598,13 +1615,13 @@ end
 Examples from the docs page reference/SymmetryDuality #dual-basis
 """
 function ref_symmetry_duality_dual_basis()
-    @ex begin
+    @ex result begin
         e = Basis([Tensor([1, 0]), Tensor([0, 1])])
         ϵ = dual_basis(e)   # Dual of a vector basis is a covector basis
         # Docs output:
         #   Basis(Tensor{Float64, 1}[...], (:co,))
     end
-    @ex begin
+    @ex result begin
         # Verifying the duality condition
         δ = KroneckerDelta()
         for i in 1:2, j in 1:2
@@ -1616,7 +1633,7 @@ function ref_symmetry_duality_dual_basis()
         #   true
         #   true
     end
-    @ex begin
+    @ex result begin
         # Works for non-orthogonal bases too
         e = Basis([
             Tensor([1, 2]),
@@ -1638,7 +1655,7 @@ end
 Examples from the docs page reference/TensorOperations #tensor-product
 """
 function ref_tensor_operations_tensor_product()
-    @ex begin
+    @ex result begin
         v = Tensor([1, 2])
         w = Tensor([3, 5]')
         v ⊗ w   # (1, 0) ⊗ (0, 1) → (1, 1)
@@ -1647,7 +1664,7 @@ function ref_tensor_operations_tensor_product()
         #   [3 5; 6 10]
         #       (:contra, :co)
     end
-    @ex begin
+    @ex result begin
         # Tensor products can be chained for higher rank
         α = Tensor([2, 3]')
         L = v ⊗ w
@@ -1657,7 +1674,7 @@ function ref_tensor_operations_tensor_product()
         #   [6 10; 12 20;;; 9 15; 18 30;;;; 12 20; 24 40;;; 18 30; 36 60]
         #       (:contra, :co, :co, :contra)
     end
-    @ex begin
+    @ex result begin
         # Also defined on bases — produces a higher-rank basis
         e = Basis([Tensor([1, 0]), Tensor([0, 1])])
         ε = Basis([Tensor([1, 0]'), Tensor([0, 1]')])
@@ -1671,7 +1688,7 @@ end
 Examples from the docs page reference/TensorOperations #wedge-product
 """
 function ref_tensor_operations_wedge_product()
-    @ex begin
+    @ex result begin
         α = Tensor([1, -2]')
         β = Tensor([3, 1]')
         α ∧ β   # 1-form ∧ 1-form → 2-form
@@ -1680,7 +1697,7 @@ function ref_tensor_operations_wedge_product()
         #   [0.0 7.0; -7.0 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Anticommutativity: α ∧ β = -(β ∧ α)
         β ∧ α
         # Docs output:
@@ -1688,7 +1705,7 @@ function ref_tensor_operations_wedge_product()
         #   [0.0 -7.0; 7.0 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Wedging a form with itself always yields zero
         α ∧ α
         # Docs output:
@@ -1702,14 +1719,14 @@ end
 Examples from the docs page reference/TensorOperations #dot-product
 """
 function ref_tensor_operations_dot_product()
-    @ex begin
+    @ex result begin
         v = Tensor([1, 2])
         w = Tensor([3, -1])
         v ⋅ w
         # Docs output:
         #   1
     end
-    @ex begin
+    @ex result begin
         # For a metric inner product, use the metric tensor and contraction
         @variables θ φ
         e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])

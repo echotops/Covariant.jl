@@ -13,16 +13,33 @@ _shows(s) = !(s isa Expr && (s.head in _quiet || (s.head == :macrocall && string
 _show(x) = (x === nothing || x isa Makie.AbstractPlot || x isa Makie.Figure) ? nothing : (display(x); nothing)
 
 """
-Internal. Runs a block of statements in the calling function's scope, displaying the value of each one
-like a REPL would
+Internal. Whether a statement is an assignment, rather than a function definition
 """
+_assigns(s) = s isa Expr && s.head == :(=) && !(s.args[1] isa Expr && s.args[1].head == :call)
+
+"""
+Internal. Runs a block of statements in the calling function's scope, displaying the value of each one
+like a REPL would. With `result`, the docs show the block's output, so its last assignment is displayed too,
+and with `results`, where the docs show several outputs, every assignment is
+"""
+macro ex(mode, block)
+    return _ex(block, mode in (:result, :results), mode === :results)
+end
+
 macro ex(block)
+    return _ex(block, false, false)
+end
+
+function _ex(block, result, every)
+    stmts = filter(s -> !(s isa LineNumberNode), block.args)
     out = Expr(:block)
     for s in block.args
-        if s isa LineNumberNode || !_shows(s)
-            push!(out.args, esc(s))
-        else
+        if s isa LineNumberNode
+            push!(out.args, s)
+        elseif _shows(s) || (result && _assigns(s) && (every || s === last(stmts)))
             push!(out.args, :(_show($(esc(s)))))
+        else
+            push!(out.args, esc(s))
         end
     end
     return out
@@ -65,7 +82,7 @@ end
 Examples from the docs page learn/DifferentialForms
 """
 function learn_differential_forms()
-    @ex begin
+    @ex result begin
         α = Tensor([1, -2]')
         β = Tensor([3, 1]')
         γ = α ∧ β
@@ -74,14 +91,14 @@ function learn_differential_forms()
         #   [0.0 7.0; -7.0 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         α ∧ α
         # Docs output:
         #   (0, 2)-Tensor:
         #   [0.0 0.0; 0.0 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         @variables u v
         ∂ = PartialDerivative((u, v))
         d = ExteriorDerivative(∂)
@@ -92,7 +109,7 @@ function learn_differential_forms()
         #   Num[0.0 u^2; -(u^2) 0.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         e = Basis([
             Tensor([1, 0]),
             Tensor([0, 1])
@@ -112,7 +129,7 @@ end
 Examples from the docs page learn/DifferentialGeometry
 """
 function learn_differential_geometry()
-    @ex begin
+    @ex result begin
         e = Basis([
             Tensor([1, 0]),
             Tensor([0, 1])
@@ -123,7 +140,7 @@ function learn_differential_geometry()
         #   [1 0; 0 1]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         η = metric(
             Basis([
                 Tensor([1, 0, 0, 0]),
@@ -138,7 +155,7 @@ function learn_differential_geometry()
         #   [-1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]
         #     (:co, :co)
     end
-    @ex begin
+    @ex result begin
         𝔤 = inv(g)
         ω = Tensor([1, -2]') ⊗ Tensor([-3, 2]') # A (0, 2)-tensor
         𝔤[:i, :j] * ω[:i, :k]
@@ -148,7 +165,7 @@ function learn_differential_geometry()
         #       (:contra, :co)
         #       (:j,), (:k,)
     end
-    @ex begin
+    @ex result begin
         @variables u v
         ∂ = PartialDerivative((u, v))
         X = Tensor([u * v, v^2 - 1])
@@ -159,7 +176,7 @@ function learn_differential_geometry()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([
             Tensor([1, 0]),
@@ -177,7 +194,7 @@ function learn_differential_geometry()
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([
             Tensor([1, 0]),
@@ -190,26 +207,26 @@ function learn_differential_geometry()
         #   Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(θ)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(θ)^2) 0; 0 0]
         #       (:contra, :co, :co, :co)
     end
-    @ex begin
+    @ex result begin
         ricci(M)
         # Docs output:
         #   (0, 2)-Tensor:
         #   Num[1.0 0.0; 0.0 sin(θ)^2]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         ricci_scalar(M)
         # Docs output:
         #   2
     end
-    @ex begin
+    @ex result begin
         einstein(M)
         # Docs output:
         #   (0, 2)-Tensor:
         #   Num[0.0 0.0; 0.0 0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         @variables u v
         ∂ = PartialDerivative((u, v))
         X = Tensor([u, v])
@@ -226,7 +243,7 @@ end
 Examples from the docs page learn/GettingStarted
 """
 function learn_getting_started()
-    @ex begin
+    @ex result begin
         L = Tensor([[2, 1]', [-1, 3]'])
         v = Tensor([1, 2])
         L[:i][:j] * v[:j]  # Matrix-vector product
@@ -236,7 +253,7 @@ function learn_getting_started()
         #       (:contra,)
         #       (:i,), ()
     end
-    @ex begin
+    @ex result begin
         @variables u v
         basis = Basis([
             Tensor([1, 0]),
@@ -286,7 +303,7 @@ end
 Examples from the docs page learn/Symbolic
 """
 function learn_symbolic()
-    @ex begin
+    @ex result begin
         @variables θ φ
         e = Basis([
             Tensor([1, 0]),
@@ -300,13 +317,13 @@ function learn_symbolic()
         #   Num[1.0 0.0; 0.0 sin(θ)^2]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         # Equivalent to simplify(ricci_scalar(M))
         ricci_scalar(Manifold((θ, φ), e, simple=true))
         # Docs output:
         #   2
     end
-    @ex begin
+    @ex result begin
         R = ricci(Manifold((θ, φ), e, simple=true))
 
         # Evaluate at the equator θ = π/2
@@ -316,7 +333,7 @@ function learn_symbolic()
         #   Num[1.0 0.0; 0.0 1.0]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         @variables u v
         X = Tensor([u^2 * v, sin(u) + v])
         substitute(X, Dict(u => v^2)) # Partial, and replacing with an expression
@@ -325,7 +342,7 @@ function learn_symbolic()
         #   Num[v^6, sin(v^2) + v]
         #       (:contra,)
     end
-    @ex begin
+    @ex result begin
         # Numerically evaluate the Ricci tensor at θ = π/4
         evaluate(R, Dict(θ => π/4, φ => 0.0))
         # Docs output:
@@ -333,7 +350,7 @@ function learn_symbolic()
         #   [1.0 0.0; 0.0 0.5]
         #       (:co, :co)
     end
-    @ex begin
+    @ex result begin
         f = u^2 * sin(v)
         evaluate(f, Dict(u => 3.0, v => π/6))
         # Docs output:
@@ -345,7 +362,7 @@ end
 Examples from the docs page learn/TensorAlgebra
 """
 function learn_tensor_algebra()
-    @ex begin
+    @ex result begin
         v = Tensor([1, 2])
         w = Tensor([-3, 1])
         v[:i] + w[:i]
@@ -355,7 +372,7 @@ function learn_tensor_algebra()
         #       (:contra,)
         #       (:i,), ()
     end
-    @ex begin
+    @ex result begin
         L = Tensor([[4, -2], [3, 3]])
         M = Tensor([[0, 0], [-3, 3]])
         L[:i, :j] - M[:i, :j]
@@ -365,7 +382,7 @@ function learn_tensor_algebra()
         #       (:contra, :contra)
         #       (:i, :j), ()
     end
-    @ex begin
+    @ex result begin
         g = Tensor([[2, -1]', [0, 2]']')
         2 * g[:i, :j]
         # Docs output:
@@ -374,14 +391,14 @@ function learn_tensor_algebra()
         #       (:co, :co)
         #       (), (:i, :j)
     end
-    @ex begin
+    @ex result begin
         v = Tensor([2, -1])
         ω = Tensor([-2, 3]')
         v[:i] * ω[:i]   # The dot product v · ω
         # Docs output:
         #   -7
     end
-    @ex begin
+    @ex result begin
         A = Tensor([[2, -3], [-4, -1]]')
         B = Tensor([[-1, 1], [2, 2]]')
         A[:i][:j] * B[:j][:k]   # Matrix multiplication
@@ -391,13 +408,13 @@ function learn_tensor_algebra()
         #       (:contra, :co)
         #       (:i,), (:k,)
     end
-    @ex begin
+    @ex result begin
         A = Tensor([[2, 1], [-3, -1]]')
         A[:i][:i]   # tr(A)
         # Docs output:
         #   1
     end
-    @ex begin
+    @ex result begin
         A = Tensor([[2, 1], [-3, 1]])
         symmetrize(A[:i, :j], :i, :j)
         # Docs output:
@@ -405,7 +422,7 @@ function learn_tensor_algebra()
         #   [2.0 -1.0; -1.0 1.0]
         #       (:contra, :contra)
     end
-    @ex begin
+    @ex result begin
         A = Tensor([[2, 1], [-3, 1]])
         antisymmetrize(A[:i, :j], :i, :j)
         # Docs output:
@@ -413,7 +430,7 @@ function learn_tensor_algebra()
         #   [0.0 2.0; -2.0 0.0]
         #       (:contra, :contra)
     end
-    @ex begin
+    @ex result begin
         v = Tensor([2, -1])
         w = Tensor([3, 4])
         L = v ⊗ w   # The outer product vwᵀ
@@ -422,7 +439,7 @@ function learn_tensor_algebra()
         #   [6 8; -3 -4]
         #       (:contra, :contra)
     end
-    @ex begin
+    @ex result begin
         α = Tensor([2, 3]')
         L ⊗ α ⊗ v
         # Docs output:
@@ -430,7 +447,7 @@ function learn_tensor_algebra()
         #   [24 32; -12 -16;;; 36 48; -18 -24;;;; -12 -16; 6 8;;; -18 -24; 9 12]
         #       (:contra, :contra, :co, :contra)
     end
-    @ex begin
+    @ex result begin
         e = Basis([
             Tensor([1, 1]),
             Tensor([0, 1])
@@ -442,7 +459,7 @@ function learn_tensor_algebra()
         #   [2, 1]
         #     (:contra,)
     end
-    @ex begin
+    @ex result begin
         ϵ = dual_basis(e)
         δ = KroneckerDelta()
         for i in 1:2, j in 1:2
@@ -468,26 +485,26 @@ function learn_tensors()
         L = Tensor([[4, -2]', [1, 1]']) # A linear map
         g = Tensor([[2, 1]', [1, 2]']') # A bilinear form
     end
-    @ex begin
+    @ex result begin
         L = Tensor([[4, -2]', [1, 1]'])
         # Docs output:
         #   (1, 1)-Tensor:
         #   [4 -2; 1 1]
         #       (:contra, :co)
     end
-    @ex begin
+    @ex result begin
         v = Tensor([1, 2])
         v[1]
         # Docs output:
         #   1
     end
-    @ex begin
+    @ex result begin
         L = Tensor([[4, -2]', [1, 1]'])
         L[1][2]
         # Docs output:
         #   -2
     end
-    @ex begin
+    @ex result begin
         v[:i]
         # Docs output:
         #   (1, 0)-Tensor:
@@ -495,7 +512,7 @@ function learn_tensors()
         #       (:contra,)
         #       (:i,), ()
     end
-    @ex begin
+    @ex result begin
         L[:i][:j]
         # Docs output:
         #   (1, 1)-Tensor:
@@ -503,7 +520,7 @@ function learn_tensors()
         #       (:contra, :co)
         #       (:i,), (:j,)
     end
-    @ex begin
+    @ex result begin
         L[2][:k]
         # Docs output:
         #   (0, 1)-Tensor:
