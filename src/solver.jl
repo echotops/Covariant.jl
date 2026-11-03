@@ -1,66 +1,52 @@
 """
-Geodesic problem for the solver
+A solved path on a manifold, with the quantities carried along it
 
-geodesic!(coordinates, Γ, du, u, p, t)
+Returned by solve_geodesic and solve_parallel_transport, and accepted by plot_path! and plot_vectors!.
 
-# State vector
-u[1:2] - position
-u[3:4] - velocity
+# Fields
+times::Vector{Float64}
+    - The times the solution was saved at
+positions::Vector{Vector{Float64}}
+    - The coordinates of the path at each time
+velocities::Union{Vector{Vector{Float64}}, Nothing}
+    - The velocity of the path at each time, if known
+vectors::Union{Vector{Vector{Float64}}, Nothing}
+    - The parallel-transported vector at each time, if there is one
+solution::Any
+    - The underlying DifferentialEquations.jl solution
 """
-function geodesic!(args...; kwargs...)
-    error("Load DifferentialEquations before using geodesic!")
+struct Trajectory
+    times::Vector{Float64}
+    positions::Vector{Vector{Float64}}
+    velocities::Union{Vector{Vector{Float64}}, Nothing}
+    vectors::Union{Vector{Vector{Float64}}, Nothing}
+    solution::Any
+end
+
+function Base.show(io::IO, T::Trajectory)
+    print(io, "Trajectory(", length(T.times), " points, t = ", first(T.times), " to ", last(T.times), ")")
 end
 
 """
-Solve the geodesic problem given initial conditions
+Solve the geodesic equation on a manifold given an initial position and velocity
 
-solve_geodesic(coordinates, basis, x0, v0, times; abstol=1e-10, reltol=1e-10)
+solve_geodesic(M, x0, v0, times; abstol=1e-10, reltol=1e-10)
+
+Returns a Trajectory with positions and velocities.
 """
 function solve_geodesic(args...; kwargs...)
-    error("Load DifferentialEquations before using solve_geodesic")
+    error("Load DifferentialEquations and ForwardDiff before using solve_geodesic")
 end
 
 """
-Parallel transport problem for the solver
+Parallel transport a vector along a path on a manifold
 
-parallel_transport!(coordinates, Γ, du, u, p, t)
+solve_parallel_transport(M, path, w0, times; abstol=1e-5, reltol=1e-5)
 
-# State vector
-u[1:2] - position
-u[3:4] - velocity (geodesic)
-u[5:6] - vector being transported
-"""
-function parallel_transport!(args...; kwargs...)
-    error("Load DifferentialEquations before using parallel_transport!")
-end
-
-"""
-Solve the parallel transport problem given initial conditions
-
-solve_parallel_transport(coordinates, basis, x0, v0, w0, times; abstol=1e-5, reltol=1e-5)
+The path is either a function t -> coordinates, whose velocity is found by automatic differentiation,
+or a Trajectory such as the one returned by solve_geodesic. Returns a Trajectory with positions,
+velocities, and the transported vectors.
 """
 function solve_parallel_transport(args...; kwargs...)
-    error("Load DifferentialEquations before using solve_parallel_transport")
-end
-
-"""
-Parallel transport along a path problem for the solver
-
-parallel_transport_path!(coordinates, Γ, path, du, u, p, t)
-
-# State vector
-u[1:2] - vector being transported
-"""
-function parallel_transport_path!(args...; kwargs...)
-    error("Load DifferentialEquations and ForwardDiff before using parallel_transport_path!")
-end
-
-"""
-Solve the parallel transport along a path problem given initial conditions.
-The path's velocity is computed automatically via automatic differentiation.
-
-solve_parallel_transport_path(coordinates, basis, path, w0, times; abstol=1e-5, reltol=1e-5)
-"""
-function solve_parallel_transport_path(args...; kwargs...)
-    error("Load DifferentialEquations and ForwardDiff before using solve_parallel_transport_path")
+    error("Load DifferentialEquations and ForwardDiff before using solve_parallel_transport")
 end
