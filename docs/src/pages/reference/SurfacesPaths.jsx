@@ -78,6 +78,34 @@ plot_path!(ax3, M, circle, range(0, 2π, 100),
                 />
             </FunctionDocs>
 
+            <FunctionDocs
+                id="embedding-basis"
+                name="embedding_basis"
+                code={`embedding_basis(embedding, x)`}
+                description={<>Computes the tangent basis vectors of an embedding at a point, by automatic differentiation with <code>ForwardDiff</code>. A <Ref to={refLinks.Manifold}>Manifold</Ref> built from an embedding finds the same vectors symbolically, so this is for numeric use, or for embeddings that Symbolics.jl can't trace. The result is the columns of the Jacobian of the embedding, the coordinate basis vectors <Math>{'\\partial / \\partial u^i'}</Math> at <code>x</code>, as a vector of vectors. These are the frame that vector components are plotted in when a <Ref to={refLinks.Manifold}>Manifold</Ref> has an embedding but no basis, so the basis need not be written out by hand.</>}
+                args={[
+                    ['embedding', 'Function', <>A function <code>(u, v) -&gt; [x, y, z]</code> returning an array.</>],
+                    ['x', 'Vector{Float64}', <>The coordinate values to find the tangent vectors at.</>],
+                ]}
+            >
+                <p className="learn-heading">Examples</p>
+                <CodeBlock lang="julia" inset={60}
+                    code={`embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
+embedding_basis(embedding, [π/2, 0.0])`}
+                    result={`2-element Vector{Vector{Float64}}:
+ [6.123233995736766e-17, 0.0, -1.0]
+ [0.0, 1.0, -0.0]`}
+                />
+                <CodeBlock lang="julia" inset={60}
+                    code={`# A Manifold built from an embedding finds these vectors itself,
+# so vectors can be plotted without writing out a basis
+@variables θ φ
+M = Manifold((θ, φ), embedding;
+    ranges=(range(0.1, π-0.1, 20), range(0, 2π, 20)))
+plot_vectors!(ax3, M, Tensor([sin(θ), cos(φ)]), spacing=2, normalize=true)`}
+                />
+            </FunctionDocs>
+
             <PageNav prev="Simplify & Evaluate" next="Scalar Fields" />
         </>
     );

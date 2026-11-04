@@ -2,7 +2,8 @@ module CovariantSolver
 
 using Covariant
 using DifferentialEquations
-using ForwardDiff
+
+const ForwardDiff = Covariant.ForwardDiff
 
 # Internal. The Christoffel symbols compiled once per manifold into an in-place function
 compiled_Γ(M::Manifold) = get!(() -> Covariant.lambdify!(christoffel(M), M.coordinates), M.cache, :christoffel_function)

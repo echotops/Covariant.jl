@@ -58,9 +58,11 @@ HodgeStar
 --- geometry.jl ---
 inv
 minkowski
+Manifold (coordinates, function)
 Manifold (coordinates, Tensor)
 Manifold (coordinates, Basis)
 Manifold (coordinates)
+embedding_basis
 PartialDerivative (Manifold)
 HodgeStar (Manifold)
 metric (Basis)

@@ -45,7 +45,7 @@ g = Tensor([[2, 1]', [1, 2]']')  # (0, 2)-tensor — bilinear form`}
                     code={`# The pattern extends naturally to higher rank
 T = Tensor([[[1, 0]', [0, 1]'], [[-1, 2]', [3, 0]']])`}
                     result={`(2, 1)-Tensor:
-[1 0; 0 1;;; -1 2; 3 0]
+[1 0; -1 3;;; 0 1; 2 0]
     (:contra, :contra, :co)`}
                 />
             </TypeDocs>

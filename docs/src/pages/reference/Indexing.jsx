@@ -115,10 +115,10 @@ L[:i][1]`}
                 <CodeBlock lang="julia" inset={60}
                     code={`# Symbolic indexing returns an IndexedKroneckerDelta
 L = Tensor([[4, -2]', [1, 1]'])
-L[:i][:j] * δ[:i, :k]   # Relabels contravariant index i → k`}
+L[:i][:j] * δ[:i, :k]   # Relabels contravariant index i → k, stored with k first`}
                     result={`(1, 1)-Tensor:
-[4 -2; 1 1]
-    (:contra, :co)
+[4 1; -2 1]
+    (:co, :contra)
     (:k,), (:j,)`}
                 />
             </FunctionDocs>

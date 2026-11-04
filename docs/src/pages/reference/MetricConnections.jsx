@@ -13,31 +13,39 @@ export default function MetricConnections() {
             <FunctionDocs
                 id="manifold"
                 name="Manifold"
-                code={`Manifold(coordinates, basis; inner_product=⋅, ranges=nothing, embedding=nothing, simple=false)
+                code={`Manifold(coordinates, embedding; inner_product=⋅, ranges=nothing, simple=false)
+Manifold(coordinates, basis; inner_product=⋅, ranges=nothing, embedding=nothing, simple=false)
 Manifold(coordinates, g; ranges=nothing, embedding=nothing, basis=nothing, simple=false)
 Manifold(coordinates; ranges=nothing, embedding=nothing)`}
-                description={<>A manifold in a coordinate chart, defined by its coordinates and metric. The metric is either given directly as a <Math>{'(0, 2)'}</Math>-tensor, taken from a vector basis, or, with neither, flat. The optional <code>ranges</code> and <code>embedding</code> are used for plotting. With an embedding a 2-dimensional manifold is a surface in <Math>{'\\mathbb{R}^3'}</Math> drawn in an <code>Axis3</code>, and without one it is a flat chart drawn in an <code>Axis</code>.</>}
+                description={<>A manifold in a coordinate chart, defined by its coordinates and metric. The metric is either found from an embedding in <Math>{'\\mathbb{R}^3'}</Math>, given directly as a <Math>{'(0, 2)'}</Math>-tensor, taken from a vector basis, or, with none of these, flat. With an embedding function, it is called with the symbolic coordinates, so it must use functions Symbolics.jl can trace, like <code>cos</code> and <code>sin</code>. Its Jacobian gives the tangent basis vectors, and the metric is their inner product. The optional <code>ranges</code> and <code>embedding</code> are used for plotting. With an embedding a 2-dimensional manifold is a surface in <Math>{'\\mathbb{R}^3'}</Math> drawn in an <code>Axis3</code>, and without one it is a flat chart drawn in an <code>Axis</code>.</>}
                 args={[
                     ['coordinates', 'Tuple{Num}', <>The symbolic coordinate variables.</>],
+                    ['embedding', 'Function', <>A function <code>(u, v) -&gt; [x, y, z]</code> returning an array, which the metric and basis are found from. Pass <code>basis</code> or <code>g</code> instead to give the geometry another way.</>],
                     ['basis', 'Basis', <>A vector basis that the metric is taken from. Pass <code>g</code>, a <Math>{'(0, 2)'}</Math>-tensor, instead to give the metric directly.</>],
                 ]}
                 kwargs={[
                     ['ranges', 'Tuple', 'nothing', <>The range of values to plot each coordinate over.</>],
                     ['embedding', 'Function', 'nothing', <>A function <code>(u, v) -&gt; [x, y, z]</code> mapping coordinate values to a point in <Math>{'\\mathbb{R}^3'}</Math>.</>],
+                    ['basis', 'Basis', 'nothing', <>The vector basis in <Math>{'\\mathbb{R}^3'}</Math> that plotted vector components are given in. When there is an embedding but no basis, components are taken in the coordinate basis of the embedding, found with <Ref to={refLinks.embedding_basis}>embedding_basis</Ref>.</>],
                     ['inner_product', 'Function', '⋅', <>The inner product used to take the metric from a basis.</>],
                     ['simple', 'Bool', 'false', <>Whether curvature results are simplified symbolically.</>],
                 ]}
             >
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
-                    code={`@variables θ φ
+                    code={`# The unit sphere from its embedding in 3D. The metric
+# and the tangent basis are found from the embedding
+@variables θ φ
 embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
-basis = Basis([
-    Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
-    Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
-])
-M = Manifold((θ, φ), basis; ranges=(range(0, π, 50), range(0, 2π, 50)),
-    embedding=embedding)`}
+M = Manifold((θ, φ), embedding;
+    ranges=(range(0, π, 50), range(0, 2π, 50)), simple=true)
+ricci_scalar(M)`}
+                    result={`2`}
+                />
+                <CodeBlock lang="julia" inset={60}
+                    code={`# Or from a basis, which also gives the metric
+e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
+M = Manifold((θ, φ), e)`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# A flat chart, plotted in the plane
@@ -108,7 +116,7 @@ metric(e)`}
 g = metric(e)
 𝔤 = inv(g)   # (0, 2) → (2, 0)`}
                     result={`(2, 0)-Tensor:
-[1 0; 0 1]
+Num[1 0; 0 1]
     (:contra, :contra)`}
                 />
                 <CodeBlock lang="julia" inset={60}
@@ -116,7 +124,7 @@ g = metric(e)
 ω = Tensor([1, -2]') ⊗ Tensor([-3, 2]')   # A (0, 2)-tensor
 𝔤[:i, :j] * ω[:i, :k]`}
                     result={`(1, 1)-Tensor:
-[1 -2; -3 2]
+Num[-3 2; 6 -4]
     (:contra, :co)
     (:j,), (:k,)`}
                 />
@@ -185,7 +193,7 @@ e = Basis([
 M = Manifold((θ, φ), e, simple=true)
 Γ = christoffel(M)`}
                     result={`(1, 2)-Tensor:
-Num[0.0 0.0; 0.0 -sin(θ)*cos(θ);;; 0.0 cos(θ)/sin(θ); cos(θ)/sin(θ) 0.0]
+Num[0.0 0.0; 0.0 cos(θ) / sin(θ);;; 0.0 (-1//2)*sin(2θ); cos(θ) / sin(θ) 0.0]
     (:contra, :co, :co)`}
                 />
                 <CodeBlock lang="julia" inset={60}

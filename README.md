@@ -65,7 +65,7 @@ Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(θ)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(θ)^2) 0; 
 
 **Symbolic** — symbolic tensor components via Symbolics.jl, with `simplify`, `substitute`, and `evaluate` for turning exact symbolic results into concrete numbers.
 
-**Visualization & solving** — plot surfaces, scalar fields, vector fields, and paths with GLMakie, and solve the geodesic and parallel transport equations with DifferentialEquations.jl. These are optional package extensions — load `GLMakie` and/or `DifferentialEquations` and `ForwardDiff` alongside Covariant to enable them.
+**Visualization & solving** — plot surfaces, scalar fields, vector fields, and paths with GLMakie, and solve the geodesic and parallel transport equations with DifferentialEquations.jl. These are optional package extensions — load `GLMakie` and/or `DifferentialEquations` alongside Covariant to enable them.
 
 ## Core Types & Operators
 

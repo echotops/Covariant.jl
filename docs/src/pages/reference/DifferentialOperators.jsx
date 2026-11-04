@@ -39,7 +39,7 @@ Num[v u; 0 2v]
                     result={`(0, 2)-Tensor:
 Num[2u*v u^2; 0 1]
     (:co, :co)
-    (), (:i, :j)`}
+    (), (:j, :i)`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Contracting with a matching index computes the divergence

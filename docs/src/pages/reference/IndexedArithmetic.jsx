@@ -185,10 +185,10 @@ v[:i] * u[:j] * ε[:i, :j]`}
 a = Tensor([1, 0, 0])
 b = Tensor([0, 1, 0])
 a[:i] * b[:j] * ε[:i, :j, :k]`}
-                    result={`(1, 0)-Tensor:
+                    result={`(0, 1)-Tensor:
 [0, 0, 1]
-    (:contra,)
-    (:k,), ()`}
+    (:co,)
+    (), (:k,)`}
                 />
             </FunctionDocs>
 

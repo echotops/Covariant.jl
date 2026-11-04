@@ -11,8 +11,8 @@ export default function Solver() {
         <>
             <p className="learn-title">Solver</p>
             <p className="learn-body">
-                The examples below continue from the <code>embedding</code>, <code>basis</code>,
-                coordinates, <code>M</code> manifold, and <code>ax3</code> axis set up on the Visualization page, solving
+                The examples below continue from the <code>embedding</code>, coordinates,
+                <code>M</code> manifold, and <code>ax3</code> axis set up on the Visualization page, solving
                 differential equations along the manifold they define and plotting the results
                 onto the same figure
             </p>

@@ -259,6 +259,7 @@ export const referenceNav = [
                 items: [
                     { title: 'plot_surface!', anchor: 'plot-surface' },
                     { title: 'plot_path!', anchor: 'plot-path' },
+                    { title: 'embedding_basis', anchor: 'embedding-basis' },
                 ],
             },
             {
@@ -337,6 +338,7 @@ export const refLinks = {
     Manifold: '/reference/metric-and-connections#manifold',
     'plot_surface!': '/reference/surfaces-and-paths#plot-surface',
     'plot_path!': '/reference/surfaces-and-paths#plot-path',
+    embedding_basis: '/reference/surfaces-and-paths#embedding-basis',
     'plot_scalar!': '/reference/scalar-fields#plot-scalar',
     'plot_vectors!': '/reference/vector-fields#vectors',
 

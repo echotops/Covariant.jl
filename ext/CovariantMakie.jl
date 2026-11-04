@@ -28,12 +28,15 @@ function base_point(M::Manifold, p)
 end
 
 # Internal. Turns vector components at a coordinate point into a vector to draw. Components are
-# lifted through the basis on an embedded surface, and drawn as given on a flat one.
+# lifted through the basis on an embedded surface, or the coordinate basis of the embedding if it has no
+# basis, and drawn as given on a flat one.
 function tangent_vector(M::Manifold)
     if !is_embedded(M)
         return (p, c) -> Vec2f(c...)
     end
-    M.basis === nothing && error("Plotting vectors on an embedded surface needs a Manifold with a basis")
+    if M.basis === nothing
+        return (p, c) -> Vec3f(sum(c[i] * e for (i, e) in enumerate(embedding_basis(M.embedding, p))))
+    end
     basis_fns = [lambdify(e, M.coordinates) for e in M.basis.elements]
     return (p, c) -> Vec3f(sum(c[i] * basis_fns[i](p) for i in eachindex(c)))
 end

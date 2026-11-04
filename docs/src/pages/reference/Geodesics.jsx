@@ -10,7 +10,7 @@ export default function Geodesics() {
             <p className="learn-title">Geodesics</p>
             <p className="learn-body">
                 Geodesic solving requires <code>CovariantSolver</code>, which provides
-                a <code>DifferentialEquations.jl</code> backend, loaded along with <code>ForwardDiff</code>.
+                a <code>DifferentialEquations.jl</code> backend.
                 The solvers take a <code>Manifold</code>, compile its Christoffel symbols once
                 and reuse them on every solve, and work in any number of dimensions. Results come back as
                 a <code>Trajectory</code>, which can be passed straight to the plotting functions.

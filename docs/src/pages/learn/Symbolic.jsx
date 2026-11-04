@@ -60,7 +60,7 @@ code={`R = ricci(Manifold((θ, φ), e, simple=true))
 # Evaluate at the equator θ = π/2
 substitute(R, Dict(θ => π/2))`}
 result={`(0, 2)-Tensor:
-Num[1.0 0.0; 0.0 1.0]
+Num[1.0 0.0; 0.0 sin(1.5707963267948966)^2]
     (:co, :co)`}
             />
             <p className="learn-body">
@@ -71,7 +71,7 @@ code={`@variables u v
 X = Tensor([u^2 * v, sin(u) + v])
 substitute(X, Dict(u => v^2)) # Partial, and replacing with an expression`}
 result={`(1, 0)-Tensor:
-Num[v^6, sin(v^2) + v]
+Num[v^5, sin(v^2) + v]
     (:contra,)`}
             />
             <p className="learn-heading" id="evaluate">Evaluate</p>

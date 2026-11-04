@@ -33,7 +33,7 @@ symmetrize() - Symmetrize a tensor
 antisymmetrize() - Antisymmetrize a tensor
 dual_basis() - Find the dual basis of a basis
 **Geometry**
-Manifold() - Construct a manifold from coordinates and a metric or basis
+Manifold() - Construct a manifold from coordinates and an embedding, metric, or basis
 metric() - Metric tensor from a basis or manifold
 inverse_metric() - Inverse metric of a manifold
 inv() - Invert a (2, 0) or (0, 2)-tensor
@@ -45,11 +45,13 @@ riemann() - Compute the Riemann Curvature Tensor
 ricci() - Compute the Ricci Curvature Tensor
 ricci_scalar() - Compute the Ricci Scalar
 einstein() - Compute the Einstein Tensor
+**Embeddings**
+embedding_basis() - The tangent basis vectors of an embedding at a point, by automatic differentiation
 **Symbolic**
 simplify() - Simplify the symbolic components of a tensor
 evaluate() - Evaluate symbolic components at a point
 lambdify() - Compile symbolic components into a fast numeric function
-**Solver** (requires DifferentialEquations and ForwardDiff)
+**Solver** (requires DifferentialEquations)
 solve_geodesic() - Solve the geodesic equation on a manifold
 solve_parallel_transport() - Parallel transport a vector along a path
 **Visualization** (requires GLMakie)
@@ -92,6 +94,7 @@ module Covariant
 using LinearAlgebra
 using Symbolics
 using Combinatorics
+using ForwardDiff
 
 import Base: getindex, show, +, -, *, /, inv
 import LinearAlgebra: ⋅
@@ -121,6 +124,7 @@ export symmetrize, antisymmetrize, dual_basis
 export metric, inverse_metric, christoffel, levicivita, lie
 export riemann, ricci, ricci_scalar, einstein
 export minkowski
+export embedding_basis
 
 # Symbolic
 export evaluate, lambdify

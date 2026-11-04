@@ -41,7 +41,7 @@ Num[1.0 0.0; 0.0 sin(θ)^2]
 X = Tensor([sin(u)^2 + cos(u)^2, v])
 simplify(∂[:i] * X[:j])`}
                     result={`(1, 1)-Tensor:
-Num[1 0; 0 1]
+Num[0 0; 0 1]
     (:contra, :co)
     (:j,), (:i,)`}
                 />
@@ -71,7 +71,7 @@ R = ricci(Manifold((θ, φ), e, simple=true))
 # Evaluate at the equator θ = π/2
 substitute(R, Dict(θ => π/2))`}
                     result={`(0, 2)-Tensor:
-Num[1.0 0.0; 0.0 1.0]
+Num[1.0 0.0; 0.0 sin(1.5707963267948966)^2]
     (:co, :co)`}
                 />
                 <CodeBlock lang="julia" inset={60}
@@ -87,7 +87,7 @@ Num[4v, sin(2) + v]
                     code={`# Replacing a variable with an expression
 substitute(X, Dict(u => v^2))`}
                     result={`(1, 0)-Tensor:
-Num[v^6, sin(v^2) + v]
+Num[v^5, sin(v^2) + v]
     (:contra,)`}
                 />
             </FunctionDocs>
@@ -127,7 +127,7 @@ evaluate(f, Dict(u => 3.0, v => π/6))`}
 X = Tensor([sin(θ) * cos(φ), cos(θ)])
 evaluate(X, Dict(θ => π/3, φ => π/4))`}
                     result={`(1, 0)-Tensor:
-[0.6124, 0.5]
+[0.6123724356957946, 0.5000000000000001]
     (:contra,)`}
                 />
             </FunctionDocs>

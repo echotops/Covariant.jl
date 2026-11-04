@@ -14,14 +14,15 @@ export default function VectorFields() {
                 or a list of individual vectors at specified positions. Both draw arrows with GLMakie,
                 with vector lengths mapped to color by default. On a flat chart the components are drawn
                 as given. On an embedded surface they are lifted to <Math>{'\\mathbb{R}^3'}</Math> through
-                the basis of the <code>Manifold</code>.
+                the basis of the <code>Manifold</code>, which is the tangent basis of its embedding when it was built from one,
+                or the coordinate basis of the embedding, computed numerically, if it has a metric but no basis.
             </p>
 
             <FunctionDocs
                 id="vectors"
                 name="plot_vectors!"
                 code={`plot_vectors!(ax, M, X; spacing=1, normalize=false, kwargs...)`}
-                description={<>Plots a symbolic vector field as arrows by evaluating it at each point on a subsampled grid of the ranges of <code>M</code>. Arrow colors are mapped to vector lengths, with the colorrange centered symmetrically. The field <code>X</code> must be a <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the coordinates of <code>M</code>. On an embedded surface the <code>Manifold</code> must have a basis.</>}
+                description={<>Plots a symbolic vector field as arrows by evaluating it at each point on a subsampled grid of the ranges of <code>M</code>. Arrow colors are mapped to vector lengths, with the colorrange centered symmetrically. The field <code>X</code> must be a <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the coordinates of <code>M</code>. On an embedded surface the components are in the basis of the <code>Manifold</code>, or the coordinate basis of its embedding if it has none.</>}
                 args={[
                     ['ax', 'Axis3 or Axis', <>The GLMakie <code>Axis3</code> for an embedded surface, or <code>Axis</code> for a flat chart.</>],
                     ['M', 'Manifold', <>The manifold to plot over, with ranges and, to plot in 3D, an embedding.</>],
@@ -53,12 +54,8 @@ fig = Figure()
 ax3 = Axis3(fig[1, 1])
 
 @variables θ φ
-basis = Basis([
-    Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
-    Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
-])
-M = Manifold((θ, φ), basis; ranges=(range(0.1, π-0.1, 20), range(0, 2π, 20)),
-    embedding=(u, v) -> [cos(v)*sin(u), sin(v)*sin(u), cos(u)])
+embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
+M = Manifold((θ, φ), embedding; ranges=(range(0.1, π-0.1, 20), range(0, 2π, 20)))
 
 X = Tensor([sin(θ), cos(φ)])
 plot_vectors!(ax3, M, X,

@@ -1,7 +1,6 @@
 using Covariant
 using Symbolics
 using DifferentialEquations
-using ForwardDiff
 using GLMakie
 
 """
@@ -32,6 +31,7 @@ end
 
 function _ex(block, result, every)
     stmts = filter(s -> !(s isa LineNumberNode), block.args)
+    every = every && all(_assigns, stmts)
     out = Expr(:block)
     for s in block.args
         if s isa LineNumberNode
@@ -65,16 +65,12 @@ Internal. The unit sphere, its embedding, and an axis, which the plotting exampl
 function _plot_context()
     @variables θ φ
     embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
-    basis = Basis([
-        Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
-        Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
-    ])
     θs = range(0.1, π-0.1, 30)
     φs = range(0, 2π, 30)
-    M = Manifold((θ, φ), basis; ranges=(θs, φs), embedding=embedding)
+    M = Manifold((θ, φ), embedding; ranges=(θs, φs))
     fig = Figure()
     ax3 = Axis3(fig[1, 1])
-    return (; θ, φ, embedding, basis, θs, φs, M, fig, ax3)
+    return (; θ, φ, embedding, θs, φs, M, fig, ax3)
 end
 
 
@@ -161,7 +157,7 @@ function learn_differential_geometry()
         𝔤[:i, :j] * ω[:i, :k]
         # Docs output:
         #   (1, 1)-Tensor:
-        #   Symbolics.Num[-3 2; 6 -4]
+        #   Num[-3 2; 6 -4]
         #       (:contra, :co)
         #       (:j,), (:k,)
     end
@@ -271,7 +267,7 @@ end
 Examples from the docs page learn/Solver
 """
 function learn_solver()
-    (; θ, φ, embedding, basis, θs, φs, M, fig, ax3) = _plot_context()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
     @ex begin
         x0 = [π/2, π/6]
         v0 = [0.5, -0.5]
@@ -330,7 +326,7 @@ function learn_symbolic()
         substitute(R, Dict(θ => π/2))
         # Docs output:
         #   (0, 2)-Tensor:
-        #   Num[1.0 0.0; 0.0 1.0]
+        #   Num[1.0 0.0; 0.0 sin(1.5707963267948966)^2]
         #       (:co, :co)
     end
     @ex result begin
@@ -339,7 +335,7 @@ function learn_symbolic()
         substitute(X, Dict(u => v^2)) # Partial, and replacing with an expression
         # Docs output:
         #   (1, 0)-Tensor:
-        #   Num[v^6, sin(v^2) + v]
+        #   Num[v^5, sin(v^2) + v]
         #       (:contra,)
     end
     @ex result begin
@@ -534,7 +530,7 @@ end
 Examples from the docs page learn/Visualization
 """
 function learn_visualization()
-    (; θ, φ, embedding, basis, θs, φs, M, fig, ax3) = _plot_context()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
     @ex begin
         fig = Figure()
         ax3 = Axis3(fig[1,1])
@@ -544,16 +540,11 @@ function learn_visualization()
             sin(v)*sin(u),
             cos(u)
         ]
-        # Unit sphere basis vectors
+        # Coordinates and their ranges
         @variables θ, φ
-        basis = Basis([
-            Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
-            Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
-        ])
-        # Coordinate ranges
         θs = range(0, π, 50)
         φs = range(0, 2π, 50)
-        M = Manifold((θ, φ), basis; ranges=(θs, φs), embedding=embedding)
+        M = Manifold((θ, φ), embedding; ranges=(θs, φs))
     end
     @ex begin
         plot_surface!(ax3, M)

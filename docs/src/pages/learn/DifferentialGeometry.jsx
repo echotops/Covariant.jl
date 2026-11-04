@@ -53,7 +53,7 @@ code={`𝔤 = inv(g)
 ω = Tensor([1, -2]') ⊗ Tensor([-3, 2]') # A (0, 2)-tensor
 𝔤[:i, :j] * ω[:i, :k]`}
 result={`(1, 1)-Tensor:
-Symbolics.Num[-3 2; 6 -4]
+Num[-3 2; 6 -4]
     (:contra, :co)
     (:j,), (:k,)`}
             />

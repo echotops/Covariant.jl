@@ -46,7 +46,7 @@ Num[0.0 0.0 0.0; 0.0 0.0 1.0; 0.0 -1.0 0.0]
                     code={`# A top-form maps to a scalar
 ω = Tensor([[0, 1]', [-1, 0]']')   # A 2-form in 2D
 ⋆(ω)`}
-                    result={`-1.0`}
+                    result={`1`}
                 />
             </FunctionDocs>
 

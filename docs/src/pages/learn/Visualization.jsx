@@ -15,8 +15,10 @@ export default function Visualization() {
             <p className="learn-body">
                 Plotting with Covariant can be accomplished with GLMakie in <code>Makie.jl</code>.
                 Everything is plotted on a <Ref to={refLinks.Manifold}>Manifold</Ref>, which holds the
-                coordinates, the metric (taken here from the vector basis), the range to plot each coordinate over,
-                and the embedding into 3 dimensions. It is given once and reused by every plotting function
+                coordinates, the range to plot each coordinate over, and the embedding into 3 dimensions. Given an
+                embedding, the metric and the tangent basis vectors are found from it automatically, by differentiating
+                it symbolically, so the same object also gives curvature and drives the solver. It is given once and
+                reused by every plotting function
             </p>
             <CodeBlock lang="julia"
 code={`fig = Figure()
@@ -27,16 +29,11 @@ embedding(u, v) = [
     sin(v)*sin(u),
     cos(u)
 ]
-# Unit sphere basis vectors
+# Coordinates and their ranges
 @variables θ, φ
-basis = Basis([
-    Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
-    Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
-])
-# Coordinate ranges
 θs = range(0, π, 50)
 φs = range(0, 2π, 50)
-M = Manifold((θ, φ), basis; ranges=(θs, φs), embedding=embedding)`}
+M = Manifold((θ, φ), embedding; ranges=(θs, φs))`}
             />
             <p className="learn-heading" id="surfaces">Surfaces</p>
             <p className="learn-body">

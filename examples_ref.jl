@@ -1,7 +1,6 @@
 using Covariant
 using Symbolics
 using DifferentialEquations
-using ForwardDiff
 using GLMakie
 
 """
@@ -32,6 +31,7 @@ end
 
 function _ex(block, result, every)
     stmts = filter(s -> !(s isa LineNumberNode), block.args)
+    every = every && all(_assigns, stmts)
     out = Expr(:block)
     for s in block.args
         if s isa LineNumberNode
@@ -65,16 +65,12 @@ Internal. The unit sphere, its embedding, and an axis, which the plotting exampl
 function _plot_context()
     @variables θ φ
     embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
-    basis = Basis([
-        Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
-        Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
-    ])
     θs = range(0.1, π-0.1, 30)
     φs = range(0, 2π, 30)
-    M = Manifold((θ, φ), basis; ranges=(θs, φs), embedding=embedding)
+    M = Manifold((θ, φ), embedding; ranges=(θs, φs))
     fig = Figure()
     ax3 = Axis3(fig[1, 1])
-    return (; θ, φ, embedding, basis, θs, φs, M, fig, ax3)
+    return (; θ, φ, embedding, θs, φs, M, fig, ax3)
 end
 
 
@@ -109,7 +105,7 @@ function ref_constructors_tensor()
         Tensor([[[1, 0]', [0, 1]'], [[-1, 2]', [3, 0]']])
         # Docs output:
         #   (2, 1)-Tensor:
-        #   [1 0; 0 1;;; -1 2; 3 0]
+        #   [1 0; -1 3;;; 0 1; 2 0]
         #       (:contra, :contra, :co)
     end
 end
@@ -311,7 +307,7 @@ function ref_derivatives_covariant_differentiation()
         ∇[:i] * ω[:j]
         # Docs output:
         #   (0, 2)-Tensor:
-        #   Num[0 cos(θ); -cos(θ) 0]
+        #   Num[0.0 -cos(θ); 0 cos(θ)*sin(θ)]
         #       (:co, :co)
         #       (), (:j, :i)
     end
@@ -392,7 +388,7 @@ function ref_differential_operators()
         #   (0, 2)-Tensor:
         #   Num[2u*v u^2; 0 1]
         #       (:co, :co)
-        #       (), (:i, :j)
+        #       (), (:j, :i)
     end
     @ex result begin
         # Contracting with a matching index computes the divergence
@@ -475,7 +471,7 @@ end
 Examples from the docs page reference/Geodesics #trajectory
 """
 function ref_geodesics_trajectory()
-    (; θ, φ, embedding, basis, θs, φs, M, fig, ax3) = _plot_context()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
     @ex begin
         trajectory = solve_geodesic(M, [π/2, π/6], [0.5, -0.5], range(0.0, 15.0, 250))
 
@@ -489,7 +485,7 @@ end
 Examples from the docs page reference/Geodesics #solve-geodesic
 """
 function ref_geodesics_solve_geodesic()
-    (; θ, φ, embedding, basis, θs, φs, M, fig, ax3) = _plot_context()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
     @ex begin
         x0 = [π/2, π/6]
         v0 = [0.5, -0.5]
@@ -543,7 +539,7 @@ function ref_geometric_objects()
         T = Tensor([[[1, 0]', [0, 1]'], [[-1, 2]', [3, 0]']])
         # Docs output:
         #   (2, 1)-Tensor:
-        #   [1 0; 0 1;;; -1 2; 3 0]
+        #   [1 0; -1 3;;; 0 1; 2 0]
         #       (:contra, :contra, :co)
     end
     @ex result begin
@@ -608,7 +604,7 @@ function ref_hodge_star_hodge_star()
         ω = Tensor([[0, 1]', [-1, 0]']')   # A 2-form in 2D
         ⋆(ω)
         # Docs output:
-        #   -1.0
+        #   1
     end
 end
 
@@ -751,10 +747,10 @@ function ref_indexed_arithmetic_multiplication_levi_civita()
         b = Tensor([0, 1, 0])
         a[:i] * b[:j] * ε[:i, :j, :k]
         # Docs output:
-        #   (1, 0)-Tensor:
+        #   (0, 1)-Tensor:
         #   [0, 0, 1]
-        #       (:contra,)
-        #       (:k,), ()
+        #       (:co,)
+        #       (), (:k,)
     end
 end
 
@@ -878,11 +874,11 @@ function ref_indexing_kronecker_delta_getindex()
     @ex result begin
         # Symbolic indexing returns an IndexedKroneckerDelta
         L = Tensor([[4, -2]', [1, 1]'])
-        L[:i][:j] * δ[:i, :k]   # Relabels contravariant index i → k
+        L[:i][:j] * δ[:i, :k]   # Relabels contravariant index i → k, stored with k first
         # Docs output:
         #   (1, 1)-Tensor:
-        #   [4 -2; 1 1]
-        #       (:contra, :co)
+        #   [4 1; -2 1]
+        #       (:co, :contra)
         #       (:k,), (:j,)
     end
 end
@@ -1022,15 +1018,21 @@ end
 Examples from the docs page reference/MetricConnections #manifold
 """
 function ref_metric_connections_manifold()
-    @ex begin
+    @ex result begin
+        # The unit sphere from its embedding in 3D. The metric
+        # and the tangent basis are found from the embedding
         @variables θ φ
         embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
-        basis = Basis([
-            Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
-            Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
-        ])
-        M = Manifold((θ, φ), basis; ranges=(range(0, π, 50), range(0, 2π, 50)),
-            embedding=embedding)
+        M = Manifold((θ, φ), embedding;
+            ranges=(range(0, π, 50), range(0, 2π, 50)), simple=true)
+        ricci_scalar(M)
+        # Docs output:
+        #   2
+    end
+    @ex begin
+        # Or from a basis, which also gives the metric
+        e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
+        M = Manifold((θ, φ), e)
     end
     @ex begin
         # A flat chart, plotted in the plane
@@ -1089,7 +1091,7 @@ function ref_metric_connections_inv()
         𝔤 = inv(g)   # (0, 2) → (2, 0)
         # Docs output:
         #   (2, 0)-Tensor:
-        #   [1 0; 0 1]
+        #   Num[1 0; 0 1]
         #       (:contra, :contra)
     end
     @ex result begin
@@ -1098,7 +1100,7 @@ function ref_metric_connections_inv()
         𝔤[:i, :j] * ω[:i, :k]
         # Docs output:
         #   (1, 1)-Tensor:
-        #   [1 -2; -3 2]
+        #   Num[-3 2; 6 -4]
         #       (:contra, :co)
         #       (:j,), (:k,)
     end
@@ -1156,7 +1158,7 @@ function ref_metric_connections_christoffel()
         Γ = christoffel(M)
         # Docs output:
         #   (1, 2)-Tensor:
-        #   Num[0.0 0.0; 0.0 -sin(θ)*cos(θ);;; 0.0 cos(θ)/sin(θ); cos(θ)/sin(θ) 0.0]
+        #   Num[0.0 0.0; 0.0 cos(θ) / sin(θ);;; 0.0 (-1//2)*sin(2θ); cos(θ) / sin(θ) 0.0]
         #       (:contra, :co, :co)
     end
     @ex result begin
@@ -1239,7 +1241,7 @@ end
 Examples from the docs page reference/ParallelTransport #solve-parallel-transport
 """
 function ref_parallel_transport_solve_parallel_transport()
-    (; θ, φ, embedding, basis, θs, φs, M, fig, ax3) = _plot_context()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
     @ex begin
         # Transport along a straight line in coordinates: a constant direction
         x0 = [π/4, 3π/4]
@@ -1277,7 +1279,7 @@ end
 Examples from the docs page reference/ScalarFields #plot-scalar
 """
 function ref_scalar_fields_plot_scalar()
-    (; θ, φ, embedding, basis, θs, φs, M, fig, ax3) = _plot_context()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
     @ex begin
         # On a flat chart
         fig = Figure()
@@ -1293,11 +1295,11 @@ function ref_scalar_fields_plot_scalar()
         ax3 = Axis3(fig[1, 1])
 
         @variables θ φ
-        e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
-        M = Manifold((θ, φ), e; ranges=(range(0.01, π, 50), range(0, 2π, 50)),
-            embedding=(u, v) -> [cos(v)*sin(u), sin(v)*sin(u), cos(u)])
+        embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
+        M = Manifold((θ, φ), embedding;
+            ranges=(range(0.01, π, 50), range(0, 2π, 50)), simple=true)
 
-        R = simplify(ricci_scalar(M))
+        R = ricci_scalar(M)
         s = plot_scalar!(ax3, M, R, colormap=:RdBu, colorrange=(0, 2))
         Colorbar(fig[1, 2], s)
     end
@@ -1334,7 +1336,7 @@ function ref_simplify_evaluate_simplify()
         simplify(∂[:i] * X[:j])
         # Docs output:
         #   (1, 1)-Tensor:
-        #   Num[1 0; 0 1]
+        #   Num[0 0; 0 1]
         #       (:contra, :co)
         #       (:j,), (:i,)
     end
@@ -1359,7 +1361,7 @@ function ref_simplify_evaluate_substitute()
         substitute(R, Dict(θ => π/2))
         # Docs output:
         #   (0, 2)-Tensor:
-        #   Num[1.0 0.0; 0.0 1.0]
+        #   Num[1.0 0.0; 0.0 sin(1.5707963267948966)^2]
         #       (:co, :co)
     end
     @ex result begin
@@ -1377,7 +1379,7 @@ function ref_simplify_evaluate_substitute()
         substitute(X, Dict(u => v^2))
         # Docs output:
         #   (1, 0)-Tensor:
-        #   Num[v^6, sin(v^2) + v]
+        #   Num[v^5, sin(v^2) + v]
         #       (:contra,)
     end
 end
@@ -1412,7 +1414,7 @@ function ref_simplify_evaluate_evaluate()
         evaluate(X, Dict(θ => π/3, φ => π/4))
         # Docs output:
         #   (1, 0)-Tensor:
-        #   [0.6124, 0.5]
+        #   [0.6123724356957946, 0.5000000000000001]
         #       (:contra,)
     end
 end
@@ -1424,11 +1426,11 @@ function ref_special_objects()
     @ex result begin
         δ = KroneckerDelta()
         L = Tensor([[1, 2]', [3, 4]'])
-        L[:i][:j] * δ[:i, :k]   # Relabels the contravariant index i → k
+        L[:i][:j] * δ[:i, :k]   # Relabels the contravariant index i → k, stored with k first
         # Docs output:
         #   (1, 1)-Tensor:
         #   [1 3; 2 4]
-        #       (:contra, :co)
+        #       (:co, :contra)
         #       (:k,), (:j,)
     end
     @ex result begin
@@ -1516,7 +1518,7 @@ end
 Examples from the docs page reference/SurfacesPaths #plot-surface
 """
 function ref_surfaces_paths_plot_surface()
-    (; θ, φ, embedding, basis, θs, φs, M, fig, ax3) = _plot_context()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
     @ex begin
         fig = Figure()
         ax3 = Axis3(fig[1, 1])
@@ -1534,7 +1536,7 @@ end
 Examples from the docs page reference/SurfacesPaths #plot-path
 """
 function ref_surfaces_paths_plot_path()
-    (; θ, φ, embedding, basis, θs, φs, M, fig, ax3) = _plot_context()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
     @ex begin
         λ(t) = [t - π/2, t^3 - 3t + π/2]
         times = range(0, 1.0, 50)
@@ -1545,6 +1547,30 @@ function ref_surfaces_paths_plot_path()
         circle(t) = [π/3, t]
         plot_path!(ax3, M, circle, range(0, 2π, 100),
             color=:red, linewidth=3)
+    end
+    return fig
+end
+
+"""
+Examples from the docs page reference/SurfacesPaths #embedding-basis
+"""
+function ref_surfaces_paths_embedding_basis()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
+    @ex result begin
+        embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
+        embedding_basis(embedding, [π/2, 0.0])
+        # Docs output:
+        #   2-element Vector{Vector{Float64}}:
+        #    [6.123233995736766e-17, 0.0, -1.0]
+        #    [0.0, 1.0, -0.0]
+    end
+    @ex begin
+        # A Manifold built from an embedding finds these vectors itself,
+        # so vectors can be plotted without writing out a basis
+        @variables θ φ
+        M = Manifold((θ, φ), embedding;
+            ranges=(range(0.1, π-0.1, 20), range(0, 2π, 20)))
+        plot_vectors!(ax3, M, Tensor([sin(θ), cos(φ)]), spacing=2, normalize=true)
     end
     return fig
 end
@@ -1752,7 +1778,7 @@ end
 Examples from the docs page reference/VectorFields #vectors
 """
 function ref_vector_fields_vectors()
-    (; θ, φ, embedding, basis, θs, φs, M, fig, ax3) = _plot_context()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
     @ex begin
         # On a flat chart
         fig = Figure()
@@ -1771,12 +1797,8 @@ function ref_vector_fields_vectors()
         ax3 = Axis3(fig[1, 1])
 
         @variables θ φ
-        basis = Basis([
-            Tensor([cos(φ)*cos(θ), sin(φ)*cos(θ), -sin(θ)]),
-            Tensor([-sin(φ)*sin(θ), cos(φ)*sin(θ), 0])
-        ])
-        M = Manifold((θ, φ), basis; ranges=(range(0.1, π-0.1, 20), range(0, 2π, 20)),
-            embedding=(u, v) -> [cos(v)*sin(u), sin(v)*sin(u), cos(u)])
+        embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
+        M = Manifold((θ, φ), embedding; ranges=(range(0.1, π-0.1, 20), range(0, 2π, 20)))
 
         X = Tensor([sin(θ), cos(φ)])
         plot_vectors!(ax3, M, X,
@@ -1796,7 +1818,7 @@ end
 Examples from the docs page reference/VectorFields #vectors-positions
 """
 function ref_vector_fields_vectors_positions()
-    (; θ, φ, embedding, basis, θs, φs, M, fig, ax3) = _plot_context()
+    (; θ, φ, embedding, θs, φs, M, fig, ax3) = _plot_context()
     @ex begin
         # Visualizing parallel-transported vectors alongside initial vectors
         x0 = [π/4, 3π/4]
@@ -1874,6 +1896,7 @@ const EXAMPLES_REF = [
     ref_special_objects,
     ref_surfaces_paths_plot_surface,
     ref_surfaces_paths_plot_path,
+    ref_surfaces_paths_embedding_basis,
     ref_symmetry_duality_symmetrize,
     ref_symmetry_duality_antisymmetrize,
     ref_symmetry_duality_dual_basis,

@@ -43,7 +43,7 @@ Tensor([[1, 0]', [0, 1]']')   # (0, 2)-tensor — the identity metric`}
                     code={`# The pattern extends to arbitrary rank
 Tensor([[[1, 0]', [0, 1]'], [[-1, 2]', [3, 0]']])`}
                     result={`(2, 1)-Tensor:
-[1 0; 0 1;;; -1 2; 3 0]
+[1 0; -1 3;;; 0 1; 2 0]
     (:contra, :contra, :co)`}
                 />
             </FunctionDocs>

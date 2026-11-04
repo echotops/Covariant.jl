@@ -35,7 +35,7 @@ solve_geodesic(M, x0, v0, times; abstol=1e-10, reltol=1e-10)
 Returns a Trajectory with positions and velocities.
 """
 function solve_geodesic(args...; kwargs...)
-    error("Load DifferentialEquations and ForwardDiff before using solve_geodesic")
+    error("Load DifferentialEquations before using solve_geodesic")
 end
 
 """
@@ -48,5 +48,5 @@ or a Trajectory such as the one returned by solve_geodesic. Returns a Trajectory
 velocities, and the transported vectors.
 """
 function solve_parallel_transport(args...; kwargs...)
-    error("Load DifferentialEquations and ForwardDiff before using solve_parallel_transport")
+    error("Load DifferentialEquations before using solve_parallel_transport")
 end

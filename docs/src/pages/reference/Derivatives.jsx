@@ -88,7 +88,7 @@ Num[cos(θ) 0; 0 cos(θ)]
 ω = Tensor([1, sin(θ)]')
 ∇[:i] * ω[:j]`}
                     result={`(0, 2)-Tensor:
-Num[0 cos(θ); -cos(θ) 0]
+Num[0.0 -cos(θ); 0 cos(θ)*sin(θ)]
     (:co, :co)
     (), (:j, :i)`}
                 />

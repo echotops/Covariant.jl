@@ -97,6 +97,30 @@ function Manifold(coordinates, basis::Basis; inner_product=⋅, kwargs...)
 end
 
 """
+Construct a manifold from coordinates and an embedding in R3, taking the induced metric from the embedding
+
+The embedding is called with the symbolic coordinates, so it must be written with functions that
+Symbolics.jl can trace, like `cos` and `sin`. The tangent vectors are the columns of its Jacobian, which
+become the basis, and the metric is the inner product of those vectors. Other keywords, such as `ranges` and
+`simple`, are passed on.
+
+# Examples
+```
+julia> @variables θ φ
+julia> embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
+julia> M = Manifold((θ, φ), embedding; simple=true)
+julia> ricci_scalar(M)
+2
+```
+"""
+function Manifold(coordinates, embedding::Function; inner_product=⋅, kwargs...)
+    x = collect(Num.(coordinates))
+    J = Symbolics.jacobian(Num.(embedding(x...)), x)
+    basis = Basis([Tensor(J[:, i]) for i in axes(J, 2)])
+    return Manifold(coordinates, basis; embedding=embedding, inner_product=inner_product, kwargs...)
+end
+
+"""
 Construct a flat manifold with the Euclidean metric, for plotting in a coordinate chart
 
 # Examples
@@ -108,6 +132,27 @@ julia> F = Manifold((x, y); ranges=(range(-2, 2, 30), range(-2, 2, 30)))
 function Manifold(coordinates; kwargs...)
     n = length(coordinates)
     return Manifold(coordinates, Tensor(Matrix{Int}(I, n, n), (:co, :co)); kwargs...)
+end
+
+"""
+Compute the tangent basis vectors of an embedding at a point, by automatic differentiation
+
+Returns the columns of the Jacobian of the embedding, the coordinate basis vectors ∂/∂uⁱ at x, as a
+vector of vectors. These are what plotted vector components are taken in when a Manifold has an
+embedding but no basis.
+
+# Examples
+```
+julia> embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
+julia> embedding_basis(embedding, [π/2, 0.0])
+2-element Vector{Vector{Float64}}:
+ [6.123233995736766e-17, 0.0, -1.0]
+ [0.0, 1.0, -0.0]
+```
+"""
+function embedding_basis(embedding, x)
+    J = ForwardDiff.jacobian(p -> embedding(p...), collect(Float64, x))
+    return [J[:, i] for i in axes(J, 2)]
 end
 
 function Base.show(io::IO, M::Manifold{N}) where N

@@ -94,8 +94,23 @@ using Symbolics
             @test isequal(simplify(riemann(M)).data, simplify(riemann(Manifold((θ, φ), basis))).data)
             @test_throws ErrorException Manifold((θ, φ), Tensor([1, 2]))
             @test isequal(ricci_scalar(Manifold((θ, φ))), 0)
+
+            sphere(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
+            E = Manifold((θ, φ), sphere; simple=true)
+            @test isequal(E.metric.data[1, 1], 1)
+            @test isequal(simplify(E.metric.data[2, 2]), sin(θ)^2)
+            @test isequal(ricci_scalar(E), 2)
+            @test E.embedding === sphere
             @test_throws ErrorException Manifold((θ, φ), g; ranges=(1:2,))
             @test Manifold((θ, φ), basis; ranges=(1:2, 1:3)).basis === basis
+        end
+
+        @testset "Embedding Basis" begin
+            embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
+            e = embedding_basis(embedding, [π/3, π/4])
+
+            @test e[1] ≈ [cos(π/4)*cos(π/3), sin(π/4)*cos(π/3), -sin(π/3)]
+            @test e[2] ≈ [-sin(π/4)*sin(π/3), cos(π/4)*sin(π/3), 0]
         end
 
         @testset "Lie Bracket" begin

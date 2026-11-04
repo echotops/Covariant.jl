@@ -20,10 +20,10 @@ export default function SpecialObjects() {
                 <CodeBlock lang="julia" inset={60}
                     code={`δ = KroneckerDelta()
 L = Tensor([[1, 2]', [3, 4]'])
-L[:i][:j] * δ[:i, :k]   # Relabels the contravariant index i → k`}
+L[:i][:j] * δ[:i, :k]   # Relabels the contravariant index i → k, stored with k first`}
                     result={`(1, 1)-Tensor:
 [1 3; 2 4]
-    (:contra, :co)
+    (:co, :contra)
     (:k,), (:j,)`}
                 />
                 <CodeBlock lang="julia" inset={60}

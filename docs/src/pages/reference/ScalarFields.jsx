@@ -40,11 +40,11 @@ fig = Figure()
 ax3 = Axis3(fig[1, 1])
 
 @variables θ φ
-e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
-M = Manifold((θ, φ), e; ranges=(range(0.01, π, 50), range(0, 2π, 50)),
-    embedding=(u, v) -> [cos(v)*sin(u), sin(v)*sin(u), cos(u)])
+embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
+M = Manifold((θ, φ), embedding;
+    ranges=(range(0.01, π, 50), range(0, 2π, 50)), simple=true)
 
-R = simplify(ricci_scalar(M))
+R = ricci_scalar(M)
 s = plot_scalar!(ax3, M, R, colormap=:RdBu, colorrange=(0, 2))
 Colorbar(fig[1, 2], s)`}
                     img={scalarfield}
