@@ -72,17 +72,15 @@ F = Manifold((u, v); ranges=(range(-2, 2, 30), range(-2, 2, 30)))`}
                     code={`# Euclidean metric from the standard Cartesian basis
 e = Basis([Tensor([1, 0]), Tensor([0, 1])])
 metric(e)`}
-                    result={`(0, 2)-Tensor:
-[1 0; 0 1]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[1 0; 0 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Non-trivial metric from an oblique basis
 e = Basis([Tensor([1, 2]), Tensor([3, -1])])
 metric(e)`}
-                    result={`(0, 2)-Tensor:
-[5 1; 1 10]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[5 1; 1 10]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Minkowski metric for special relativity
@@ -95,9 +93,8 @@ metric(e)`}
     ]),
     minkowski
 )`}
-                    result={`(0, 2)-Tensor:
-[-1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[-1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]`}
                 />
             </FunctionDocs>
 
@@ -115,18 +112,15 @@ metric(e)`}
                     code={`e = Basis([Tensor([1, 0]), Tensor([0, 1])])
 g = metric(e)
 𝔤 = inv(g)   # (0, 2) → (2, 0)`}
-                    result={`(2, 0)-Tensor:
-Num[1 0; 0 1]
-    (:contra, :contra)`}
+                    result={`(2, 0)-Tensor
+[1 0; 0 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Using the inverse metric to raise an index
 ω = Tensor([1, -2]') ⊗ Tensor([-3, 2]')   # A (0, 2)-tensor
 𝔤[:i, :j] * ω[:i, :k]`}
-                    result={`(1, 1)-Tensor:
-Num[-3 2; 6 -4]
-    (:contra, :co)
-    (:j,), (:k,)`}
+                    result={`(1, 1)-Tensor T^j_k
+[-3 2; 6 -4]`}
                 />
             </FunctionDocs>
 
@@ -153,9 +147,8 @@ Num[-3 2; 6 -4]
     ]),
     minkowski
 )`}
-                    result={`(0, 2)-Tensor:
-[-1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[-1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Switching to (+ , -, -, -) convention
@@ -168,9 +161,8 @@ Num[-3 2; 6 -4]
     ]),
     (A, B) -> minkowski(A, B, true)
 )`}
-                    result={`(0, 2)-Tensor:
-[1 0 0 0; 0 -1 0 0; 0 0 -1 0; 0 0 0 -1]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[1 0 0 0; 0 -1 0 0; 0 0 -1 0; 0 0 0 -1]`}
                 />
             </FunctionDocs>
 
@@ -192,9 +184,8 @@ e = Basis([
 ])
 M = Manifold((θ, φ), e, simple=true)
 Γ = christoffel(M)`}
-                    result={`(1, 2)-Tensor:
-Num[0.0 0.0; 0.0 cos(θ) / sin(θ);;; 0.0 (-1//2)*sin(2θ); cos(θ) / sin(θ) 0.0]
-    (:contra, :co, :co)`}
+                    result={`(1, 2)-Tensor
+Num[0 0; 0 cos(θ) / sin(θ);;; 0 (-1//2)*sin(2θ); cos(θ) / sin(θ) 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Passing to CovariantDerivative to build the connection
@@ -202,10 +193,8 @@ Num[0.0 0.0; 0.0 cos(θ) / sin(θ);;; 0.0 (-1//2)*sin(2θ); cos(θ) / sin(θ) 0.
 ∇ = CovariantDerivative(Γ, ∂)
 X = Tensor([sin(θ), 0])
 ∇[:i] * X[:j]`}
-                    result={`(1, 1)-Tensor:
-Num[cos(θ) 0; 0 cos(θ)]
-    (:contra, :co)
-    (:j,), (:i,)`}
+                    result={`(1, 1)-Tensor T^j_i
+Num[cos(θ) 0; 0 cos(θ)]`}
                 />
             </FunctionDocs>
 
@@ -230,10 +219,8 @@ M = Manifold((θ, φ), e)
 
 X = Tensor([sin(θ), 0])
 ∇[:i] * X[:j]`}
-                    result={`(1, 1)-Tensor:
-Num[cos(θ) 0; 0 cos(θ)]
-    (:contra, :co)
-    (:j,), (:i,)`}
+                    result={`(1, 1)-Tensor T^j_i
+Num[cos(θ) 0; 0 cos(θ)]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Covariant divergence of a vector field
@@ -245,11 +232,11 @@ Num[cos(θ) 0; 0 cos(θ)]
             <FunctionDocs
                 id="lie"
                 name="lie"
-                code={`lie(X::Tensor, Y::Tensor, ∂::PartialDerivative; simple=false)`}
-                description={<>Computes the Lie bracket <Math>{'[X, Y]'}</Math> of two vector fields, defined as <Math display>{'[X, Y]^k = X^i \\partial_i Y^k - Y^i \\partial_i X^k'}</Math> The result is a <Math>{'(1, 0)'}</Math>-tensor measuring the failure of the flows of <Math>{'X'}</Math> and <Math>{'Y'}</Math> to commute. Both inputs must be <Math>{'(1, 0)'}</Math>-tensors and their components must be symbolic expressions in the coordinates of <code>∂</code>.</>}
+                code={`lie(X::Tensor, A::Tensor, ∂::PartialDerivative; simple=false)`}
+                description={<>Computes the Lie derivative <Math>{'\\mathcal{L}_X A'}</Math> of a tensor <Math>{'A'}</Math> along a vector field <Math>{'X'}</Math>, which measures how <Math>{'A'}</Math> changes as it is carried along the flow of <Math>{'X'}</Math>. It adds the derivative of <Math>{'A'}</Math> along <Math>{'X'}</Math>, then a term for each index: each contravariant index subtracts <Math>{'\\partial_k X^i A^{...k...}'}</Math> and each covariant index adds <Math>{'\\partial_j X^k A_{...k...}'}</Math>. The result is a tensor of the same type as <Math>{'A'}</Math>. For a vector <Math>{'A = Y'}</Math> it is the Lie bracket <Math display>{'[X, Y]^k = X^i \\partial_i Y^k - Y^i \\partial_i X^k'}</Math> which measures the failure of the flows of <Math>{'X'}</Math> and <Math>{'Y'}</Math> to commute. <code>X</code> must be a <Math>{'(1, 0)'}</Math>-tensor and the components of both must be symbolic expressions in the coordinates of <code>∂</code>.</>}
                 args={[
                     ['X', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the coordinates of <code>∂</code>.</>],
-                    ['Y', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor whose components are symbolic expressions in the coordinates of <code>∂</code>.</>],
+                    ['A', 'Tensor', <>A tensor of any type to differentiate along <code>X</code>. A <Math>{'(1, 0)'}</Math>-tensor gives the Lie bracket.</>],
                     ['∂', 'PartialDerivative', <>The partial derivative operator defining the coordinate system.</>],
                 ]}
                 kwargs={[
@@ -263,23 +250,35 @@ Num[cos(θ) 0; 0 cos(θ)]
 X = Tensor([u, v])
 Y = Tensor([u^2, -v + 2])
 lie(X, Y, ∂)`}
-                    result={`(1, 0)-Tensor:
-Num[u^2, -2]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+Num[u^2, -2]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# The Lie bracket is antisymmetric: [X, Y] = -[Y, X]
 lie(Y, X, ∂)`}
-                    result={`(1, 0)-Tensor:
-Num[-(u^2), 2]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+Num[-(u^2), 2]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# A vector field commutes with itself
 lie(X, X, ∂, simple=true)`}
-                    result={`(1, 0)-Tensor:
-Num[0, 0]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+Num[0, 0]`}
+                />
+                <CodeBlock lang="julia" inset={60}
+                    code={`# The Lie derivative of a covector
+ω = Tensor([v, u]')
+lie(X, ω, ∂, simple=true)`}
+                    result={`(0, 1)-Tensor
+Num[2v, 2u]`}
+                />
+                <CodeBlock lang="julia" inset={60}
+                    code={`# Cartan's formula, the Lie derivative of a form: L_X ω = ι_X dω + d(ι_X ω)
+d = ExteriorDerivative(∂)
+dω = d[:i] * ω[:j]
+simplify(interior(X, dω)[:i] + (d[:i] * interior(X, ω))[:i])`}
+                    result={`(0, 1)-Tensor T_i
+Num[2v, 2u]`}
                 />
             </FunctionDocs>
 

@@ -28,24 +28,20 @@ export default function IndexedArithmetic() {
                     code={`v = Tensor([1, 2])
 w = Tensor([-3, 1])
 v[:i] + w[:i]`}
-                    result={`(1, 0)-Tensor:
-[-2, 3]
-    (:contra,)
-    (:i,), ()`}
+                    result={`(1, 0)-Tensor T^i
+[-2, 3]`}
                 />
                 <CodeBlock lang="julia" inset={60}
-                    code={`A = Tensor([[2, 1], [-3, 1]])
-B = Tensor([[0, -1], [4, 2]])
+                    code={`A = Tensor([2 1; -3 1], :contra, :contra)
+B = Tensor([0 -1; 4 2], :contra, :contra)
 A[:i, :j] + B[:i, :j]`}
-                    result={`(2, 0)-Tensor:
-[2 0; 1 3]
-    (:contra, :contra)
-    (:i, :j), ()`}
+                    result={`(2, 0)-Tensor T^ij
+[2 0; 1 3]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Mismatched index labels raise an error
 A[:i, :j] + B[:i, :k]`}
-                    result={`ERROR: Contravariant indices must match`}
+                    result={`ERROR: Contravariant indices must match to add tensors, but the left has (:i, :j) and the right has (:i, :k)`}
                 />
             </FunctionDocs>
 
@@ -64,19 +60,15 @@ A[:i, :j] + B[:i, :k]`}
                     code={`v = Tensor([1, 2])
 w = Tensor([-3, 1])
 v[:i] - w[:i]`}
-                    result={`(1, 0)-Tensor:
-[4, 1]
-    (:contra,)
-    (:i,), ()`}
+                    result={`(1, 0)-Tensor T^i
+[4, 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
-                    code={`L = Tensor([[4, -2], [3, 3]])
-M = Tensor([[0, 0], [-3, 3]])
+                    code={`L = Tensor([4 -2; 3 3], :contra, :contra)
+M = Tensor([0 0; -3 3], :contra, :contra)
 L[:i, :j] - M[:i, :j]`}
-                    result={`(2, 0)-Tensor:
-[4 -2; 6 0]
-    (:contra, :contra)
-    (:i, :j), ()`}
+                    result={`(2, 0)-Tensor T^ij
+[4 -2; 6 0]`}
                 />
             </FunctionDocs>
 
@@ -93,20 +85,16 @@ Base.:*(A::IndexedTensor, s::Number)`}
             >
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
-                    code={`g = Tensor([[2, -1]', [0, 2]']')
+                    code={`g = Tensor([2 -1; 0 2], :co, :co)
 2 * g[:i, :j]`}
-                    result={`(0, 2)-Tensor:
-[4 -2; 0 4]
-    (:co, :co)
-    (), (:i, :j)`}
+                    result={`(0, 2)-Tensor T_ij
+[4 -2; 0 4]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`v = Tensor([3, -1])
 v[:i] * -1`}
-                    result={`(1, 0)-Tensor:
-[-3, 1]
-    (:contra,)
-    (:i,), ()`}
+                    result={`(1, 0)-Tensor T^i
+[-3, 1]`}
                 />
             </FunctionDocs>
 
@@ -122,12 +110,10 @@ v[:i] * -1`}
             >
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
-                    code={`A = Tensor([[1, 2]', [3, -1]'])
+                    code={`A = Tensor([1 2; 3 -1])
 A[:i][:j] / 2`}
-                    result={`(1, 1)-Tensor:
-[0.5 1.0; 1.5 -0.5]
-    (:contra, :co)
-    (:i,), (:j,)`}
+                    result={`(1, 1)-Tensor T^i_j
+[0.5 1.0; 1.5 -0.5]`}
                 />
             </FunctionDocs>
 
@@ -145,12 +131,10 @@ Base.:*(δ::IndexedKroneckerDelta, A::IndexedTensor)`}
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
                     code={`δ = KroneckerDelta()
-L = Tensor([[1, 2]', [3, -1]'])
+L = Tensor([1 2; 3 -1])
 L[:i][:j] * δ[:j, :k]   # Relabels covariant index j → k`}
-                    result={`(1, 1)-Tensor:
-[1 2; 3 -1]
-    (:contra, :co)
-    (:i,), (:k,)`}
+                    result={`(1, 1)-Tensor T^i_k
+[1 2; 3 -1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# When both indices match, the result is a trace
@@ -185,10 +169,8 @@ v[:i] * u[:j] * ε[:i, :j]`}
 a = Tensor([1, 0, 0])
 b = Tensor([0, 1, 0])
 a[:i] * b[:j] * ε[:i, :j, :k]`}
-                    result={`(0, 1)-Tensor:
-[0, 0, 1]
-    (:co,)
-    (), (:k,)`}
+                    result={`(0, 1)-Tensor T_k
+[0, 0, 1]`}
                 />
             </FunctionDocs>
 
@@ -212,23 +194,19 @@ v[:i] * ω[:i]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Linear map acting on a vector — one free index remains
-L = Tensor([[2, 1]', [-1, 3]'])
+L = Tensor([2 1; -1 3])
 v = Tensor([1, 2])
 L[:i][:j] * v[:j]`}
-                    result={`(1, 0)-Tensor:
-[4, 5]
-    (:contra,)
-    (:i,), ()`}
+                    result={`(1, 0)-Tensor T^i
+[4, 5]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# No matching indices — returns the tensor product
 v = Tensor([1, 2])
 w = Tensor([3, 4])
 v[:i] * w[:j]`}
-                    result={`(2, 0)-Tensor:
-[3 4; 6 8]
-    (:contra, :contra)
-    (:i, :j), ()`}
+                    result={`(2, 0)-Tensor T^ij
+[3 4; 6 8]`}
                 />
             </FunctionDocs>
 

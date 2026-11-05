@@ -17,34 +17,28 @@ export default function TensorAlgebra() {
 code={`v = Tensor([1, 2])
 w = Tensor([-3, 1])
 v[:i] + w[:i]`}
-result={`(1, 0)-Tensor:
-[-2, 3]
-    (:contra,)
-    (:i,), ()`}
+result={`(1, 0)-Tensor T^i
+[-2, 3]`}
             />
             <p className="learn-body">
                 Addition returns an <code>IndexedTensor</code> that can be used in subsequent operations
             </p>
             <CodeBlock lang="julia"
-code={`L = Tensor([[4, -2], [3, 3]])
-M = Tensor([[0, 0], [-3, 3]])
+code={`L = Tensor([4 -2; 3 3], :contra, :contra)
+M = Tensor([0 0; -3 3], :contra, :contra)
 L[:i, :j] - M[:i, :j]`}
-result={`(2, 0)-Tensor:
-[4 -2; 6 0]
-    (:contra, :contra)
-    (:i, :j), ()`}
+result={`(2, 0)-Tensor T^ij
+[4 -2; 6 0]`}
             />
             <p className="learn-heading" id="scaling">Scaling</p>
             <p className="learn-body">
                 Scaling is also performed element-wise, and returns an <code>IndexedTensor</code>
             </p>
             <CodeBlock lang="julia"
-code={`g = Tensor([[2, -1]', [0, 2]']')
+code={`g = Tensor([2 -1; 0 2], :co, :co)
 2 * g[:i, :j]`}
-result={`(0, 2)-Tensor:
-[4 -2; 0 4]
-    (:co, :co)
-    (), (:i, :j)`}
+result={`(0, 2)-Tensor T_ij
+[4 -2; 0 4]`}
             />
             <p className="learn-heading" id="contraction">Contraction</p>
             <p className="learn-body">
@@ -61,20 +55,18 @@ v[:i] * ω[:i]   # The dot product v · ω`}
 result={`-7`}
             />
             <CodeBlock lang="julia"
-code={`A = Tensor([[2, -3], [-4, -1]]')
-B = Tensor([[-1, 1], [2, 2]]')
+code={`A = Tensor([2 -3; -4 -1], :co, :contra)
+B = Tensor([-1 1; 2 2], :co, :contra)
 A[:i][:j] * B[:j][:k]   # Matrix multiplication`}
-result={`(1, 1)-Tensor:
-[-6 -4; 2 -8]
-    (:contra, :co)
-    (:i,), (:k,)`}
+result={`(1, 1)-Tensor T^i_k
+[-6 -4; 2 -8]`}
             />
             <p className="learn-body">
                 A tensor can also be contracted against one of its own indices, generalizing the
                 trace of a matrix
             </p>
             <CodeBlock lang="julia"
-code={`A = Tensor([[2, 1], [-3, -1]]')
+code={`A = Tensor([2 1; -3 -1], :co, :contra)
 A[:i][:i]   # tr(A)`}
 result={`1`}
             />
@@ -91,11 +83,10 @@ result={`1`}
                 same <Math>{'(A + A^T)/2'}</Math> used to pull the symmetric part out of a matrix
             </p>
             <CodeBlock lang="julia"
-code={`A = Tensor([[2, 1], [-3, 1]])
+code={`A = Tensor([2 1; -3 1], :contra, :contra)
 symmetrize(A[:i, :j], :i, :j)`}
-result={`(2, 0)-Tensor:
-[2.0 -1.0; -1.0 1.0]
-    (:contra, :contra)`}
+result={`(2, 0)-Tensor
+[2 -1; -1 1]`}
             />
             <p className="learn-body">
                 Similarly, antisymmetrization can be performed with <Ref to={refLinks.antisymmetrize}>antisymmetrize</Ref>, with
@@ -104,11 +95,10 @@ result={`(2, 0)-Tensor:
                 other half of the matrix, <Math>{'(A - A^T)/2'}</Math>
             </p>
             <CodeBlock lang="julia"
-code={`A = Tensor([[2, 1], [-3, 1]])
+code={`A = Tensor([2 1; -3 1], :contra, :contra)
 antisymmetrize(A[:i, :j], :i, :j)`}
-result={`(2, 0)-Tensor:
-[0.0 2.0; -2.0 0.0]
-    (:contra, :contra)`}
+result={`(2, 0)-Tensor
+[0 2; -2 0]`}
             />
             <p className="learn-heading" id="tensor-product">Tensor Product</p>
             <p className="learn-body">
@@ -121,9 +111,8 @@ result={`(2, 0)-Tensor:
 code={`v = Tensor([2, -1])
 w = Tensor([3, 4])
 L = v ⊗ w   # The outer product vwᵀ`}
-result={`(2, 0)-Tensor:
-[6 8; -3 -4]
-    (:contra, :contra)`}
+result={`(2, 0)-Tensor
+[6 8; -3 -4]`}
             />
             <p className="learn-body">
                 Tensor products can be chained together to generate higher order tensors
@@ -131,9 +120,8 @@ result={`(2, 0)-Tensor:
             <CodeBlock lang="julia"
 code={`α = Tensor([2, 3]')
 L ⊗ α ⊗ v`}
-result={`(3, 1)-Tensor:
-[24 32; -12 -16;;; 36 48; -18 -24;;;; -12 -16; 6 8;;; -18 -24; 9 12]
-    (:contra, :contra, :co, :contra)`}
+result={`(3, 1)-Tensor
+[24 32; -12 -16;;; 36 48; -18 -24;;;; -12 -16; 6 8;;; -18 -24; 9 12]`}
             />
             <p className="learn-heading" id="basis-and-duality">Basis and Duality</p>
             <p className="learn-body">
@@ -150,9 +138,8 @@ code={`e = Basis([
 ])
 v = Tensor([2, -1])
 v[:i] * e[:i]`}
-result={`(1, 0)-Tensor:
-[2, 1]
-  (:contra,)`}
+result={`(1, 0)-Tensor
+[2, 1]`}
             />
             <p className="learn-body">
                 Every vector basis has a dual covector basis — the covector analog of the dual

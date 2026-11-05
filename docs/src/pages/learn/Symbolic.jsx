@@ -33,9 +33,8 @@ e = Basis([
 M = Manifold((θ, φ), e)
 R = ricci(M)
 simplify(R)`}
-result={`(0, 2)-Tensor:
-Num[1.0 0.0; 0.0 sin(θ)^2]
-    (:co, :co)`}
+result={`(0, 2)-Tensor
+Num[1 0; 0 sin(θ)^2]`}
             />
             <p className="learn-body">
                 This is common enough after a geometry calculation that a <code>Manifold</code> can be
@@ -59,9 +58,8 @@ code={`R = ricci(Manifold((θ, φ), e, simple=true))
 
 # Evaluate at the equator θ = π/2
 substitute(R, Dict(θ => π/2))`}
-result={`(0, 2)-Tensor:
-Num[1.0 0.0; 0.0 sin(1.5707963267948966)^2]
-    (:co, :co)`}
+result={`(0, 2)-Tensor
+Num[1 0; 0 sin(1.5707963267948966)^2]`}
             />
             <p className="learn-body">
                 Substitution doesn't need to be complete, and the replacement itself can be symbolic
@@ -70,9 +68,8 @@ Num[1.0 0.0; 0.0 sin(1.5707963267948966)^2]
 code={`@variables u v
 X = Tensor([u^2 * v, sin(u) + v])
 substitute(X, Dict(u => v^2)) # Partial, and replacing with an expression`}
-result={`(1, 0)-Tensor:
-Num[v^5, sin(v^2) + v]
-    (:contra,)`}
+result={`(1, 0)-Tensor
+Num[v^5, sin(v^2) + v]`}
             />
             <p className="learn-heading" id="evaluate">Evaluate</p>
             <p className="learn-body">
@@ -86,9 +83,8 @@ Num[v^5, sin(v^2) + v]
             <CodeBlock lang="julia"
 code={`# Numerically evaluate the Ricci tensor at θ = π/4
 evaluate(R, Dict(θ => π/4, φ => 0.0))`}
-result={`(0, 2)-Tensor:
-[1.0 0.0; 0.0 0.5]
-    (:co, :co)`}
+result={`(0, 2)-Tensor
+[1.0 0.0; 0.0 0.4999999999999999]`}
             />
             <p className="learn-body">
                 It works the same way on the raw symbolic scalars that come out of contracting an

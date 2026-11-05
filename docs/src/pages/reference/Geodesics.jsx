@@ -72,7 +72,7 @@ plot_vectors!(ax3, M, trajectory, spacing=10,
                 <CodeBlock lang="julia" inset={60}
                     code={`# Geodesics in any dimension: flat space in spherical coordinates
 @variables r th ph
-M3 = Manifold((r, th, ph), Tensor([[1, 0, 0]', [0, r^2, 0]', [0, 0, (r*sin(th))^2]']'))
+M3 = Manifold((r, th, ph), Tensor([1 0 0; 0 r^2 0; 0 0 (r*sin(th))^2], :co, :co))
 solve_geodesic(M3, [1.0, π/2, 0.0], [0.0, 0.0, 1.0], 0:0.25:1)`}
                 />
             </FunctionDocs>

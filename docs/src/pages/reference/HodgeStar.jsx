@@ -28,9 +28,8 @@ g = metric(e)
 # In 2D, a 1-form maps to a 1-form
 α = Tensor([3, -1]')
 ⋆(α)`}
-                    result={`(0, 1)-Tensor:
-Num[1.0, 3.0]
-    (:co,)`}
+                    result={`(0, 1)-Tensor
+[1, 3]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# In 3D, a 1-form maps to a 2-form
@@ -38,13 +37,12 @@ e3 = Basis([Tensor([1,0,0]), Tensor([0,1,0]), Tensor([0,0,1])])
 star3 = HodgeStar(metric(e3))
 β = Tensor([1, 0, 0]')
 star3(β)`}
-                    result={`(0, 2)-Tensor:
-Num[0.0 0.0 0.0; 0.0 0.0 1.0; 0.0 -1.0 0.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[0 0 0; 0 0 1; 0 -1 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# A top-form maps to a scalar
-ω = Tensor([[0, 1]', [-1, 0]']')   # A 2-form in 2D
+ω = Tensor([0 1; -1 0], :co, :co)   # A 2-form in 2D
 ⋆(ω)`}
                     result={`1`}
                 />

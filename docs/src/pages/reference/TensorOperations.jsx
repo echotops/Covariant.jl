@@ -26,25 +26,27 @@ export default function TensorOperations() {
                     code={`v = Tensor([1, 2])
 w = Tensor([3, 5]')
 v ⊗ w   # (1, 0) ⊗ (0, 1) → (1, 1)`}
-                    result={`(1, 1)-Tensor:
-[3 5; 6 10]
-    (:contra, :co)`}
+                    result={`(1, 1)-Tensor
+[3 5; 6 10]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Tensor products can be chained for higher rank
 α = Tensor([2, 3]')
 L = v ⊗ w
 L ⊗ α ⊗ v`}
-                    result={`(2, 2)-Tensor:
-[6 10; 12 20;;; 9 15; 18 30;;;; 12 20; 24 40;;; 18 30; 36 60]
-    (:contra, :co, :co, :contra)`}
+                    result={`(2, 2)-Tensor
+[6 10; 12 20;;; 9 15; 18 30;;;; 12 20; 24 40;;; 18 30; 36 60]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Also defined on bases — produces a higher-rank basis
 e = Basis([Tensor([1, 0]), Tensor([0, 1])])
 ε = Basis([Tensor([1, 0]'), Tensor([0, 1]')])
 e ⊗ ε`}
-                    result={`Basis(Tensor{Int64, 2}[...], (:contra, :co))`}
+                    result={`(1, 1)-Basis
+[1 0; 0 0]
+[0 1; 0 0]
+[0 0; 1 0]
+[0 0; 0 1]`}
                 />
             </FunctionDocs>
 
@@ -63,23 +65,20 @@ e ⊗ ε`}
                     code={`α = Tensor([1, -2]')
 β = Tensor([3, 1]')
 α ∧ β   # 1-form ∧ 1-form → 2-form`}
-                    result={`(0, 2)-Tensor:
-[0.0 7.0; -7.0 0.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[0 7; -7 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Anticommutativity: α ∧ β = -(β ∧ α)
 β ∧ α`}
-                    result={`(0, 2)-Tensor:
-[0.0 -7.0; 7.0 0.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[0 -7; 7 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Wedging a form with itself always yields zero
 α ∧ α`}
-                    result={`(0, 2)-Tensor:
-[0.0 0.0; 0.0 0.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[0 0; 0 0]`}
                 />
             </FunctionDocs>
 
@@ -116,7 +115,78 @@ Y = Tensor([0, 1]')
 v = Tensor([1, 2])
 ω = Tensor([3, -1]')
 v ⋅ ω`}
-                    result={`ERROR: A and B must both be (1, 0) tensors`}
+                    result={`ERROR: ⋅ needs two (1, 0)-tensors, but the variances are (:contra,) and (:co,)`}
+                />
+            </FunctionDocs>
+
+            <FunctionDocs
+                id="trace"
+                name="LinearAlgebra.tr"
+                code={`LinearAlgebra.tr(A::Tensor)`}
+                description={<>Computes the trace of a <Math>{'(1, 1)'}</Math>-tensor, the sum of its diagonal <Math>{'A^i{}_i'}</Math>. A <Math>{'(1, 1)'}</Math>-tensor is an endomorphism, a linear map from a space to itself, and its trace is the same in every basis, so it needs no metric. It is equivalent to the self-contraction <code>A[:i][:i]</code>.</>}
+                args={[
+                    ['A', 'Tensor', <>A square <Math>{'(1, 1)'}</Math>-tensor.</>],
+                ]}
+            >
+                <p className="learn-heading">Examples</p>
+                <CodeBlock lang="julia" inset={60}
+                    code={`A = Tensor([2 -3; 4 -1])
+tr(A)`}
+                    result={`1`}
+                />
+                <CodeBlock lang="julia" inset={60}
+                    code={`# Only endomorphisms have an invariant trace
+tr(Tensor([2 -3; 4 -1], :co, :co))`}
+                    result={`ERROR: tr needs a (1, 1)-tensor, but the variance is (:co, :co)`}
+                />
+            </FunctionDocs>
+
+            <FunctionDocs
+                id="determinant"
+                name="LinearAlgebra.det"
+                code={`LinearAlgebra.det(A::Tensor)`}
+                description={<>Computes the determinant of a <Math>{'(1, 1)'}</Math>-tensor, the factor by which the linear map it defines scales volumes. Like the trace, the determinant of an endomorphism is the same in every basis, so it needs no metric or volume form. Integer entries give an exact result.</>}
+                args={[
+                    ['A', 'Tensor', <>A square <Math>{'(1, 1)'}</Math>-tensor.</>],
+                ]}
+            >
+                <p className="learn-heading">Examples</p>
+                <CodeBlock lang="julia" inset={60}
+                    code={`A = Tensor([2 -3; 4 -1])
+det(A)`}
+                    result={`10`}
+                />
+                <CodeBlock lang="julia" inset={60}
+                    code={`# The determinant of a rotation is 1
+@variables θ
+R = Tensor([cos(θ) -sin(θ); sin(θ) cos(θ)])
+simplify(det(R))`}
+                    result={`1`}
+                />
+            </FunctionDocs>
+
+            <FunctionDocs
+                id="interior-product"
+                name="interior"
+                code={`interior(X::Tensor, ω::Tensor)`}
+                description={<>Computes the interior product <Math>{'\\iota_X \\omega'}</Math> of a vector <Math>{'X'}</Math> with a differential form <Math>{'\\omega'}</Math>, contracting <Math>{'X'}</Math> into the first index: <Math display>{'(\\iota_X \\omega)_{j_2...j_p} = X^i \\omega_{i j_2...j_p}'}</Math> Given a <Math>{'(0, p)'}</Math>-form it returns a <Math>{'(0, p-1)'}</Math>-tensor, or a scalar when <Math>{'p = 1'}</Math>.</>}
+                args={[
+                    ['X', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor.</>],
+                    ['ω', 'Tensor', <>A differential form, a tensor with only covariant indices, of the same dimension as <code>X</code>.</>],
+                ]}
+            >
+                <p className="learn-heading">Examples</p>
+                <CodeBlock lang="julia" inset={60}
+                    code={`X = Tensor([2, 3])
+interior(X, Tensor([5, 7]'))`}
+                    result={`31`}
+                />
+                <CodeBlock lang="julia" inset={60}
+                    code={`# Contracting a vector into a 2-form gives a 1-form
+ω = Tensor([0 1; -1 0], :co, :co)
+interior(X, ω)`}
+                    result={`(0, 1)-Tensor
+[-3, 2]`}
                 />
             </FunctionDocs>
 

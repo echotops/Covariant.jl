@@ -23,21 +23,24 @@ export default function Tensors() {
                 as a covector.
             </p>
             <p className="learn-body">
-                Covariant uses Julia's vector <code>[]</code> and adjoint <code>[]'</code> types to
-                define contravariant and covariant indices. A vector indicates a contravariant index,
-                while an adjoint indicates a covariant index. Initialization of a vector and covector
-                works as:
+                Covariant builds a tensor from a Julia array. A vector <code>[]</code> is a
+                contravariant (1, 0)-tensor, while an adjoint <code>[]'</code> is a covariant
+                (0, 1)-tensor, so a vector and covector need nothing more:
             </p>
             <CodeBlock lang="julia"
 code={`v = Tensor([1, 2]) # A vector
 ω = Tensor([-3, 1]') # A covector`}
             />
             <p className="learn-body">
-                Tensors of higher order can be initialized by extending the pattern:
+                For a higher order tensor, the variance of each index follows the array, written
+                as <code>:contra</code> or <code>:co</code>. A matrix on its own is a
+                (1, 1)-tensor, since linear maps are the most common matrices, and any other
+                array states its variance:
             </p>
             <CodeBlock lang="julia"
-code={`L = Tensor([[4, -2]', [1, 1]']) # A linear map
-g = Tensor([[2, 1]', [1, 2]']') # A bilinear form`}
+code={`L = Tensor([4 -2; 1 1]) # A linear map
+g = Tensor([2 1; 1 2], :co, :co) # A bilinear form
+T = Tensor(reshape(1:8, 2, 2, 2), :contra, :contra, :co)`}
             />
             <p className="learn-heading" id="tensor-type">Tensor Type</p>
             <p className="learn-body">
@@ -45,13 +48,13 @@ g = Tensor([[2, 1]', [1, 2]']') # A bilinear form`}
                 <code>Tensor.data</code> is an <code>Array</code> that holds the tensor components,
                 while <code>Tensor.variance</code> is an <code>NTuple</code> containing the variance
                 of each index as either <code>:contra</code> or <code>:co</code>. Printing a tensor
-                displays both of these fields, and the overall variance.
+                displays its type and its data. An indexed tensor, covered below, also prints T with
+                its index labels, contravariant ones up and covariant ones down.
             </p>
             <CodeBlock lang="julia"
-code={`L = Tensor([[4, -2]', [1, 1]'])`} 
-result={`(1, 1)-Tensor:
-[4 -2; 1 1]
-    (:contra, :co)`}
+code={`L = Tensor([4 -2; 1 1])`} 
+result={`(1, 1)-Tensor
+[4 -2; 1 1]`}
             />
             <p className="learn-heading" id="indexing-conventions">Indexing Conventions</p>
             <p className="learn-body">
@@ -77,7 +80,7 @@ v[1]`}
 result={`1`}
             />
             <CodeBlock lang="julia"
-code={`L = Tensor([[4, -2]', [1, 1]'])
+code={`L = Tensor([4 -2; 1 1])
 L[1][2]`} 
 result={`-2`}
             />
@@ -92,27 +95,21 @@ result={`-2`}
             </p>
             <CodeBlock lang="julia"
 code={`v[:i]`} 
-result={`(1, 0)-Tensor:
-[1, 2]
-    (:contra,)
-    (:i,), ()`}
+result={`(1, 0)-Tensor T^i
+[1, 2]`}
             />
             <CodeBlock lang="julia"
 code={`L[:i][:j]`} 
-result={`(1, 1)-Tensor:
-[4 -2; 1 1]
-    (:contra, :co)
-    (:i,), (:j,)`}
+result={`(1, 1)-Tensor T^i_j
+[4 -2; 1 1]`}
             />
             <p className="learn-body">
                 In the mixed case, the data will be sliced along the given indices
             </p>   
             <CodeBlock lang="julia"
 code={`L[2][:k]`} 
-result={`(0, 1)-Tensor:
-[1, 1]
-    (:co,)
-    (), (:k,)`}
+result={`(0, 1)-Tensor T_k
+[1, 1]`}
             />
             <p className="learn-body">
                 This indexing method is applied mostly unchanged to various other objects, including

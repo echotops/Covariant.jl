@@ -31,7 +31,7 @@ covariant::NTuple{N, Symbol}
 # Examples
 An indexed (1, 2) tensor
 ```
-julia> M = Tensor([[[1, 2]', [3, 4]'], [[5, 6]', [7, 8]']]')
+julia> M = Tensor([1 3; 5 7;;; 2 4; 6 8], :co, :contra, :co)
 Tensor{Int64, 3}([1 3; 5 7;;; 2 4; 6 8], (:co, :contra, :co))
 julia> M[:i][:j,:k]
 IndexedTensor{Int64, 3, 1, 2}(Tensor{Int64, 3}..., (:i,), (:j, :k))
@@ -68,7 +68,7 @@ Contracts with tensors as δ[:i, :j], returning 1 if i = j and 0 otherwise.
 
 # Examples
 ```
-julia> L = Tensor([[1, 2]', [3, 4]'])
+julia> L = Tensor([1 2; 3 4])
 julia> δ = KroneckerDelta()
 julia> L[:i][:j] * δ[:i, :k]
 IndexedTensor{Int64, 2, 1, 1}(Tensor{Int64, 2}([1 3; 2 4], (:co, :contra)), (:k,), (:j,))
@@ -377,7 +377,7 @@ cache::Dict{Symbol, Any}
 # Examples
 ```
 julia> @variables θ φ
-julia> M = Manifold((θ, φ), Tensor([[1, 0]', [0, sin(θ)^2]']'))
+julia> M = Manifold((θ, φ), Tensor([1 0; 0 sin(θ)^2], :co, :co))
 julia> ricci_scalar(M)
 ```
 """

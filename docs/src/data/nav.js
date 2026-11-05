@@ -43,7 +43,7 @@ export const learnNav = [
                     { title: 'Metric Tensor', anchor: 'metric-tensor' },
                     { title: 'Covariant Derivative', anchor: 'covariant-derivative' },
                     { title: 'Curvature', anchor: 'curvature' },
-                    { title: 'Lie Bracket', anchor: 'lie-bracket' },
+                    { title: 'Lie Derivative', anchor: 'lie-derivative' },
                 ],
             },
             {
@@ -161,6 +161,9 @@ export const referenceNav = [
                     { title: '⊗', anchor: 'tensor-product' },
                     { title: '∧', anchor: 'wedge-product' },
                     { title: 'LinearAlgebra.⋅', anchor: 'dot-product' },
+                    { title: 'LinearAlgebra.tr', anchor: 'trace' },
+                    { title: 'LinearAlgebra.det', anchor: 'determinant' },
+                    { title: 'interior', anchor: 'interior-product' },
                 ],
             },
             {
@@ -232,6 +235,16 @@ export const referenceNav = [
                     { title: 'ricci', anchor: 'ricci' },
                     { title: 'ricci_scalar', anchor: 'ricci-scalar' },
                     { title: 'einstein', anchor: 'einstein' },
+                    { title: 'gaussian_curvature', anchor: 'gaussian-curvature' },
+                    { title: 'sectional_curvature', anchor: 'sectional-curvature' },
+                ],
+            },
+            {
+                heading: 'Coordinate Changes',
+                path: '/reference/coordinate-changes',
+                items: [
+                    { title: 'transform', anchor: 'transform' },
+                    { title: 'transform (Basis)', anchor: 'transform-basis' },
                 ],
             },
         ]
@@ -330,6 +343,12 @@ export const refLinks = {
     ricci: '/reference/curvature#ricci',
     ricci_scalar: '/reference/curvature#ricci-scalar',
     einstein: '/reference/curvature#einstein',
+    transform: '/reference/coordinate-changes#transform',
+    gaussian_curvature: '/reference/curvature#gaussian-curvature',
+    sectional_curvature: '/reference/curvature#sectional-curvature',
+    tr: '/reference/tensor-operations#trace',
+    det: '/reference/tensor-operations#determinant',
+    interior: '/reference/tensor-operations#interior-product',
 
     simplify: '/reference/simplify-evaluate#simplify',
     substitute: '/reference/simplify-evaluate#substitute',

@@ -22,9 +22,8 @@ code={`e = Basis([
     Tensor([0, 1])
 ])
 g = metric(e)`} 
-result={`(0, 2)-Tensor:
-[1 0; 0 1]
-    (:co, :co)`}
+result={`(0, 2)-Tensor
+[1 0; 0 1]`}
             />
             <p className="learn-body">
                 By passing in the included <Ref to={refLinks.minkowski}>minkowski</Ref> metric, the Minkowski metric
@@ -40,9 +39,8 @@ code={`η = metric(
     ]),
     minkowski
 )`} 
-result={`(0, 2)-Tensor:
-[-1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]
-  (:co, :co)`}
+result={`(0, 2)-Tensor
+[-1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1]`}
             />
             <p className="learn-body">
                 The metric, along with the inverse metric, found by <Ref to={refLinks.inv}>inv</Ref>, allows index
@@ -52,10 +50,8 @@ result={`(0, 2)-Tensor:
 code={`𝔤 = inv(g)
 ω = Tensor([1, -2]') ⊗ Tensor([-3, 2]') # A (0, 2)-tensor
 𝔤[:i, :j] * ω[:i, :k]`}
-result={`(1, 1)-Tensor:
-Num[-3 2; 6 -4]
-    (:contra, :co)
-    (:j,), (:k,)`}
+result={`(1, 1)-Tensor T^j_k
+[-3 2; 6 -4]`}
             />
             <p className="learn-heading" id="covariant-derivative">Covariant Derivative</p>
             <p className="learn-body">
@@ -72,10 +68,8 @@ code={`@variables u v
 ∂ = PartialDerivative((u, v))
 X = Tensor([u * v, v^2 - 1])
 ∂[:i] * X[:j]`} 
-result={`(1, 1)-Tensor:
-Num[v u; 0 2v]
-    (:contra, :co)
-    (:j,), (:i,)`}
+result={`(1, 1)-Tensor T^j_i
+Num[v u; 0 2v]`}
             />
             <p className="learn-body">
                 For differentiating tensors with a non-constant basis, the <Ref to={refLinks.CovariantDerivative}>CovariantDerivative</Ref> type
@@ -98,10 +92,8 @@ M = Manifold((θ, φ), e) # The coordinates, with the metric from the basis
 ∇ = CovariantDerivative(Γ, ∂) # Alternatively ∇ = levicivita(M)
 X = Tensor([sin(θ), 0])
 ∇[:i] * X[:j]`} 
-result={`(1, 1)-Tensor:
-Num[cos(θ) 0; 0 cos(θ)]
-    (:contra, :co)
-    (:j,), (:i,)`}
+result={`(1, 1)-Tensor T^j_i
+Num[cos(θ) 0; 0 cos(θ)]`}
             />
             <p className="learn-heading" id="curvature">Curvature</p>
             <p className="learn-body">
@@ -120,18 +112,16 @@ e = Basis([
 ])
 M = Manifold((θ, φ), e, simple=true)
 riemann(M)`} 
-result={`(1, 3)-Tensor:
-Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(θ)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(θ)^2) 0; 0 0]
-    (:contra, :co, :co, :co)`}
+result={`(1, 3)-Tensor
+Num[0 0; 0 -1;;; 0 sin(θ)^2; 0 0;;;; 0 0; 1 0;;; -(sin(θ)^2) 0; 0 0]`}
             />
             <p className="learn-body">
                 Contracting two indices of the Riemann tensor yields the Ricci tensor
             </p>
             <CodeBlock lang="julia"
 code={`ricci(M)`} 
-result={`(0, 2)-Tensor:
-Num[1.0 0.0; 0.0 sin(θ)^2]
-    (:co, :co)`}
+result={`(0, 2)-Tensor
+Num[1 0; 0 sin(θ)^2]`}
             />
             <p className="learn-body">
                 And then raising via the metric and contracting the Ricci tensor yields
@@ -147,13 +137,13 @@ result={`2`}
             </p>
             <CodeBlock lang="julia"
 code={`einstein(M)`} 
-result={`(0, 2)-Tensor:
-Num[0.0 0.0; 0.0 0]
-    (:co, :co)`}
+result={`(0, 2)-Tensor
+Num[0 0; 0 0]`}
             />
-            <p className="learn-heading" id="lie-bracket">Lie Bracket</p>
+            <p className="learn-heading" id="lie-derivative">Lie Derivative</p>
             <p className="learn-body">
-                The Lie bracket of two vector fields <Ref to={refLinks.lie}>lie</Ref> measures the failure of the
+                The Lie derivative <Ref to={refLinks.lie}>lie</Ref> measures how a tensor changes as it is carried along the
+                flow of a vector field. For two vector fields it is the Lie bracket, which measures the failure of the
                 vector fields to commute — similar in spirit to the matrix commutator <Math>{'AB - BA'}</Math>,
                 but for flows rather than fixed linear maps. Starting from a point, it measures the difference between
                 infinitesimal flows along X and then Y, and infinitesimal flows along Y and then X
@@ -164,9 +154,18 @@ code={`@variables u v
 X = Tensor([u, v])
 Y = Tensor([u^2, -v + 2])
 lie(X, Y, ∂)`} 
-result={`(1, 0)-Tensor:
-Num[u^2, -2]
-    (:contra,)`}
+result={`(1, 0)-Tensor
+Num[u^2, -2]`}
+            />
+            <p className="learn-body">
+                The same function takes a tensor of any type, adding a term for each of its indices to account for
+                how the flow of X stretches and turns them
+            </p>
+            <CodeBlock lang="julia"
+code={`ω = Tensor([v, u]')
+lie(X, ω, ∂, simple=true)`}
+result={`(0, 1)-Tensor
+Num[2v, 2u]`}
             />
             <PageNav prev="Tensor Algebra" next="Differential Forms" />
         </>

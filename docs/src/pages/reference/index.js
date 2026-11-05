@@ -10,6 +10,7 @@ export { default as Derivatives } from './Derivatives';
 export { default as HodgeStar } from './HodgeStar';
 export { default as MetricConnections } from './MetricConnections';
 export { default as Curvature } from './Curvature';
+export { default as CoordinateChanges } from './CoordinateChanges';
 export { default as SimplifyEvaluate } from './SimplifyEvaluate';
 export { default as SurfacesPaths } from './SurfacesPaths';
 export { default as ScalarFields } from './ScalarFields';

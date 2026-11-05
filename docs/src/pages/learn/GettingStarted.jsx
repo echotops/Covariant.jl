@@ -30,13 +30,11 @@ julia> Pkg.add("https://github.com/echotops/Covariant.jl")`
                 You can contract two tensors with
             </p>
             <CodeBlock lang="julia"
-code={`L = Tensor([[2, 1]', [-1, 3]'])
+code={`L = Tensor([2 1; -1 3])
 v = Tensor([1, 2])
 L[:i][:j] * v[:j]  # Matrix-vector product`}
-result={`(1, 0)-Tensor:
-[4, 5]
-    (:contra,)
-    (:i,), ()`}
+result={`(1, 0)-Tensor T^i
+[4, 5]`}
             />
             <p className="learn-body">
                 And compute the Riemann curvature tensor on a 2-sphere as
@@ -49,9 +47,8 @@ basis = Basis([
     Tensor([0, sin(u)])
 ])
 riemann(Manifold((u, v), basis, simple=true))`}
-result={`(1, 3)-Tensor:
-Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(u)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(u)^2) 0; 0 0]
-    (:contra, :co, :co, :co)`}
+result={`(1, 3)-Tensor
+Num[0 0; 0 -1;;; 0 sin(u)^2; 0 0;;;; 0 0; 1 0;;; -(sin(u)^2) 0; 0 0]`}
             />
             <PageNav next="Tensors" />
         </>

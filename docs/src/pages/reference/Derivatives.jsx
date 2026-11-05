@@ -34,19 +34,15 @@ export default function Derivatives() {
 # Differentiating a vector field yields a (1, 1)-tensor
 X = Tensor([u * v, v^2 - 1])
 ∂[:i] * X[:j]`}
-                    result={`(1, 1)-Tensor:
-Num[v u; 0 2v]
-    (:contra, :co)
-    (:j,), (:i,)`}
+                    result={`(1, 1)-Tensor T^j_i
+Num[v u; 0 2v]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Differentiating a (1, 1)-tensor yields a (1, 2)-tensor
-A = Tensor([[u, 2v]', [3u, v^2]'])
+A = Tensor([u 2v; 3u v^2])
 ∂[:k] * A[:i][:j]`}
-                    result={`(1, 2)-Tensor:
-Num[1 0; 3 0;;; 0 2; 0 2v]
-    (:contra, :co, :co)
-    (:i,), (:j, :k)`}
+                    result={`(1, 2)-Tensor T^i_jk
+Num[1 0; 3 0;;; 0 2; 0 2v]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Repeated index triggers contraction — yields the divergence
@@ -78,19 +74,15 @@ M = Manifold((θ, φ), e)
 # Covariant derivative of a vector field on the 2-sphere
 X = Tensor([sin(θ), 0])
 ∇[:i] * X[:j]`}
-                    result={`(1, 1)-Tensor:
-Num[cos(θ) 0; 0 cos(θ)]
-    (:contra, :co)
-    (:j,), (:i,)`}
+                    result={`(1, 1)-Tensor T^j_i
+Num[cos(θ) 0; 0 cos(θ)]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Covariant derivative of a covector field
 ω = Tensor([1, sin(θ)]')
 ∇[:i] * ω[:j]`}
-                    result={`(0, 2)-Tensor:
-Num[0.0 -cos(θ); 0 cos(θ)*sin(θ)]
-    (:co, :co)
-    (), (:j, :i)`}
+                    result={`(0, 2)-Tensor T_ji
+Num[0 -cos(θ); 0 cos(θ)*sin(θ)]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Repeated index yields the covariant divergence
@@ -118,9 +110,8 @@ d = ExteriorDerivative(∂)
 # Exterior derivative of a 1-form yields an antisymmetric 2-form
 α = Tensor([x^2, y*z, x]')
 d[:k] * α[:i]`}
-                    result={`(0, 2)-Tensor:
-Num[0.0 0.0 -1.0; 0.0 0.0 y; 1.0 -y 0.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+Num[0 0 -1; 0 0 y; 1 -y 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`@variables u v
@@ -130,9 +121,8 @@ d = ExteriorDerivative(∂)
 # Exterior derivative of a 0-form (scalar function) yields a 1-form
 f = u^2 * v
 d[:i] * f`}
-                    result={`(0, 1)-Tensor:
-Num[2u*v, u^2]
-    (:co,)`}
+                    result={`(0, 1)-Tensor
+Num[2u*v, u^2]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Nilpotency: applying d twice always yields the zero form
@@ -141,9 +131,8 @@ d = ExteriorDerivative(PartialDerivative((x, y, z)))
 α = Tensor([x^2, y*z, x]')
 β = d[:k] * α[:i]
 d[:m] * β[:k, :i]`}
-                    result={`(0, 3)-Tensor:
-Num[0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0;;; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0;;; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0]
-    (:co, :co, :co)`}
+                    result={`(0, 3)-Tensor
+Num[0 0 0; 0 0 0; 0 0 0;;; 0 0 0; 0 0 0; 0 0 0;;; 0 0 0; 0 0 0; 0 0 0]`}
                 />
             </FunctionDocs>
 

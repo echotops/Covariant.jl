@@ -22,25 +22,23 @@ export default function SymmetryDuality() {
             >
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
-                    code={`A = Tensor([[2, 1], [-3, 1]])
+                    code={`A = Tensor([2 1; -3 1], :contra, :contra)
 symmetrize(A[:i, :j], :i, :j)`}
-                    result={`(2, 0)-Tensor:
-[2.0 -1.0; -1.0 1.0]
-    (:contra, :contra)`}
+                    result={`(2, 0)-Tensor
+[2 -1; -1 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Symmetrizing an already symmetric tensor leaves it unchanged
-g = Tensor([[1, 0]', [0, 1]']')
+g = Tensor([1 0; 0 1], :co, :co)
 symmetrize(g[:i, :j], :i, :j)`}
-                    result={`(0, 2)-Tensor:
-[1.0 0.0; 0.0 1.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[1 0; 0 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Mixing contravariant and covariant indices raises an error
-L = Tensor([[2, 1]', [-3, 1]'])
+L = Tensor([2 1; -3 1])
 symmetrize(L[:i][:j], :i, :j)`}
-                    result={`ERROR: Indices not all the same variance`}
+                    result={`ERROR: Index j is co but i is contra. Symmetrizing needs indices of one variance`}
                 />
             </FunctionDocs>
 
@@ -56,27 +54,24 @@ symmetrize(L[:i][:j], :i, :j)`}
             >
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
-                    code={`A = Tensor([[2, 1], [-3, 1]])
+                    code={`A = Tensor([2 1; -3 1], :contra, :contra)
 antisymmetrize(A[:i, :j], :i, :j)`}
-                    result={`(2, 0)-Tensor:
-[0.0 2.0; -2.0 0.0]
-    (:contra, :contra)`}
+                    result={`(2, 0)-Tensor
+[0 2; -2 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Antisymmetrizing an already antisymmetric tensor leaves it unchanged
-ω = Tensor([[0, 1]', [-1, 0]']')
+ω = Tensor([0 1; -1 0], :co, :co)
 antisymmetrize(ω[:i, :j], :i, :j)`}
-                    result={`(0, 2)-Tensor:
-[0.0 1.0; -1.0 0.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[0 1; -1 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Antisymmetrizing a symmetric tensor yields zero
-g = Tensor([[1, 0]', [0, 1]']')
+g = Tensor([1 0; 0 1], :co, :co)
 antisymmetrize(g[:i, :j], :i, :j)`}
-                    result={`(0, 2)-Tensor:
-[0.0 0.0; 0.0 0.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[0 0; 0 0]`}
                 />
             </FunctionDocs>
 
@@ -93,7 +88,9 @@ antisymmetrize(g[:i, :j], :i, :j)`}
                 <CodeBlock lang="julia" inset={60}
                     code={`e = Basis([Tensor([1, 0]), Tensor([0, 1])])
 ϵ = dual_basis(e)   # Dual of a vector basis is a covector basis`}
-                    result={`Basis(Tensor{Float64, 1}[...], (:co,))`}
+                    result={`(0, 1)-Basis
+[1.0, 0.0]
+[0.0, 1.0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Verifying the duality condition

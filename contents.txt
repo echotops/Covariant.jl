@@ -45,6 +45,9 @@ Base.* (IndexedTensor, IndexedLeviCivita)
 Base.* (IndexedTensor, IndexedBasis)
 LinearAlgebra.⋅ (Tensor, Tensor)
 LinearAlgebra.norm (Tensor)
+LinearAlgebra.tr (Tensor)
+LinearAlgebra.det (Tensor)
+interior
 symmetrize
 antisymmetrize
 dual_basis
@@ -75,6 +78,12 @@ riemann
 ricci
 ricci_scalar
 einstein
+gaussian_curvature
+sectional_curvature
+
+--- transform.jl ---
+transform (Tensor)
+transform (Basis)
 
 --- symbolic.jl ---
 Symbolics.simplify (Tensor)

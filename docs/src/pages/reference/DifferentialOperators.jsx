@@ -27,19 +27,15 @@ export default function DifferentialOperators() {
 # Differentiating a vector field — yields a (1, 1)-tensor
 X = Tensor([u * v, v^2 - 1])
 ∂[:i] * X[:j]`}
-                    result={`(1, 1)-Tensor:
-Num[v u; 0 2v]
-    (:contra, :co)
-    (:j,), (:i,)`}
+                    result={`(1, 1)-Tensor T^j_i
+Num[v u; 0 2v]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Differentiating a covector field — yields a (0, 2)-tensor
 α = Tensor([u^2 * v, v + 2]')
 ∂[:i] * α[:j]`}
-                    result={`(0, 2)-Tensor:
-Num[2u*v u^2; 0 1]
-    (:co, :co)
-    (), (:j, :i)`}
+                    result={`(0, 2)-Tensor T_ji
+Num[2u*v u^2; 0 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Contracting with a matching index computes the divergence
@@ -72,19 +68,15 @@ M = Manifold((θ, φ), e)
 
 X = Tensor([sin(θ), 0])
 ∇[:i] * X[:j]`}
-                    result={`(1, 1)-Tensor:
-Num[cos(θ) 0; 0 cos(θ)]
-    (:contra, :co)
-    (:j,), (:i,)`}
+                    result={`(1, 1)-Tensor T^j_i
+Num[cos(θ) 0; 0 cos(θ)]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# levicivita constructs the Levi-Civita connection in one step
 ∇ = levicivita(M)
 ∇[:i] * X[:j]`}
-                    result={`(1, 1)-Tensor:
-Num[cos(θ) 0; 0 cos(θ)]
-    (:contra, :co)
-    (:j,), (:i,)`}
+                    result={`(1, 1)-Tensor T^j_i
+Num[cos(θ) 0; 0 cos(θ)]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Contracting with a matching index computes the covariant divergence
@@ -111,9 +103,8 @@ d = ExteriorDerivative(∂)
 # Exterior derivative of a 1-form yields a 2-form
 α = Tensor([u^2 * v, v + 2]')
 d[:i] * α[:j]`}
-                    result={`(0, 2)-Tensor:
-Num[0.0 u^2; -(u^2) 0.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+Num[0 u^2; -(u^2) 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Exterior derivative of a 0-form (scalar) yields a 1-form
@@ -122,17 +113,15 @@ Num[0.0 u^2; -(u^2) 0.0]
 d3 = ExteriorDerivative(∂3)
 f = x^2 * y + z
 d3[:i] * f`}
-                    result={`(0, 1)-Tensor:
-Num[2x*y, x^2, 1]
-    (:co,)`}
+                    result={`(0, 1)-Tensor
+Num[2x*y, x^2, 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Nilpotency: applying d twice returns the zero form
 β = d[:i] * α[:j]
 d[:m] * β[:k, :l]`}
-                    result={`(0, 3)-Tensor:
-Num[0.0 0.0; 0.0 0.0;;; 0.0 0.0; 0.0 0.0]
-    (:co, :co, :co)`}
+                    result={`(0, 3)-Tensor
+Num[0 0; 0 0;;; 0 0; 0 0]`}
                 />
             </TypeDocs>
 

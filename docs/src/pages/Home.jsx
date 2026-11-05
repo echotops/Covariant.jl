@@ -33,8 +33,8 @@ const CALCULATION = [
     {
         title: 'Index notation',
         body: 'Repeated indices are summed automatically, the way they would be on paper.',
-        code: `A = Tensor([[2, -3], [-4, -1]]')
-B = Tensor([[-1, 1], [2, 2]]')
+        code: `A = Tensor([2 -3; -4 -1], :co, :contra)
+B = Tensor([-1 1; 2 2], :co, :contra)
 A[:i][:j] * B[:j][:k]`,
         result: `(1, 1)-Tensor:
 [-6 -4; 2 -8]
@@ -75,7 +75,7 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        document.title = 'Covariant.jl — Differential Geometry for Julia';
+        document.title = 'Covariant.jl';
     }, []);
 
     return (

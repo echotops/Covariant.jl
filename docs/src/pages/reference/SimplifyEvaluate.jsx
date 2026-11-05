@@ -30,9 +30,8 @@ e = Basis([
 M = Manifold((θ, φ), e)
 R = ricci(M)
 simplify(R)`}
-                    result={`(0, 2)-Tensor:
-Num[1.0 0.0; 0.0 sin(θ)^2]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+Num[1 0; 0 sin(θ)^2]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Also works on IndexedTensors
@@ -40,10 +39,8 @@ Num[1.0 0.0; 0.0 sin(θ)^2]
 ∂ = PartialDerivative((u, v))
 X = Tensor([sin(u)^2 + cos(u)^2, v])
 simplify(∂[:i] * X[:j])`}
-                    result={`(1, 1)-Tensor:
-Num[0 0; 0 1]
-    (:contra, :co)
-    (:j,), (:i,)`}
+                    result={`(1, 1)-Tensor T^j_i
+Num[0 0; 0 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Equivalent to passing simple=true when constructing the manifold
@@ -70,25 +67,22 @@ R = ricci(Manifold((θ, φ), e, simple=true))
 
 # Evaluate at the equator θ = π/2
 substitute(R, Dict(θ => π/2))`}
-                    result={`(0, 2)-Tensor:
-Num[1.0 0.0; 0.0 sin(1.5707963267948966)^2]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+Num[1 0; 0 sin(1.5707963267948966)^2]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Partial substitution — result is still symbolic
 @variables u v
 X = Tensor([u^2 * v, sin(u) + v])
 substitute(X, Dict(u => 2))`}
-                    result={`(1, 0)-Tensor:
-Num[4v, sin(2) + v]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+Num[4v, sin(2) + v]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Replacing a variable with an expression
 substitute(X, Dict(u => v^2))`}
-                    result={`(1, 0)-Tensor:
-Num[v^5, sin(v^2) + v]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+Num[v^5, sin(v^2) + v]`}
                 />
             </FunctionDocs>
 
@@ -111,9 +105,8 @@ R = ricci(Manifold((θ, φ), e, simple=true))
 
 # Numerically evaluate the Ricci tensor at θ = π/4
 evaluate(R, Dict(θ => π/4, φ => 0.0))`}
-                    result={`(0, 2)-Tensor:
-[1.0 0.0; 0.0 0.5]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[1.0 0.0; 0.0 0.4999999999999999]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Also works on scalars
@@ -126,13 +119,12 @@ evaluate(f, Dict(u => 3.0, v => π/6))`}
                     code={`# Useful for sampling a symbolic vector field at a point
 X = Tensor([sin(θ) * cos(φ), cos(θ)])
 evaluate(X, Dict(θ => π/3, φ => π/4))`}
-                    result={`(1, 0)-Tensor:
-[0.6123724356957946, 0.5000000000000001]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+[0.6123724356957946, 0.5000000000000001]`}
                 />
             </FunctionDocs>
 
-            <PageNav prev="Curvature" next="Surfaces & Paths" />
+            <PageNav prev="Coordinate Changes" next="Surfaces & Paths" />
         </>
     );
 }

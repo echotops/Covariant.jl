@@ -19,12 +19,10 @@ export default function SpecialObjects() {
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
                     code={`δ = KroneckerDelta()
-L = Tensor([[1, 2]', [3, 4]'])
+L = Tensor([1 2; 3 4])
 L[:i][:j] * δ[:i, :k]   # Relabels the contravariant index i → k, stored with k first`}
-                    result={`(1, 1)-Tensor:
-[1 3; 2 4]
-    (:co, :contra)
-    (:k,), (:j,)`}
+                    result={`(1, 1)-Tensor T^k_j
+[1 3; 2 4]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Verifying that a dual basis satisfies the duality condition
@@ -41,7 +39,7 @@ true`}
                 <CodeBlock lang="julia" inset={60}
                     code={`# The identity tensor is δ made concrete in a fixed dimension —
 # contracting it with itself recovers that dimension
-Id = Tensor([[1, 0]', [0, 1]'])
+Id = Tensor([1 0; 0 1])
 Id[:i][:i]`}
                     result={`2`}
                 />
@@ -68,10 +66,8 @@ v[:i] * u[:j] * ε[:i, :j]`}
 a = Tensor([1, 0, 0])
 b = Tensor([0, 1, 0])
 a[:i] * b[:j] * ε[:i, :j, :k]`}
-                    result={`(0, 1)-Tensor:
-[0, 0, 1]
-    (:co,)
-    (), (:k,)`}
+                    result={`(0, 1)-Tensor T_k
+[0, 0, 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Antisymmetry means repeated indices always cancel to 0,
@@ -98,9 +94,8 @@ g = metric(e)
 
 α = Tensor([3, -1]')   # A 1-form in 2D → maps to a 1-form
 ⋆(α)`}
-                    result={`(0, 1)-Tensor:
-Num[1, 3.0]
-    (:co,)`}
+                    result={`(0, 1)-Tensor
+[1, 3]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# In 3D, a 1-form maps to a 2-form
@@ -108,13 +103,12 @@ e3 = Basis([Tensor([1,0,0]), Tensor([0,1,0]), Tensor([0,0,1])])
 ⋆₃ = HodgeStar(metric(e3))
 β = Tensor([1, 0, 0]')
 ⋆₃(β)`}
-                    result={`(0, 2)-Tensor:
-Num[0.0 0.0 0.0; 0.0 0.0 1; 0.0 -1.0 0.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+[0 0 0; 0 0 1; 0 -1 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# A top-form (n-form) maps to a scalar
-ω = Tensor([[0, 1]', [-1, 0]']')   # A 2-form in 2D
+ω = Tensor([0 1; -1 0], :co, :co)   # A 2-form in 2D
 ⋆(ω)`}
                     result={`1`}
                 />

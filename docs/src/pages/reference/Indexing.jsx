@@ -33,28 +33,22 @@ export default function Indexing() {
 v[1]       # Integer index — returns a scalar
 v[:i]      # Symbolic index — returns an IndexedTensor`}
                     result={`1
-(1, 0)-Tensor:
-[1, 2]
-    (:contra,)
-    (:i,), ()`}
+(1, 0)-Tensor T^i
+[1, 2]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Mixed-variance tensors use two brackets
-L = Tensor([[4, -2]', [1, 1]'])
+L = Tensor([4 -2; 1 1])
 L[1][:j]   # Slice first contravariant index, label covariant
 L[:i][:j]  # Label both — returns an IndexedTensor`}
-                    result={`(0, 1)-Tensor:
+                    result={`(0, 1)-Tensor T_j
 [4, -2]
-    (:co,)
-    (), (:j,)
-(1, 1)-Tensor:
-[4 -2; 1 1]
-    (:contra, :co)
-    (:i,), (:j,)`}
+(1, 1)-Tensor T^i_j
+[4 -2; 1 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Repeating the same symbol in both brackets triggers a self-contraction
-A = Tensor([[3, 1]', [-2, 4]'])
+A = Tensor([3 1; -2 4])
 A[:i][:i]   # trace`}
                     result={`7`}
                 />
@@ -72,12 +66,10 @@ A[:i][:i]   # trace`}
             >
                 <p className="learn-heading">Examples</p>
                 <CodeBlock lang="julia" inset={60}
-                    code={`L = Tensor([[4, -2]', [1, 1]'])
+                    code={`L = Tensor([4 -2; 1 1])
 L[:i][:j]   # Second bracket labels the covariant index`}
-                    result={`(1, 1)-Tensor:
-[4 -2; 1 1]
-    (:contra, :co)
-    (:i,), (:j,)`}
+                    result={`(1, 1)-Tensor T^i_j
+[4 -2; 1 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Matching symbols across brackets trigger an implicit self-contraction
@@ -87,10 +79,8 @@ L[:i][:i]   # trace`}
                 <CodeBlock lang="julia" inset={60}
                     code={`# Integer in the second bracket slices the covariant index
 L[:i][1]`}
-                    result={`(1, 0)-Tensor:
-[4, 1]
-    (:contra,)
-    (:i,), ()`}
+                    result={`(1, 0)-Tensor T^i
+[4, 1]`}
                 />
             </FunctionDocs>
 
@@ -114,12 +104,10 @@ L[:i][1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Symbolic indexing returns an IndexedKroneckerDelta
-L = Tensor([[4, -2]', [1, 1]'])
+L = Tensor([4 -2; 1 1])
 L[:i][:j] * δ[:i, :k]   # Relabels contravariant index i → k, stored with k first`}
-                    result={`(1, 1)-Tensor:
-[4 1; -2 1]
-    (:co, :contra)
-    (:k,), (:j,)`}
+                    result={`(1, 1)-Tensor T^k_j
+[4 1; -2 1]`}
                 />
             </FunctionDocs>
 
@@ -168,10 +156,8 @@ v[:i] * u[:j] * ε[:i, :j]   # Signed area`}
 ∂ = PartialDerivative((u, v))
 X = Tensor([u * v, v^2 - 1])
 ∂[:i] * X[:j]   # Jacobian of X`}
-                    result={`(1, 1)-Tensor:
-Num[v u; 0 2v]
-    (:contra, :co)
-    (:j,), (:i,)`}
+                    result={`(1, 1)-Tensor T^j_i
+Num[v u; 0 2v]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Contracting with a matching index gives the divergence
@@ -197,10 +183,8 @@ e = Basis([Tensor([1, 0]), Tensor([0, sin(θ)])])
 ∇ = levicivita(Manifold((θ, φ), e))
 X = Tensor([sin(θ), 0])
 ∇[:i] * X[:j]   # Covariant Jacobian of X`}
-                    result={`(1, 1)-Tensor:
-Num[cos(θ) 0; 0 cos(θ)]
-    (:contra, :co)
-    (:j,), (:i,)`}
+                    result={`(1, 1)-Tensor T^j_i
+Num[cos(θ) 0; 0 cos(θ)]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Contracting with a matching index gives the covariant divergence
@@ -226,18 +210,16 @@ Num[cos(θ) 0; 0 cos(θ)]
 d = ExteriorDerivative(∂)
 α = Tensor([u^2 * v, v + 2]')
 d[:i] * α[:j]   # Exterior derivative of a 1-form`}
-                    result={`(0, 2)-Tensor:
-Num[0.0 u^2; -(u^2) 0.0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+Num[0 u^2; -(u^2) 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Nilpotency: d² = 0 — β's indices must be freshly labeled,
 # distinct from d's next index, since β carries no memory of :i, :j
 β = d[:i] * α[:j]
 d[:m] * β[:k, :l]`}
-                    result={`(0, 3)-Tensor:
-Num[0.0 0.0; 0.0 0.0;;; 0.0 0.0; 0.0 0.0]
-    (:co, :co, :co)`}
+                    result={`(0, 3)-Tensor
+Num[0 0; 0 0;;; 0 0; 0 0]`}
                 />
             </FunctionDocs>
 
@@ -255,26 +237,23 @@ Num[0.0 0.0; 0.0 0.0;;; 0.0 0.0; 0.0 0.0]
                 <CodeBlock lang="julia" inset={60}
                     code={`e = Basis([Tensor([1, 0]), Tensor([0, 1])])
 e[2]    # Integer index — returns the second basis element`}
-                    result={`(1, 0)-Tensor:
-[0, 1]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+[0, 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Symbolic indexing and contraction yields a linear combination
 v = Tensor([3, -2])
 v[:i] * e[:i]`}
-                    result={`(1, 0)-Tensor:
-[3, -2]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+[3, -2]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Works with non-orthogonal bases too
 e = Basis([Tensor([1, 1]), Tensor([0, 1])])
 v = Tensor([2, -1])
 v[:i] * e[:i]`}
-                    result={`(1, 0)-Tensor:
-[2, 1]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+[2, 1]`}
                 />
             </FunctionDocs>
 

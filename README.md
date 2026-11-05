@@ -30,7 +30,7 @@ julia> using Covariant
 Indexing a tensor with symbols and contracting repeated indices, the same way you would on paper:
 
 ```julia
-julia> L = Tensor([[2, 1]', [-1, 3]'])
+julia> L = Tensor([2 1; -1 3])
 julia> v = Tensor([1, 2])
 julia> L[:i][:j] * v[:j]  # matrix-vector product
 (1, 0)-Tensor:

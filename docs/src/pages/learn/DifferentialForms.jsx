@@ -21,9 +21,8 @@ export default function DifferentialForms() {
 code={`α = Tensor([1, -2]')
 β = Tensor([3, 1]')
 γ = α ∧ β`} 
-result={`(0, 2)-Tensor:
-[0.0 7.0; -7.0 0.0]
-    (:co, :co)`}
+result={`(0, 2)-Tensor
+[0 7; -7 0]`}
             />
             <p className="learn-body">
                 Note that the wedge product maintains antisymmetry, so <code>α ∧ β = -(β ∧ α)</code>.
@@ -32,9 +31,8 @@ result={`(0, 2)-Tensor:
             </p>
             <CodeBlock lang="julia"
 code={`α ∧ α`} 
-result={`(0, 2)-Tensor:
-[0.0 0.0; 0.0 0.0]
-    (:co, :co)`}
+result={`(0, 2)-Tensor
+[0 0; 0 0]`}
             />
             <p className="learn-heading" id="exterior-derivative">Exterior Derivative</p>
             <p className="learn-body">
@@ -50,9 +48,8 @@ code={`@variables u v
 d = ExteriorDerivative(∂)
 α = Tensor([u^2 * v, v + 2]')
 d[:i] * α[:j]`} 
-result={`(0, 2)-Tensor:
-Num[0.0 u^2; -(u^2) 0.0]
-    (:co, :co)`}
+result={`(0, 2)-Tensor
+Num[0 u^2; -(u^2) 0]`}
             />
             <p className="learn-heading" id="hodge-star">Hodge Star</p>
             <p className="learn-body">
@@ -69,9 +66,8 @@ g = metric(e)
 ⋆ = HodgeStar(g)
 ω = Tensor([2, 1]')
 ⋆(ω)`} 
-result={`(0, 1)-Tensor:
-Num[-1.0, 2.0]
-    (:co,)`}
+result={`(0, 1)-Tensor
+[-1, 2]`}
             />
             <PageNav prev="Differential Geometry" next="Symbolic" />
         </>

@@ -32,9 +32,8 @@ e = Basis([
 ])
 M = Manifold((θ, φ), e, simple=true)
 riemann(M)`}
-                    result={`(1, 3)-Tensor:
-Num[0.0 0.0; 0.0 -1.0;;; 0.0 sin(θ)^2; 0 0;;;; 0.0 0; 1.0 0;;; -(sin(θ)^2) 0; 0 0]
-    (:contra, :co, :co, :co)`}
+                    result={`(1, 3)-Tensor
+Num[0 0; 0 -1;;; 0 sin(θ)^2; 0 0;;;; 0 0; 1 0;;; -(sin(θ)^2) 0; 0 0]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Flat space — the Riemann tensor vanishes
@@ -42,9 +41,8 @@ e_flat = Basis([Tensor([1, 0]), Tensor([0, 1])])
 @variables x y
 F = Manifold((x, y), e_flat, simple=true)
 riemann(F)`}
-                    result={`(1, 3)-Tensor:
-Num[0.0 0.0; 0.0 0.0;;; 0.0 0.0; 0.0 0.0;;;; 0.0 0.0; 0.0 0.0;;; 0.0 0.0; 0.0 0.0]
-    (:contra, :co, :co, :co)`}
+                    result={`(1, 3)-Tensor
+Num[0 0; 0 0;;; 0 0; 0 0;;;; 0 0; 0 0;;; 0 0; 0 0]`}
                 />
             </FunctionDocs>
 
@@ -66,17 +64,15 @@ e = Basis([
 ])
 M = Manifold((θ, φ), e, simple=true)
 ricci(M)`}
-                    result={`(0, 2)-Tensor:
-Num[1.0 0.0; 0.0 sin(θ)^2]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+Num[1 0; 0 sin(θ)^2]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# On the 2-sphere the Ricci tensor is proportional to the metric,
 # R_ij = K * g_ij, where K is the Gaussian curvature (here K = 1)
 metric(M)`}
-                    result={`(0, 2)-Tensor:
-Real[1 0; 0 sin(θ)^2]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+Real[1 0; 0 sin(θ)^2]`}
                 />
             </FunctionDocs>
 
@@ -131,13 +127,57 @@ e = Basis([
 ])
 M = Manifold((θ, φ), e, simple=true)
 einstein(M)`}
-                    result={`(0, 2)-Tensor:
-Num[0.0 0.0; 0.0 0]
-    (:co, :co)`}
+                    result={`(0, 2)-Tensor
+Num[0 0; 0 0]`}
                 />
             </FunctionDocs>
 
-            <PageNav prev="Metric & Connections" next="Simplify & Evaluate" />
+            <FunctionDocs
+                id="gaussian-curvature"
+                name="gaussian_curvature"
+                code={`gaussian_curvature(M)`}
+                description={<>Computes the Gaussian curvature <Math>{'K'}</Math> of a surface, a 2-dimensional manifold. It is half of the Ricci scalar, <Math display>{'K = \\frac{R}{2}'}</Math> and is positive on a sphere, zero on a plane, and negative on a saddle. Only 2-dimensional manifolds have a single curvature at each point, so higher dimensions raise an error, and <Math>{'\\text{sectional\\_curvature}'}</Math> gives the curvature of a chosen plane there.</>}
+                args={[
+                    ['M', 'Manifold', <>A 2-dimensional manifold.</>],
+                ]}
+            >
+                <p className="learn-heading">Examples</p>
+                <CodeBlock lang="julia" inset={60}
+                    code={`@variables θ φ
+M = Manifold((θ, φ), Basis([Tensor([1, 0]), Tensor([0, sin(θ)])]), simple=true)
+gaussian_curvature(M)`}
+                    result={`1`}
+                />
+                <CodeBlock lang="julia" inset={60}
+                    code={`# The hyperbolic half-plane has constant negative curvature
+@variables x y
+H = Manifold((x, y), Tensor([1/y^2 0; 0 1/y^2], :co, :co), simple=true)
+gaussian_curvature(H)`}
+                    result={`-1`}
+                />
+            </FunctionDocs>
+
+            <FunctionDocs
+                id="sectional-curvature"
+                name="sectional_curvature"
+                code={`sectional_curvature(M, X, Y)`}
+                description={<>Computes the sectional curvature of a manifold of any dimension on the plane spanned by two vectors, <Math display>{'K(X, Y) = \\frac{R(X, Y, X, Y)}{g(X, X) g(Y, Y) - g(X, Y)^2}'}</Math> the Gaussian curvature of the surface that the plane sweeps out. On a surface it is the Gaussian curvature for any two independent vectors. The vectors may have symbolic components.</>}
+                args={[
+                    ['M', 'Manifold', <>The manifold to compute on.</>],
+                    ['X', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor.</>],
+                    ['Y', 'Tensor', <>A <Math>{'(1, 0)'}</Math>-tensor, independent of <code>X</code>.</>],
+                ]}
+            >
+                <p className="learn-heading">Examples</p>
+                <CodeBlock lang="julia" inset={60}
+                    code={`@variables θ φ
+M = Manifold((θ, φ), Basis([Tensor([1, 0]), Tensor([0, sin(θ)])]), simple=true)
+sectional_curvature(M, Tensor([1, 2]), Tensor([-1, 3]))`}
+                    result={`1`}
+                />
+            </FunctionDocs>
+
+            <PageNav prev="Metric & Connections" next="Coordinate Changes" />
         </>
     );
 }

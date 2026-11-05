@@ -14,7 +14,7 @@ export default function GeometricObjects() {
                 id="tensor"
                 name="Tensor"
                 code={`struct Tensor{T, R}`}
-                description={<>A geometric object that transforms predictably under coordinate changes. A tensor's type <Math>{'(m, n)'}</Math> describes how its components transform — following <Math>{'m'}</Math> contravariant and <Math>{'n'}</Math> covariant transformations — with rank <Math>{'R = m + n'}</Math> total indices. The <code>Tensor(data)</code> constructor infers variance from nested Julia vectors and adjoints, where a plain vector <code>[]</code> marks a contravariant index and an adjoint <code>[]'</code> marks a covariant index.</>}
+                description={<>A geometric object that transforms predictably under coordinate changes. A tensor's type <Math>{'(m, n)'}</Math> describes how its components transform — following <Math>{'m'}</Math> contravariant and <Math>{'n'}</Math> covariant transformations — with rank <Math>{'R = m + n'}</Math> total indices. A <code>Tensor</code> is built from an array and the variance of each index, with shortcuts for a vector, an adjoint (covector), and a matrix.</>}
                 fields={[
                     ['data', 'Array{T, R}', <>The component array of the tensor, with one dimension per index.</>],
                     ['variance', 'NTuple{R, Symbol}', <>A tuple of length <Math>{'R'}</Math> where each entry is either <code>:contra</code> or <code>:co</code>, recording the variance of each index.</>],
@@ -24,29 +24,24 @@ export default function GeometricObjects() {
                 <CodeBlock lang="julia" inset={60}
                     code={`v = Tensor([1, 2])         # (1, 0)-tensor — vector
 ω = Tensor([-3, 1]')       # (0, 1)-tensor — covector`}
-                    result={`(1, 0)-Tensor:
+                    result={`(1, 0)-Tensor
 [1, 2]
-    (:contra,)
-(0, 1)-Tensor:
-[-3, 1]
-    (:co,)`}
+(0, 1)-Tensor
+[-3, 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
-                    code={`L = Tensor([[4, -2]', [1, 1]'])   # (1, 1)-tensor — linear map
-g = Tensor([[2, 1]', [1, 2]']')  # (0, 2)-tensor — bilinear form`}
-                    result={`(1, 1)-Tensor:
+                    code={`L = Tensor([4 -2; 1 1])   # (1, 1)-tensor — linear map
+g = Tensor([2 1; 1 2], :co, :co)  # (0, 2)-tensor — bilinear form`}
+                    result={`(1, 1)-Tensor
 [4 -2; 1 1]
-    (:contra, :co)
-(0, 2)-Tensor:
-[2 1; 1 2]
-    (:co, :co)`}
+(0, 2)-Tensor
+[2 1; 1 2]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# The pattern extends naturally to higher rank
-T = Tensor([[[1, 0]', [0, 1]'], [[-1, 2]', [3, 0]']])`}
-                    result={`(2, 1)-Tensor:
-[1 0; -1 3;;; 0 1; 2 0]
-    (:contra, :contra, :co)`}
+T = Tensor([1 0; -1 3;;; 0 1; 2 0], :contra, :contra, :co)`}
+                    result={`(2, 1)-Tensor
+[1 0; -1 3;;; 0 1; 2 0]`}
                 />
             </TypeDocs>
 
@@ -67,23 +62,25 @@ T = Tensor([[[1, 0]', [0, 1]'], [[-1, 2]', [3, 0]']])`}
     Tensor([0, 1])
 ])
 e[2]   # Integer indexing returns the element`}
-                    result={`(1, 0)-Tensor:
-[0, 1]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+[0, 1]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Symbolic indexing and contraction yields a linear combination
 v = Tensor([3, -2])
 v[:i] * e[:i]`}
-                    result={`(1, 0)-Tensor:
-[3, -2]
-    (:contra,)`}
+                    result={`(1, 0)-Tensor
+[3, -2]`}
                 />
                 <CodeBlock lang="julia" inset={60}
                     code={`# Two bases can be combined with the tensor product
 ε = Basis([Tensor([1, 0]'), Tensor([0, 1]')])
 e ⊗ ε`}
-                    result={`Basis(Tensor{Int64, 2}[...], (:contra, :co))`}
+                    result={`(1, 1)-Basis
+[1 0; 0 0]
+[0 1; 0 0]
+[0 0; 1 0]
+[0 0; 0 1]`}
                 />
             </TypeDocs>
 
