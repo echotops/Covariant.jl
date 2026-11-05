@@ -28,6 +28,9 @@ getindex() - Einstein convention indexing
 - - Tensor subtraction
 ⋅ - Dot product for (1, 0)-tensors
 norm() - Norm of a (1, 0)-tensor
+tr() - Trace of a (1, 1)-tensor
+det() - Determinant of a (1, 1)-tensor
+interior() - Interior product of a vector with a differential form
 ∧ - Wedge product for (0, p)-tensors
 symmetrize() - Symmetrize a tensor
 antisymmetrize() - Antisymmetrize a tensor
@@ -40,11 +43,15 @@ inv() - Invert a (2, 0) or (0, 2)-tensor
 minkowski() - Find the Minkowski norm on two vectors
 christoffel() - Compute the Levi-Civita Connection coefficients
 levicivita() - The Levi-Civita Connection as a covariant derivative
-lie() - Compute the Lie bracket of two vectors
+lie() - Compute the Lie derivative of a tensor along a vector field
 riemann() - Compute the Riemann Curvature Tensor
 ricci() - Compute the Ricci Curvature Tensor
 ricci_scalar() - Compute the Ricci Scalar
 einstein() - Compute the Einstein Tensor
+gaussian_curvature() - Compute the Gaussian curvature of a surface
+sectional_curvature() - Compute the sectional curvature of a plane
+**Coordinate changes**
+transform() - Transform the components of a tensor or basis to a new chart
 **Embeddings**
 embedding_basis() - The tangent basis vectors of an embedding at a point, by automatic differentiation
 **Symbolic**
@@ -63,8 +70,9 @@ plot_path!() - Plot a path or trajectory
 # Examples
 Defining a tensor
 ```
-julia> L = Tensor([[1, 2]', [3, -1]'])
-Tensor{Int64, 2}([1 2; 3 -1], (:contra, :co))
+julia> L = Tensor([1 2; 3 -1])
+(1, 1)-Tensor
+[1 2; 3 -1]
 ```
 Tensor contraction
 ```
@@ -76,7 +84,8 @@ Finding the metric tensor
 ```
 julia> v = Tensor([3, 1]); u = Tensor([-1, 2])
 julia> metric(Basis([u, v]))
-Tensor{Int64, 2}([5 -1; -1 10], (:co, :co))
+(0, 2)-Tensor
+[5 -1; -1 10]
 ```
 Curvature of the unit sphere
 ```
@@ -106,6 +115,7 @@ include("utils.jl")
 include("algebra.jl")
 include("calculus.jl")
 include("geometry.jl")
+include("transform.jl")
 include("symbolic.jl")
 include("visualization.jl")
 include("solver.jl")
@@ -117,14 +127,17 @@ export PartialDerivative, CovariantDerivative, ExteriorDerivative, HodgeStar
 
 # Algebra
 export ⊗, ∧
-export ⋅, norm
+export ⋅, norm, tr, det
+export interior
 export symmetrize, antisymmetrize, dual_basis
 
 # Geometry
 export metric, inverse_metric, christoffel, levicivita, lie
 export riemann, ricci, ricci_scalar, einstein
+export gaussian_curvature, sectional_curvature
 export minkowski
 export embedding_basis
+export transform
 
 # Symbolic
 export evaluate, lambdify

@@ -6,7 +6,7 @@ Given an (m, n) tensor A, returns an (m, n+1) tensor. If indices are repeated, c
 # Examples
 ```
 julia> @variables u v
-julia> A = Tensor([[u, 2v]', [3u, v^2]'])
+julia> A = Tensor([u 2v; 3u v^2])
 julia> ∂ = PartialDerivative((u, v))
 julia> ∂[:k] * A[:i][:j]
 IndexedTensor{Num, 3, 1, 2}(Tensor{Num, 3}(Num[1 0; 3 0;;; 0 2; 0 2v], (:contra, :co, :co)), (:i,), (:j, :k))
@@ -108,14 +108,14 @@ Num[0.0 0.0 -1.0; 0.0 0.0 y; 1.0 -y 0.0]
 """
 function Base.:*(d::IndexedExteriorDerivative, A::IndexedTensor)
     if !(all(x -> x == :co, A.tensor.variance))
-        error("A must be a differential form")
+        error("The exterior derivative needs a differential form, a tensor with only covariant indices, but the variance is $(A.tensor.variance)")
     end
     ∂ = d.exterior.partial
     B = ∂[d.index] * A
     indices = [Symbol("dummy_$i") for i in eachindex(B.tensor.variance)]
     p = length(A.tensor.variance)
     C = factorial(p + 1) * antisymmetrize(B.tensor[indices...], indices...)[indices...]
-    return C.tensor
+    return tidy(C.tensor)
 end
 
 """
@@ -156,11 +156,11 @@ Num[-2.0, 1.0]
 """
 function (hodge::HodgeStar)(A::Tensor)
     if !(all(x -> x == :co, A.variance))
-        error("A must be a differential form")
+        error("The Hodge star needs a differential form, a tensor with only covariant indices, but the variance is $(A.variance)")
     end
     g = hodge.metric
     G = inv(g)
-    det_g = det(g.data)
+    det_g = exact_det(g.data)
     p = length(A.variance)
     n = size(A.data, 1)
     ε = LeviCivita()
@@ -175,7 +175,7 @@ function (hodge::HodgeStar)(A::Tensor)
     C = B * ε[upper_indices...]
     # If n == p, A is a top-form and the result is a scalar
     if n == p
-        return √(abs(det_g)) * C / factorial(p)
+        return tidy(exact_sqrt(abs(det_g)) * C * (1 // factorial(p)))
     end
-    return (√(abs(det_g)) * C / factorial(p)).tensor
+    return tidy((exact_sqrt(abs(det_g)) * C * (1 // factorial(p))).tensor)
 end

@@ -12,7 +12,7 @@ indices...
 
 # Examples
 ```
-julia> L = Tensor([[1, 2]', [3, 4]'])
+julia> L = Tensor([1 2; 3 4])
 julia> L[1][2]
 2
 julia> L[:i][:j]
@@ -26,7 +26,7 @@ function Base.getindex(A::Tensor, indices...)
     # so the general mixed-tensor path (which expects contravariant indices first) doesn't apply
     if m == 0
         if length(indices) != n
-            error("Incorrect number of indices provided")
+            error("A tensor with variance $(A.variance) needs $n covariant indices, but $(length(indices)) were given")
         end
         slicing = Any[Colon() for _ in A.variance]
         for i in eachindex(indices)
@@ -45,7 +45,7 @@ function Base.getindex(A::Tensor, indices...)
         return IndexedTensor(Tensor(A.data[slicing...], Tuple(new_variance)), (), symbols)
     end
     if length(indices) != m
-        error("Incorrect number of indices provided")
+        error("A tensor with variance $(A.variance) needs $m contravariant indices in the first brackets, but $(length(indices)) were given")
     end
     slicing = Any[Colon() for _ in A.variance]
     for i in eachindex(indices)
@@ -77,7 +77,7 @@ If any index appears as both contravariant and covariant, contract over that ind
 function Base.getindex(A::PartialIndexedTensor, indices...)
     n = count(x -> x == :co, A.tensor.variance)
     if length(indices) != n
-        error("Incorrect number of indices provided")
+        error("A tensor with variance $(A.tensor.variance) needs $n covariant indices in the second brackets, but $(length(indices)) were given")
     end
     slicing = Any[Colon() for _ in A.tensor.variance]
     for i in eachindex(indices)
@@ -136,7 +136,7 @@ function Base.getindex(ε::LeviCivita, indices...)
         return IndexedLeviCivita((indices))
     end
     id = Matrix(I, length(indices), length(indices))
-    return sign(det(id[collect(indices), :]))
+    return Int(sign(det(id[collect(indices), :])))
 end
 
 """

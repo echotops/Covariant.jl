@@ -108,7 +108,7 @@ function make_symmetric(A::IndexedTensor, indices, variance, anti=false)
         end
         perm_indices = map(i -> findfirst(x -> x == i, collect(indices)), perm)
         # Sign of the permutation (+1 for even, -1 for odd) if antisymmetrizing, 1 otherwise
-        k = anti ? sign(det(id[perm_indices, :])) : 1
+        k = anti ? Int(sign(det(id[perm_indices, :]))) : 1
         if variance == :contra
             if isempty(A.covariant)
                 push!(swaps, k * A.tensor[symbols...])
@@ -123,5 +123,48 @@ function make_symmetric(A::IndexedTensor, indices, variance, anti=false)
             end
         end
     end
-    return (1/length(swaps)) * sum(swaps)
+    return (1 // length(swaps)) * sum(swaps)
 end
+
+"""
+Internal. Converts an array of Rational numbers to integers when every entry is whole, so exact results that
+are whole numbers stay integers. Other arrays are returned unchanged.
+"""
+tidy(data::AbstractArray{<:Rational}) = all(x -> isone(denominator(x)), data) ? Int.(data) : data
+tidy(data) = data
+tidy(x::Rational) = isone(denominator(x)) ? numerator(x) : x
+function tidy(x::Num)
+    v = Symbolics.value(x)
+    return v isa Rational && isone(denominator(v)) ? Num(numerator(v)) : x
+end
+tidy(data::AbstractArray{Num}) = tidy.(data)
+tidy(A::Tensor) = Tensor(tidy(A.data), A.variance)
+
+"""
+Internal. The determinant of a square array, exact for integer entries
+"""
+exact_det(data) = eltype(data) <: Integer ? first(tidy(fill(det(Rational.(data)), 1))) : det(data)
+
+"""
+Internal. The inverse of a square array, exact for integer entries, and symbolic when the entries are
+not all one concrete number type
+"""
+function exact_inv(data)
+    T = eltype(data)
+    if T <: Integer
+        return tidy(inv(Rational.(data)))
+    elseif isconcretetype(T) && (T <: AbstractFloat || T <: Rational)
+        return inv(data)
+    end
+    return inv(Matrix{Num}(data))
+end
+
+"""
+Internal. The square root, exact when the argument is a perfect square integer
+"""
+function exact_sqrt(x::Integer)
+    r = isqrt(abs(x))
+    return r * r == abs(x) ? r : sqrt(abs(x))
+end
+exact_sqrt(x) = sqrt(x)
+

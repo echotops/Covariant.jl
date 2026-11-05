@@ -12,7 +12,7 @@ Tensor{Int64, 2}([3 5; 6 10], (:contra, :co))
 ```
 A covector and vector times a linear map, returning a (2, 2) tensor
 ```
-julia> L = Tensor([[4, -1]', [2, -3]'])
+julia> L = Tensor([4 -1; 2 -3])
 julia> L ⊗ w ⊗ v
 Tensor{Int64, 4}([12 -3; 6 -9;;; 20 -5; 10 -15;;;; 24 -6; 12 -18;;; 40 -10; 20 -30], (:contra, :co, :co, :contra))
 ```
@@ -39,18 +39,18 @@ Tensor{Float64, 3}([0.0 3.0 -3.0; -3.0 0.0 3.0; 3.0 -3.0 0.0], (:co, :co))
 """
 function ∧(A::Tensor, B::Tensor)
     if !(all(x -> x == :co, A.variance) && all(x -> x == :co, B.variance))
-        error("Both A and B must be differential forms")
+        error("The wedge product needs differential forms, tensors with only covariant indices, but the variances are $(A.variance) and $(B.variance)")
     end
     if !(length(unique((size(A.data)..., size(B.data)...))) == 1)
-        error("A and B must have the same dimension")
+        error("The wedge product needs forms of the same dimension, but the sizes are $(size(A.data)) and $(size(B.data))")
     end
     p = length(A.variance)
     q = length(B.variance)
     C = A ⊗ B
     indices = [Symbol("dummy_$i") for i in eachindex(C.variance)]
-    scalar = factorial(p + q) / (factorial(p) * factorial(q))
+    scalar = factorial(p + q) ÷ (factorial(p) * factorial(q))
     D = antisymmetrize(C[indices...], indices...)
-    return (scalar * D[indices...]).tensor
+    return tidy((scalar * D[indices...]).tensor)
 end
 
 """
@@ -80,16 +80,16 @@ Given an (m, n) tensor A and a (m, n) tensor B with matching indices, returns an
 
 # Examples
 ```
-julia> A = Tensor([[1, 2]', [3, -1]']); B = Tensor([[5, -2]', [1, 1]'])
+julia> A = Tensor([1 2; 3 -1]); B = Tensor([5 -2; 1 1])
 julia> A[:i][:j] + B[:i][:j]
 IndexedTensor{Int64, 2, 1, 1}(Tensor{Int64, 2}([6 0; 4 0], (:contra, :co)), (:i,), (:j,))
 ```
 """
 function Base.:+(A::IndexedTensor, B::IndexedTensor)
     if Set(A.contravariant) != Set(B.contravariant)
-        error("Contravariant indices must match")
+        error("Contravariant indices must match to add tensors, but the left has $(A.contravariant) and the right has $(B.contravariant)")
     elseif Set(A.covariant) != Set(B.covariant)
-        error("Covariant indices must match")
+        error("Covariant indices must match to add tensors, but the left has $(A.covariant) and the right has $(B.covariant)")
     end
     permutation_map = zeros(length(A.contravariant) + length(A.covariant))
     for A_index in eachindex(A.contravariant)
@@ -115,7 +115,7 @@ Given an (m, n) tensor A and a (m, n) tensor B with matching indices, returns an
 
 # Examples
 ```
-julia> A = Tensor([[1, 2]', [3, -1]']); B = Tensor([[5, -2]', [1, 1]'])
+julia> A = Tensor([1 2; 3 -1]); B = Tensor([5 -2; 1 1])
 julia> A[:i][:j] - B[:i][:j]
 IndexedTensor{Int64, 2, 1, 1}(Tensor{Int64, 2}([-4 4; 2 -2], (:contra, :co)), (:i,), (:j,))
 ```
@@ -138,7 +138,7 @@ julia> v[:i] * w[:i]
 ```
 A linear map acting on a vector, returning a vector
 ```
-julia> L = Tensor([[4, -1]', [2, -3]'])
+julia> L = Tensor([4 -1; 2 -3])
 julia> L[:i][:j] * v[:j]
 Tensor{Float64, 1}([2.0, -4.0], (:contra,))
 ```
@@ -146,9 +146,9 @@ Tensor{Float64, 1}([2.0, -4.0], (:contra,))
 function Base.:*(A::IndexedTensor, B::IndexedTensor)
     # Simple error checking to avoid repeated indices
     if !isempty(intersect(A.contravariant, B.contravariant))
-        error("Repeated contravariant indices")
+        error("Index $(first(intersect(A.contravariant, B.contravariant))) is contravariant on both sides, so it can't be contracted. Contraction needs one contravariant and one covariant index")
     elseif !isempty(intersect(A.covariant, B.covariant))
-        error("Repeated covariant indices")
+        error("Index $(first(intersect(A.covariant, B.covariant))) is covariant on both sides, so it can't be contracted. Contraction needs one contravariant and one covariant index")
     end
     # Find pairs of matching contravariant and covariant indices across A and B (indices to be contracted over)
     pairs = find_pairs(A, B)
@@ -161,7 +161,7 @@ function Base.:*(A::IndexedTensor, B::IndexedTensor)
     ranges = []
     for (a_idx, b_idx) in pairs
         if size(A.tensor.data, a_idx) != size(B.tensor.data, b_idx)
-            error("Dimensions not the same size")
+            error("Can't contract: axis $a_idx of the left has size $(size(A.tensor.data, a_idx)), but axis $b_idx of the right has size $(size(B.tensor.data, b_idx))")
         end
         push!(ranges, 1:size(A.tensor.data, a_idx))
     end
@@ -238,7 +238,7 @@ Scales every element of a tensor A by number s.
 
 # Examples
 ```
-julia> A = Tensor([[1, 2]', [3, -1]'])
+julia> A = Tensor([1 2; 3 -1])
 julia> 2 * A[:i][:j]
 IndexedTensor{Int64, 2, 1, 1}(Tensor{Int64, 2}([2 4; 6 -2], (:contra, :co)), (:i,), (:j,))
 ```
@@ -258,7 +258,7 @@ Divides every element of a tensor A by number s.
 
 # Examples
 ```
-julia> A = Tensor([[1, 2]', [3, -1]'])
+julia> A = Tensor([1 2; 3 -1])
 julia> A[:i][:j] / 2
 IndexedTensor{Float64, 2, 1, 1}(Tensor{Float64, 2}([0.5 1.0; 1.5 -0.5], (:contra, :co)), (:i,), (:j,))
 ```
@@ -272,7 +272,7 @@ Computes the contraction of a tensor and the Kronecker Delta
 
 # Examples
 ```
-julia> A = Tensor([[1, 2]', [3, -1]'])
+julia> A = Tensor([1 2; 3 -1])
 julia> δ = KroneckerDelta()
 julia> A[:i][:j] * δ[:j, :k]
 IndexedTensor{Int64, 2, 1, 1}(Tensor{Int64, 2}([1 2; 3 -1], (:contra, :co)), (:i,), (:k,))
@@ -283,7 +283,7 @@ julia> A[:i][:j] * δ[:j, :i]
 function Base.:*(A::IndexedTensor, δ::IndexedKroneckerDelta)
     pairs = find_pairs(A, δ)
     if isempty(pairs)
-        error("Delta has no common indices")
+        error("The Kronecker delta with indices $(δ.indices) shares none with the tensor's indices $(union(A.contravariant, A.covariant))")
     end
     (index, symbol, variance) = pairs[1]
     dim = size(A.tensor.data, index)
@@ -314,12 +314,12 @@ julia> v[:i] * u[:j] * ε[:i, :j]
 function Base.:*(A::IndexedTensor, ε::IndexedLeviCivita)
     pairs = find_pairs(A, ε)
     if isempty(pairs)
-        error("Levi Civita has no common indices")
+        error("The Levi-Civita symbol with indices $(ε.indices) shares none with the tensor's indices $(union(A.contravariant, A.covariant))")
     end
     free_indices = setdiff(ε.indices, map(x -> x[3], pairs))
     dims = map(x -> size(A.tensor.data, x[1]), pairs)
     if !all(dim -> dim == dims[1], dims)
-        error("Levi Civita has non-constant dimension")
+        error("The Levi-Civita symbol needs every contracted index to have the same dimension, but they are $dims")
     end
     append!(dims, [dims[1] for _ in free_indices])
     B = zeros(Int, dims...)
@@ -357,16 +357,16 @@ A (1, 1)-tensor expressed as a linear combination of basis (1, 1)-tensors
 ```
 julia> ϵ = Basis([Tensor([1, 0]'), Tensor([0, 1]')])
 julia> L = e ⊗ ϵ
-julia> M = Tensor([[2, -3]', [4, -1]'])
+julia> M = Tensor([2 -3; 4 -1])
 julia> M[:i][:j] * L[:i, :j]
 ```
 """
 function Base.:*(A::IndexedTensor, e::IndexedBasis)
     if A.tensor.variance != e.basis.variance
-        error("Basis must have the same variance")
+        error("The tensor has variance $(A.tensor.variance), but the basis has variance $(e.basis.variance)")
     end
     if Set(e.indices) != Set(union(A.contravariant, A.covariant))
-        error("Free indices not allowed")
+        error("Contracting with a basis needs the tensor's indices $(union(A.contravariant, A.covariant)) to match the basis indices $(e.indices), with none left free")
     end
     if isempty(A.contravariant)
         T = sum([A.tensor.data[i] * e.basis.elements[i][A.covariant...] for i in eachindex(e.basis.elements)])
@@ -395,7 +395,7 @@ julia> v[:i] ⋅ w[:i]
 """
 function LinearAlgebra.:⋅(A::Tensor, B::Tensor)
     if A.variance != (:contra,) || B.variance != (:contra,)
-        error("A and B must both be (1, 0) tensors")
+        error("⋅ needs two (1, 0)-tensors, but the variances are $(A.variance) and $(B.variance)")
     end
     return sum([A.data[i] * B.data[i] for i in eachindex(A.data)])
 end
@@ -420,29 +420,29 @@ Symmetrizes a tensor A across the specified indices
 
 # Examples
 ```
-julia> A = Tensor([[1, 3], [-2, 5]])
+julia> A = Tensor([1 3; -2 5], :contra, :contra)
 julia> symmetrize(A[:i, :j], :i, :j)
 Tensor{Float64, 2}([1.0 0.5; 0.5 5.0], (:co, :co))
 ```
 """
 function symmetrize(A::IndexedTensor, indices...)
     if !all(x -> x in union(A.contravariant, A.covariant), indices)
-        error("Some indices not found")
+        error("Indices not found: $(setdiff(indices, union(A.contravariant, A.covariant))). The tensor has contravariant $(A.contravariant) and covariant $(A.covariant)")
     end
     if length(indices) < 2
-        error("Need at least 2 indices")
+        error("Need at least 2 indices to symmetrize or antisymmetrize, but $(length(indices)) were given")
     end
     variance = indices[1] in A.contravariant ? :contra : :co
     for index in indices
         index_variance = index in A.contravariant ? :contra : :co
         if index_variance != variance
-            error("Indices not all the same variance")
+            error("Index $index is $index_variance but $(indices[1]) is $variance. Symmetrizing needs indices of one variance")
         end
     end
     if variance == :contra
-        return make_symmetric(A, indices, :contra).tensor
+        return tidy(make_symmetric(A, indices, :contra).tensor)
     end
-    return make_symmetric(A, indices, :co).tensor
+    return tidy(make_symmetric(A, indices, :co).tensor)
 end
 
 """
@@ -450,29 +450,29 @@ Antisymmetrizes a tensor A across the specified indices
 
 # Examples
 ```
-julia> A = Tensor([[1, 3], [-2, 5]])
+julia> A = Tensor([1 3; -2 5], :contra, :contra)
 julia> antisymmetrize(A[:i, :j], :i, :j)
 Tensor{Float64, 2}([0.0 2.5; -2.5 0.0], (:co, :co))
 ```
 """
 function antisymmetrize(A::IndexedTensor, indices...)
     if !all(x -> x in union(A.contravariant, A.covariant), indices)
-        error("Some indices not found")
+        error("Indices not found: $(setdiff(indices, union(A.contravariant, A.covariant))). The tensor has contravariant $(A.contravariant) and covariant $(A.covariant)")
     end
     if length(indices) < 2
-        error("Need at least 2 indices")
+        error("Need at least 2 indices to symmetrize or antisymmetrize, but $(length(indices)) were given")
     end
     variance = indices[1] in A.contravariant ? :contra : :co
     for index in indices
         index_variance = index in A.contravariant ? :contra : :co
         if index_variance != variance
-            error("Indices not all the same variance")
+            error("Index $index is $index_variance but $(indices[1]) is $variance. Symmetrizing needs indices of one variance")
         end
     end
     if variance == :contra
-        return make_symmetric(A, indices, :contra, true).tensor
+        return tidy(make_symmetric(A, indices, :contra, true).tensor)
     end
-    return make_symmetric(A, indices, :co, true).tensor
+    return tidy(make_symmetric(A, indices, :co, true).tensor)
 end
 
 """
@@ -500,7 +500,7 @@ Basis(Tensor{Float64, 1}[...], (:contra,))
 """
 function dual_basis(basis)
     if length(basis.variance) != 1
-        error("Basis must be either a vector or covector basis")
+        error("A dual basis needs a vector or covector basis, but the variance is $(basis.variance)")
     end
     E = transpose(hcat([e.data for e in basis.elements]...))
     E_inv = inv(E)
@@ -511,3 +511,84 @@ function dual_basis(basis)
     end
     return Basis(dual_elements)
 end
+
+"""
+Internal. Checks that a tensor is a (1, 1)-tensor on a square array, an endomorphism
+"""
+function check_endomorphism(A::Tensor, name)
+    if length(A.variance) != 2 || Set(A.variance) != Set((:contra, :co))
+        error("$name needs a (1, 1)-tensor, but the variance is $(A.variance)")
+    end
+    if size(A.data, 1) != size(A.data, 2)
+        error("$name needs a square (1, 1)-tensor, but the size is $(size(A.data))")
+    end
+end
+
+"""
+Computes the trace of a (1, 1)-tensor, the sum of its diagonal
+
+The trace is invariant under a change of basis, unlike the trace of a (0, 2) or (2, 0) tensor, which
+needs a metric. It is the same as the self-contraction `A[:i][:i]`.
+
+# Examples
+```
+julia> A = Tensor([2 -3; 4 -1])
+julia> tr(A)
+1
+```
+"""
+function LinearAlgebra.tr(A::Tensor)
+    check_endomorphism(A, "tr")
+    return tidy(sum(A.data[i, i] for i in axes(A.data, 1)))
+end
+
+"""
+Computes the determinant of a (1, 1)-tensor, the volume scaling of the linear map it defines
+
+Like the trace, the determinant of an endomorphism is invariant under a change of basis, so it needs no
+metric or volume form. Integer entries give an exact result.
+
+# Examples
+```
+julia> A = Tensor([2 -3; 4 -1])
+julia> det(A)
+10
+```
+"""
+function LinearAlgebra.det(A::Tensor)
+    check_endomorphism(A, "det")
+    return tidy(exact_det(A.data))
+end
+
+"""
+Computes the interior product of a vector X with a differential form ω
+
+Contracts X into the first index of the (0, p)-form ω, ι_X ω, giving a (0, p - 1)-tensor, or a scalar when
+p is 1.
+
+# Examples
+```
+julia> ω = Tensor([0 1; -1 0], :co, :co)
+julia> X = Tensor([2, 3])
+julia> interior(X, ω)
+(0, 1)-Tensor
+[-3, 2]
+```
+"""
+function interior(X::Tensor, ω::Tensor)
+    if X.variance != (:contra,)
+        error("The interior product needs a vector X, a (1, 0)-tensor, but the variance is $(X.variance)")
+    end
+    if isempty(ω.variance) || !all(x -> x == :co, ω.variance)
+        error("The interior product needs a differential form ω, a tensor with only covariant indices, but the variance is $(ω.variance)")
+    end
+    if size(ω.data, 1) != length(X.data)
+        error("The vector has $(length(X.data)) components, but the form has dimension $(size(ω.data, 1))")
+    end
+    if length(ω.variance) == 1
+        return sum(X.data[i] * ω.data[i] for i in eachindex(X.data))
+    end
+    contracted = sum(X.data[i] * selectdim(ω.data, 1, i) for i in eachindex(X.data))
+    return Tensor(Array(contracted), ω.variance[2:end])
+end
+

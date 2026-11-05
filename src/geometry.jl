@@ -3,15 +3,15 @@ Computes the inverse of a (2, 0) or (0, 2) tensor (the metric or inverse metric)
 """
 function LinearAlgebra.inv(A::Tensor)
     if length(A.variance) != 2
-        error("Must be a rank 2 tensor")
+        error("inv needs a rank 2 tensor, but this one has rank $(length(A.variance))")
     elseif A.variance[1] != A.variance[2]
-        error("Must either a (2, 0) or (0, 2) tensor")
+        error("inv needs a (2, 0) or (0, 2) tensor, but the variance is $(A.variance)")
     end
-    mat = Matrix{Num}(A.data)
+    inverse = exact_inv(A.data)
     if A.variance[1] == :co
-        return Tensor(inv(mat), (:contra, :contra))
+        return Tensor(inverse, (:contra, :contra))
     else
-        return Tensor(inv(mat), (:co, :co))
+        return Tensor(inverse, (:co, :co))
     end
 end
 
@@ -22,7 +22,7 @@ Sign convention is the timelike_positive argument, false by default. (-, +, +, +
 """
 function minkowski(A::Tensor, B::Tensor, timelike_positive=false)
     if A.variance != (:contra,) || B.variance != (:contra,)
-        error("A and B must both be (1, 0) tensors")
+        error("minkowski needs two (1, 0)-tensors, but the variances are $(A.variance) and $(B.variance)")
     end
     k = timelike_positive ? 1 : -1
     return (k * A.data[1] * B.data[1]) + sum([-k * A.data[i] * B.data[i] for i in 2:length(A.data)])
@@ -40,7 +40,7 @@ Tensor{Int64, 2}([5 1; 1 10], (:co, :co))
 """
 function metric(e::Basis, inner_product=⋅; simple=false)
     if e.variance != (:contra,)
-        error("Must be a vector basis")
+        error("A metric needs a vector basis, but the variance is $(e.variance)")
     end
     g = [inner_product(e.elements[i], e.elements[j]) for i in eachindex(e.elements), j in eachindex(e.elements)]
     if simple
@@ -58,7 +58,7 @@ embedded surface.
 # Examples
 ```
 julia> @variables θ φ
-julia> g = Tensor([[1, 0]', [0, sin(θ)^2]']')
+julia> g = Tensor([1 0; 0 sin(θ)^2], :co, :co)
 julia> M = Manifold((θ, φ), g)
 julia> embedding(u, v) = [cos(v)*sin(u), sin(v)*sin(u), cos(u)]
 julia> S = Manifold((θ, φ), g; ranges=(range(0, π, 50), range(0, 2π, 50)), embedding=embedding)
@@ -168,7 +168,7 @@ HodgeStar(M::Manifold) = HodgeStar(M.metric)
 function quantity(M::Manifold, key::Symbol, compute)
     raw = get!(compute, M.cache, key)
     M.simple || return raw
-    return get!(() -> simplify(raw), M.cache, Symbol(key, :_simple))
+    return get!(() -> tidy(simplify(raw)), M.cache, Symbol(key, :_simple))
 end
 
 raw(M::Manifold, key::Symbol, compute) = get!(compute, M.cache, key)
@@ -191,7 +191,7 @@ function raw_christoffel(M::Manifold)
         T1 = ∂[:k] * g[:r, :j]
         T2 = ∂[:j] * g[:r, :k]
         T3 = ∂[:r] * g[:j, :k]
-        (0.5 * G[:l, :r] * (T1 + T2 - T3)).tensor
+        tidy(((1 // 2) * G[:l, :r] * (T1 + T2 - T3)).tensor)
     end)
 end
 
@@ -203,14 +203,14 @@ function raw_riemann(M::Manifold)
         T2 = ∂[:j] * Γ[:l][:i, :k]
         T3 = Γ[:l][:i, :m] * Γ[:m][:j, :k]
         T4 = Γ[:l][:j, :m] * Γ[:m][:i, :k]
-        (T1 - T2 + T3 - T4).tensor
+        tidy((T1 - T2 + T3 - T4).tensor)
     end)
 end
 
 function raw_ricci(M::Manifold)
     return raw(M, :ricci, () -> begin
         R = raw_riemann(M)
-        R[:i][:j, :k, :i].tensor
+        tidy(R[:i][:j, :k, :i].tensor)
     end)
 end
 
@@ -218,7 +218,7 @@ function raw_ricci_scalar(M::Manifold)
     return raw(M, :ricci_scalar, () -> begin
         G = inverse_metric(M)
         R = raw_ricci(M)
-        G[:i, :j] * R[:i, :j]
+        tidy(G[:i, :j] * R[:i, :j])
     end)
 end
 
@@ -242,27 +242,55 @@ Return the Levi-Civita Connection of a manifold as a covariant derivative operat
 levicivita(M::Manifold) = CovariantDerivative(christoffel(M), PartialDerivative(M))
 
 """
-Compute the Lie bracket of two (1, 0)-tensors
+Compute the Lie derivative of a tensor A along a vector field X
 
-Returns a (1, 0)-tensor
+Returns a tensor of the same type as A. For two (1, 0)-tensors this is the Lie bracket [X, Y]. Each
+contravariant index of A subtracts a term from the derivative of X, and each covariant index adds one.
 
 # Examples
+The Lie bracket of two vectors
 ```
-julia> @variables u, v
+julia> @variables u v
 julia> ∂ = PartialDerivative((u, v))
 julia> X = Tensor([u^2 + 1, -2v])
 julia> Y = Tensor([v, 3 - v])
 julia> lie(X, Y, ∂)
-Tensor{Num, 1}(Num[-2v - 2u*v, 2v + 2(3 - v)], (:contra,))
+(1, 0)-Tensor
+Num[-2v - 2u*v, 2v + 2(3 - v)]
+```
+The Lie derivative of a covector
+```
+julia> ω = Tensor([v, u]')
+julia> lie(X, ω, ∂)
 ```
 """
-function lie(X::Tensor, Y::Tensor, ∂::PartialDerivative; simple=false)
-    T1 = X[:i] * (∂[:i] * Y[:k])
-    T2 = Y[:i] * (∂[:i] * X[:k])
-    if simple
-        return simplify((T1 - T2).tensor)
+function lie(X::Tensor, A::Tensor, ∂::PartialDerivative; simple=false)
+    coordinates = ∂.coordinates
+    n = length(coordinates)
+    if X.variance != (:contra,)
+        error("The Lie derivative needs a vector field X, a (1, 0)-tensor, but the variance is $(X.variance)")
     end
-    return (T1 - T2).tensor
+    if length(X.data) != n || any(s -> s != n, size(A.data))
+        error("X and A must have dimension $n to match the $n coordinates, but their sizes are $(size(X.data)) and $(size(A.data))")
+    end
+    derivative(f, k) = expand_derivatives(Differential(coordinates[k])(Num(f)))
+    dX = [derivative(X.data[i], k) for i in 1:n, k in 1:n]
+    L = Array{Num}(undef, size(A.data))
+    for index in CartesianIndices(A.data)
+        position = Tuple(index)
+        term = sum(X.data[k] * derivative(A.data[index], k) for k in 1:n)
+        for (slot, variance) in enumerate(A.variance), k in 1:n
+            swapped = Base.setindex(position, k, slot)
+            if variance == :contra
+                term -= dX[position[slot], k] * A.data[swapped...]
+            else
+                term += dX[k, position[slot]] * A.data[swapped...]
+            end
+        end
+        L[index] = term
+    end
+    result = Tensor(L, A.variance)
+    return simple ? simplify(result) : result
 end
 
 """
@@ -293,6 +321,53 @@ function einstein(M::Manifold)
     return quantity(M, :einstein, () -> begin
         R = raw_ricci(M)
         g = metric(M)
-        (R[:i, :j] - (0.5 * raw_ricci_scalar(M) * g[:i, :j])).tensor
+        tidy((R[:i, :j] - ((1 // 2) * raw_ricci_scalar(M) * g[:i, :j])).tensor)
     end)
 end
+
+"""
+Compute the Gaussian curvature of a surface, a 2-dimensional manifold
+
+Half of the Ricci scalar, K = R / 2. It is 1 on the unit sphere, 0 on the plane, and negative on a saddle.
+"""
+function gaussian_curvature(M::Manifold)
+    if length(M.coordinates) != 2
+        error("Gaussian curvature is defined on surfaces, but this manifold has dimension $(length(M.coordinates)). Use sectional_curvature for a plane in higher dimensions")
+    end
+    return tidy((1 // 2) * ricci_scalar(M))
+end
+
+"""
+Compute the sectional curvature of a manifold on the plane spanned by two vectors X and Y
+
+K(X, Y) = R(X, Y, X, Y) / (g(X, X) g(Y, Y) - g(X, Y)²), the Gaussian curvature of the surface that the plane
+sweeps out. X and Y are (1, 0)-tensors whose components may be symbolic.
+
+# Examples
+```
+julia> @variables θ φ
+julia> M = Manifold((θ, φ), Basis([Tensor([1, 0]), Tensor([0, sin(θ)])]), simple=true)
+julia> sectional_curvature(M, Tensor([1, 0]), Tensor([0, 1]))
+1
+```
+"""
+function sectional_curvature(M::Manifold, X::Tensor, Y::Tensor)
+    for V in (X, Y)
+        if V.variance != (:contra,)
+            error("sectional_curvature needs vectors, (1, 0)-tensors, but the variance is $(V.variance)")
+        end
+    end
+    n = length(M.coordinates)
+    if length(X.data) != n || length(Y.data) != n
+        error("The vectors must have $n components to match the $n coordinates")
+    end
+    g = metric(M).data
+    R = raw_riemann(M).data
+    # R[α, ν, σ, μ] is R^α_σμν, so lowering α gives R_ρσμν
+    numerator = sum(g[ρ, α] * X.data[ρ] * Y.data[σ] * X.data[μ] * Y.data[ν] * R[α, ν, σ, μ]
+        for ρ in 1:n, α in 1:n, σ in 1:n, μ in 1:n, ν in 1:n)
+    inner(A, B) = sum(g[i, j] * A.data[i] * B.data[j] for i in 1:n, j in 1:n)
+    K = tidy(numerator / (inner(X, X) * inner(Y, Y) - inner(X, Y)^2))
+    return M.simple ? tidy(simplify(K; expand=true)) : K
+end
+
